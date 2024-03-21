@@ -6,16 +6,12 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/19 20:20:32 by abberkac          #+#    #+#             */
-/*   Updated: 2024/03/21 02:21:53 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/03/21 02:40:10 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-
-#include <sys/socket.h>
-#include <iostream>
-#include <netinet/in.h>
-#include <cstring>
 #include "server.hpp"
+#include "clients.hpp"
 
 
 #define PORT 8080

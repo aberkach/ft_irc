@@ -6,14 +6,18 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/21 01:34:27 by abberkac          #+#    #+#             */
-/*   Updated: 2024/03/21 02:11:09 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/03/21 02:39:36 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 #define SERVER_HPP
+#include <stdexcept>
+#include <sys/socket.h>
+#include <iostream>
+#include <netinet/in.h>
+#include <cstring>
 
-#include <string>
 class Server {
   private:
     unsigned int _port;
