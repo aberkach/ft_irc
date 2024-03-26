@@ -34,4 +34,4 @@ Testing: Thoroughly test your IRC server implementation with the reference clien
 that it meets all the specified requirements and behaves correctly.
 
 Documentation: Provide clear documentation for how to run and use your IRC server,
-including any configuration options and supported commands.
+including any configuration options and supported commands. 
