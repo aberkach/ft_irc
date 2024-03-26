@@ -1,0 +1,37 @@
+
+Socket Programming: Begin by setting up TCP/IP socket communication in C++98.
+You'll need to create a socket, bind it to a port, and listen for incoming connections.
+This will involve using the socket, bind, and listen functions.
+
+Non-blocking I/O: Ensure that all I/O operations are non-blocking.
+This typically involves setting socket options to make them non-blocking (fcntl in Unix-like systems).
+
+Handling Multiple Clients: Use select() for handling multiple clients simultaneously without forking.
+select() allows you to monitor multiple file descriptors (sockets in this case) for reading and writing.
+You can handle both incoming connections and client data using select().
+
+IRC Protocol Handling: Implement the logic to handle the IRC protocol.
+This includes parsing incoming messages, responding to commands such as NICK, USER, JOIN, PRIVMSG, etc.
+
+User Authentication: Implement a mechanism for user authentication using the provided password.
+This could involve sending a PASS command from the client and validating it on the server side.
+
+Channel Management: Create data structures to represent channels and track which users are in each channel.
+Implement commands like JOIN, PART, and PRIVMSG to manage channel membership and communication.
+
+Message Forwarding: Ensure that messages sent to a channel are forwarded to all other users in that channel.
+
+User Modes: Implement user modes to distinguish between regular users and operators.
+Operators should have additional privileges.
+
+Operator Commands: Implement commands specific to channel operators, such as KICK, INVITE, TOPIC, and MODE.
+These commands should only be available to users with operator privileges.
+
+Channel Modes: Implement channel modes as specified, including invite-only, 
+topic restrictions, password protection, and user limits.
+
+Testing: Thoroughly test your IRC server implementation with the reference client to ensure 
+that it meets all the specified requirements and behaves correctly.
+
+Documentation: Provide clear documentation for how to run and use your IRC server,
+including any configuration options and supported commands. 
