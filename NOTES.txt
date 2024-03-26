@@ -1,4 +1,3 @@
-Creating an IRC server with the specified requirements in C++98 is quite an involved task. Let's break it down step by step:
 
 Socket Programming: Begin by setting up TCP/IP socket communication in C++98.
 You'll need to create a socket, bind it to a port, and listen for incoming connections.
