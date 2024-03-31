@@ -1,8 +1,8 @@
 NAME = ircserv
 
-HEADER = server.hpp clients.hpp
+HEADER = ./server/includes/server.hpp ./server/includes/clients.hpp
 
-SRCS = main.cpp server.cpp clients.cpp
+SRCS = main.cpp ./server/srcs/server.cpp ./server/srcs/clients.cpp
 
 CPP = c++ -std=c++98
 
