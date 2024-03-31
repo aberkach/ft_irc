@@ -6,36 +6,34 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/21 01:34:27 by abberkac          #+#    #+#             */
-/*   Updated: 2024/03/25 20:03:18 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/03/30 23:36:02 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 #define SERVER_HPP
-// provides required data types
-#include <sys/types.h>
-// holds address family and socket functions
-#include <sys/socket.h>
-// has the sockaddr_in structure
-#include <netinet/in.h>
-// has functions for read and write operations
-#include <fcntl.h>
-// basic C header
-#include <stdio.h>
-// header to help with strings
-#include <string.h>
-// has macros such as EXIT_FAILURE
-#include<stdlib.h>
 
-#include <iostream>
-// port through which connection is to be made
-#define CONNECTION_PORT 3500
+#include "clients.hpp"
+
+#include <sys/socket.h>
+#include <stdlib.h>
+#include <sys/ioctl.h>
+#include <sys/poll.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <netinet/in.h>
+#include <errno.h>
+#include <string>
+#include <map>
 
 
 class Server {
   private:
     unsigned int _port;
     std::string _password;
+    int _listen_sd;
+    bool _endServer;
+    std::map<int, Clients> _clients;
 
   public:
         Server();
@@ -47,7 +45,7 @@ class Server {
         unsigned int getPort() const { return _port; }
         std::string getPassword() const { return _password; }
 
-        int createTestServer();
+        int createServer();
 };
 
 #endif // SERVER_HPP
