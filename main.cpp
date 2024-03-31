@@ -6,12 +6,13 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/19 20:20:32 by abberkac          #+#    #+#             */
-/*   Updated: 2024/03/25 01:27:53 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/03/30 04:42:47 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "server.hpp"
-#include "clients.hpp"
+#include "./server/includes/server.hpp"
+#include <iostream>
+
 
 
 bool isJustDigits(const std::string& str) {
@@ -48,6 +49,7 @@ int main(int ac, char **av) {
             std::cerr << "Usage: ./ircserv <port> <password>" << std::endl;
             return 1;
         }
+        srv.createServer();
     }
     catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
