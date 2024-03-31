@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/21 01:37:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/03/31 01:54:55 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/03/31 18:08:15 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,110 +60,110 @@ int Server::createServer()
 	int on = 1;
 	int rc;
 
-	_listen_sd = socket(AF_INET, SOCK_STREAM, 0);
-	
-	if (_listen_sd < 0)
-	{
-		perror("socket() failed");
-		exit(-1);
+	_listen_sd = socket(AF_INET, SOCK_STREAM, 0); // Create a TCP socket
+	if (_listen_sd < 0) {
+	    perror("socket() failed");
+	    exit(-1);
 	}
 	
-	if (setsockopt(_listen_sd, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on)) < 0)
-	{
-		perror("setsockopt() failed");
-		close(_listen_sd);
-		exit(-1);
+	// Set socket option to allow address reuse
+	if (setsockopt(_listen_sd, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on)) < 0) {
+	    perror("setsockopt() failed");
+	    close(_listen_sd);
+	    exit(-1);
 	}
 	
-	if (fcntl(_listen_sd, F_SETFL, O_NONBLOCK) < 0)
-	{
-		perror("fcntl() failed");
-		close(_listen_sd);
-		exit(-1);
+	// Set socket to non-blocking mode
+	if (fcntl(_listen_sd, F_SETFL, O_NONBLOCK) < 0) {
+	    perror("fcntl() failed");
+	    close(_listen_sd);
+	    exit(-1);
 	}
 	
+	// Bind the socket to the specified address and port
 	memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = INADDR_ANY;
 	addr.sin_port = htons(_port);
-	
 	rc = bind(_listen_sd, (struct sockaddr *)&addr, sizeof(addr));
-	if (rc < 0)
-	{
-		perror("bind() failed");
-		close(_listen_sd);
-		exit(-1);
+	if (rc < 0) {
+	    perror("bind() failed");
+	    close(_listen_sd);
+	    exit(-1);
 	}
 	
-	if (listen(_listen_sd, 32) < 0)
-	{
-		perror("listen() failed");
-		close(_listen_sd);
-		exit(-1);
+	// Start listening for incoming connections
+	if (listen(_listen_sd, 32) < 0) {
+	    perror("listen() failed");
+	    close(_listen_sd);
+	    exit(-1);
 	}
 	
+	// Initialize the fds array with the server socket
 	memset(fds, 0 , sizeof(fds));
 	fds[0].fd = _listen_sd;
 	fds[0].events = POLLIN;
 	
-	std::map<int, int> clientsFds;
+	std::map<int, int> clientsFds; // Map to store client file descriptors
+	
 	std::cout << "server is running" << std::endl;
 	while (true) {
-		// we wait for the incoming connection
-		rc = poll(fds, nfds, 30000);
-		// if the poll failed
-		if (rc <= 0)
-			continue;
-		current_size = nfds;
-		// we loop through the fds array to check if we have an incoming connection or a message
-		if (fds[0].revents & POLLIN)
-		{
-			int newSck;
-			newSck = accept(_listen_sd, NULL, NULL);
-			if (newSck < 0)
-				perror("  accept() failed");
-			else
-			{
-				std::cout << "New incoming connection - " << newSck << std::endl;
-				fds[nfds].fd = newSck;
-				fds[nfds].events = POLLIN;
-				fcntl(newSck, F_SETFL, O_NONBLOCK);
-				clientsFds.insert(std::pair<int, int>(newSck, newSck));
-				nfds++;
-			}
-		}
-		for (int i = 1; i < current_size; i++)
-		{
-			// this is the part where we read the message from the client
-			if (fds[i].revents & POLLIN)
-  	  		{
-				// we read the message from the client
-  	  			rc = recv(fds[i].fd, buffer, sizeof(buffer), 0);
-				if (rc < 0)
-					perror("  recv() failed");
-				else if (rc == 0) {
-  	  			  	printf("  Connection closed\n");
-					clientsFds.erase(fds[i].fd);
-					close(fds[i].fd);
-					fds[i].fd = -1;
-				}
-				else 
-				{
-					buffer[rc] = '\0';
-					std::cout << "message received: " << buffer << std::endl;
-				}
-			}
-  	  	}
-		current_size = 0;
-		for(int i = 0; i < nfds; i++)
-		{
-			if (fds[i].fd >= 0)
-			{
-				fds[current_size] = fds[i];
-				current_size++;
-			}
-		}
-		nfds = current_size;
+	    // Wait for events on monitored file descriptors
+	    rc = poll(fds, nfds, 30000);
+	
+	    // If poll failed or timeout occurred, continue to the next iteration
+	    if (rc <= 0)
+	        continue;
+		
+	    current_size = nfds;
+	
+	    // Check for incoming connection on the server socket
+	    if (fds[0].revents & POLLIN) {
+	        int newSck;
+	        newSck = accept(_listen_sd, NULL, NULL);
+	        if (newSck < 0)
+	            perror("  accept() failed");
+	        else {
+	            // Add the new client socket to the fds array and clientsFds map
+	            std::cout << "New incoming connection - " << newSck << std::endl;
+	            fds[nfds].fd = newSck;
+	            fds[nfds].events = POLLIN;
+	            fcntl(newSck, F_SETFL, O_NONBLOCK);
+	            clientsFds.insert(std::pair<int, int>(newSck, newSck));
+	            nfds++;
+	        }
+	    }
+	
+	    // Iterate through fds array to check for messages from clients
+	    for (int i = 1; i < current_size; i++) {
+	        if (fds[i].revents & POLLIN) {
+	            // Receive message from client
+	            rc = recv(fds[i].fd, buffer, sizeof(buffer), 0);
+	            if (rc < 0)
+	                perror("  recv() failed");
+	            else if (rc == 0) {
+	                printf("  Connection closed\n");
+	                // Remove closed client from fds array and clientsFds map
+	                clientsFds.erase(fds[i].fd);
+	                close(fds[i].fd);
+	                fds[i].fd = -1;
+	            }
+	            else {
+	                buffer[rc] = '\0';
+	                std::cout << "message received: " << buffer << std::endl;
+	            }
+	        }
+	    }
+	
+	    // Compact the fds array to remove closed client sockets
+	    current_size = 0;
+	    for (int i = 0; i < nfds; i++) {
+	        if (fds[i].fd >= 0) {
+	            fds[current_size] = fds[i];
+	            current_size++;
+	        }
+	    }
+	    nfds = current_size;
 	}
 }
 
