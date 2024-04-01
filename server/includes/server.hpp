@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/21 01:34:27 by abberkac          #+#    #+#             */
-/*   Updated: 2024/03/31 23:38:15 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/01 01:48:16 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,13 +29,13 @@
 
 class Server {
   private:
-    unsigned int _port;
-    std::string _password;
-    int _listen_sd;
-    struct sockaddr_in   _addr;
-	  struct pollfd _fds[5000];
-    int    nfds;
-    std::map<int, Clients> _clients;
+    unsigned int            _port;
+    std::string             _password;
+    int                     _listen_sd;
+    struct sockaddr_in      _addr;
+	struct pollfd         	_fds[5000];
+    int                     _nfds;
+    std::map<int, Clients>  _clients;
 
   public:
         Server();
