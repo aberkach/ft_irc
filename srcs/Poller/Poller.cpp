@@ -14,6 +14,7 @@
 
 Poller::Poller( void )
 {
+
 }
 
 Poller::~Poller( void )
