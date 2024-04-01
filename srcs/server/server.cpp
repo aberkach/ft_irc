@@ -7,15 +7,13 @@ void Err(std::string msg, int exitFalg)
 		exit(1);
 }
 
-Server::Server() {
-	_port = 0;
-	_password = "";
-	_listen_sd = -1;
-
+Server::Server() : _port(0), _password(""), _listen_sd(-1)
+{
 	_listen_sd = socket(AF_INET, SOCK_STREAM, 0); // Create a TCP socket
 	if (_listen_sd < 0)
 		Err("socket() failed", 1);
-	
+	// _listen_sd < 0 ? Err("socket() failed", 1) : void(0);
+
 	// Set socket option to allow address reuse
 	int on = 1;
 	if (setsockopt(_listen_sd, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on)) < 0) {
