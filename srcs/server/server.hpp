@@ -16,16 +16,17 @@ class Server
 
   public:
         Server();
-        ~Server();
         
         void setPort(unsigned int port);
         void setPassword(char *password);
-        
+
         unsigned int getPort() const { return _port; }
         std::string getPassword() const { return _password; }
 
         int createServer();
         // void updateFileDescrior(int *ng);
+
+        ~Server();
 };
 
 #endif

@@ -2,17 +2,12 @@ EXE := ircserv
 
 CPP := c++ -std=c++98
 
-CPPFLAGS := -g -Wall -Wextra -Wshadow
-#  -Werror stop rendring global useless in local
+CPPFLAGS := -Wall -Wextra -Wshadow
+# -g -Werror stop rendring global useless in local
 
-HEADER := Inc/ft_irc.hpp Inc/define.hpp Inc/colors.hpp
+HEADER := $(FILE:.cpp=.hpp) ./Inc/ft_irc.hpp ./Inc/define.hpp \
 
-FILE := srcs/main.cpp	\
-		srcs/client/client.cpp		srcs/server/server.cpp 		srcs/tools/health.cpp \
-
-# HEADER = ./server/includes/server.hpp ./server/includes/clients.hpp
-
-# SRCS = main.cpp ./server/srcs/server.cpp ./server/srcs/clients.cpp
+FILE := ./srcs/client/client.cpp		./srcs/server/server.cpp 		./srcs/tools/health.cpp		./srcs/Poller/Poller.cpp \
 
 OBJ := $(FILE:.cpp=.o)
 
@@ -23,7 +18,7 @@ M = MAKE_PUSH
 all : $(EXE)
 
 $(EXE): $(OBJ)
-	$(CPP) $(OBJ) -o $(EXE)
+	$(CPP) $(CPPFLAGS) $(OBJ) ./srcs/main.cpp -o $(EXE)
 
 %.o: %.cpp $(HEADER)
 	$(CPP) $(CPPFLAGS) -c -o $@ $<
