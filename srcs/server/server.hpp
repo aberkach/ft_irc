@@ -10,7 +10,7 @@ class Server
     std::string             _password;
     int                     _listen_sd;
     struct sockaddr_in      _addr;
-	struct pollfd         	_fds[5000];
+    struct pollfd         	_fds[5000];
     int                     _nfds;
     // std::map<int, Clients>  _clients;
 
