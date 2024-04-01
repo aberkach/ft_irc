@@ -54,9 +54,6 @@ Server::Server() {
 	_nfds = 1;
 }
 
-Server::~Server() {
-    return;
-}
 
 void Server::setPort(unsigned int port) {
     if (port > 1023 && port <= 65535)
@@ -100,7 +97,8 @@ int Server::createServer()
 		int sock_len = sizeof(_addr);
 	
 	    // Check for incoming connection on the server socket
-	    if (_fds[0].revents == POLLIN) {
+	    if (_fds[0].revents == POLLIN)
+		{
 			int newSck = accept(_listen_sd, (struct sockaddr *)&_addr, (socklen_t*)&sock_len);
 	        if (newSck < 0)
 	            perror("  accept() failed");
@@ -116,7 +114,8 @@ int Server::createServer()
 	    }
 	
 	    // Iterate through fds array to check for messages from clients
-	    for (int i = 1; i < current_size; i++) {
+	    for (int i = 1; i < current_size; i++)
+		{
 	        if (_fds[i].revents & POLLIN) {
 	            // Receive message from client
 	            rc = recv(_fds[i].fd, buffer, (sizeof(buffer) - 1), 0);
@@ -152,4 +151,6 @@ int Server::createServer()
 }
 
 
-
+Server::~Server() {
+    return;
+}
