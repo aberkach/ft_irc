@@ -9,20 +9,30 @@
 
 // };
 
+
 class Server {
-    private:
-        uint16_t _port;
-        int _server_sock;
-        std::string _passkey;
+  private:
+    unsigned int            _port;
+    std::string             _password;
+    int                     _listen_sd;
+    struct sockaddr_in      _addr;
+	struct pollfd         	_fds[5000];
+    int                     _nfds;
+    // std::map<int, Clients>  _clients;
 
-    public:
-        Server(uint16_t port, const std::string &passkey) : _port(port), _passkey(passkey){};
+  public:
+        Server();
+        ~Server();
         
+        void setPort(unsigned int port);
+        void setPassword(char *password);
+        
+        unsigned int getPort() const { return _port; }
+        std::string getPassword() const { return _password; }
 
-
-        ~Server(void){};
+        int createServer();
+        // void updateFileDescrior(int *ng);
 };
-
 
 class health {
     private:
@@ -32,4 +42,5 @@ class health {
         static uint16_t arg_checker(int ac, char **av);
 };
 
-#endif
+
+#endif // SERVER_HPP
