@@ -98,7 +98,7 @@ void Server::setPassword(char *password) {
 }
 
 // void Server::updateFileDescrior(int *nfds)
-// {
+// {ı
 // 	if (_fds)
 // 		delete[] _fds;
 // 	_fds = new struct pollfd((*nfds) + 1);
