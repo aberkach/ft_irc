@@ -30,7 +30,7 @@ def connect_to_server(client_id):
         print(f"Client {client_id} disconnected")
 
 # Number of clients to simulate
-NUM_CLIENTS = 2000
+NUM_CLIENTS = 10000
 
 # Create and start threads for each client
 threads = []
