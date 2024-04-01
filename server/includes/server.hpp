@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/21 01:34:27 by abberkac          #+#    #+#             */
-/*   Updated: 2024/03/31 01:41:19 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/03/31 23:38:15 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,9 @@ class Server {
     unsigned int _port;
     std::string _password;
     int _listen_sd;
-    bool _endServer;
+    struct sockaddr_in   _addr;
+	  struct pollfd _fds[5000];
+    int    nfds;
     std::map<int, Clients> _clients;
 
   public:
@@ -46,6 +48,7 @@ class Server {
         std::string getPassword() const { return _password; }
 
         int createServer();
+        // void updateFileDescrior(int *ng);
 };
 
 #endif // SERVER_HPP
