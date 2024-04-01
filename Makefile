@@ -6,7 +6,7 @@ SRCS = main.cpp ./server/srcs/server.cpp ./server/srcs/clients.cpp
 
 CPP = c++ -std=c++98
 
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror# -g #-fsanitize=address,undefined
 
 OBJS = $(SRCS:.cpp=.o)
 
