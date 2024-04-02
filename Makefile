@@ -2,7 +2,8 @@ EXE := ircserv
 
 CPP := c++ -std=c++98
 
-CPPFLAGS := -Wall -Wextra -Wshadow -fsanitize=address -g 
+CPPFLAGS := -Wall -Wextra -Wshadow 
+# -fsanitize=address
 # -g -Werror stop rendring global useless in local
 
 HEADER := ./srcs/server/server.hpp ./srcs/server/client.hpp ./srcs/tools/health.hpp ./srcs/Poller/Poller.hpp ./Inc/ft_irc.hpp ./Inc/define.hpp \
