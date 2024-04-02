@@ -1,5 +1,6 @@
 #include "server.hpp"
 #include <cstddef>
+#include <sys/_types/_u_int16_t.h>
 
 void Err(std::string msg, int exitFalg)
 {
@@ -15,7 +16,7 @@ Server::Server()
 }
 
 // parameterized constructor : initialize the server socket and set the port number
-Server::Server(unsigned int port)
+Server::Server(uint16_t port, char *password) : _port(port), _password(password)
 {
 	_fds.resize(1500);
 	_listen_sd = socket(AF_INET, SOCK_STREAM, 0); // Create a TCP socket
@@ -40,7 +41,7 @@ Server::Server(unsigned int port)
 	memset(&_addr, 0, sizeof(_addr));
 	_addr.sin_family = AF_INET;
 	_addr.sin_addr.s_addr = INADDR_ANY;
-	_addr.sin_port = htons(port);
+	_addr.sin_port = htons(_port);
 
 	if (bind(_listen_sd, (struct sockaddr *)&_addr, sizeof(_addr)) < 0) {
 	    close(_listen_sd);
@@ -63,19 +64,19 @@ Server::Server(unsigned int port)
 
 // Setters ::---------------------------------------------------------------------------------
 
-void Server::setPort(unsigned int port) {
-    if (port > 1023 && port <= 65535)
-        _port = port;
-    else
-        throw std::logic_error("Port number must be between 1024 and 65535");
-}
+// void Server::setPort(unsigned int port) {
+//     if (port > 1023 && port <= 65535)
+//         _port = port;
+//     else
+//         throw std::logic_error("Port number must be between 1024 and 65535");
+// }
 
-void Server::setPassword(char *password) {
-    if (strlen(password) >= 8)
-        _password = password;
-    else
-        throw std::logic_error("Password must be at least 8 characters long");
-}
+// void Server::setPassword(char *password) {
+//     if (strlen(password) >= 8)
+//         _password = password;
+//     else
+//         throw std::logic_error("Password must be at least 8 characters long");
+// }
 
 // ---------------------------------------------------------------------------------------------
 
