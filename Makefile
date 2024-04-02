@@ -2,7 +2,7 @@ EXE := ircserv
 
 CPP := c++ -std=c++98
 
-CPPFLAGS := -Wall -Wextra -Wshadow
+CPPFLAGS := -Wall -Wextra -Wshadow -fsanitize=address -g 
 # -g -Werror stop rendring global useless in local
 
 HEADER := $(FILE:.cpp=.hpp) ./Inc/ft_irc.hpp ./Inc/define.hpp \
