@@ -13,8 +13,17 @@ class Client
         std::vector<std::string> channels;
 
     public:
-        Client(int sock);
-        Client(std::string nick, std::string user, std::string real);
+        Client(int sock) {};
+
+        void setNickname(const std::string& nick);
+        void setUsername(const std::string& user);
+        void setRealname(const std::string& real);
+
+        std::string getNickname() const ;
+        std::string getUsername() const ;
+        std::string getRealname() const ;
+
+        ~Client(){};
 };
 
 #endif
