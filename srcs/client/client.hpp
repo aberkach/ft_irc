@@ -1,3 +1,6 @@
+#ifndef CLIENT_HPP
+#define CLIENT_HPP
+
 #include "../../Inc/define.hpp"
 
 class Client
@@ -10,6 +13,9 @@ class Client
         std::vector<std::string> channels;
 
     public:
-        Client(int sock, std::string nick, std::string user, std::string real) 
-            : socket(sock), nickname(nick), username(user), realname(real) {}
+        Client(int sock) : socket(sock) {}
+        Client(std::string nick, std::string user, std::string real) 
+            : nickname(nick), username(user), realname(real) {}
 };
+
+#endif

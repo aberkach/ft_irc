@@ -2,6 +2,9 @@
 #define SERVER_HPP__
 
 #include "../../Inc/define.hpp"
+#include "../client/client.hpp"
+#include <sys/poll.h>
+#include <vector>
 
 class Server
 {
@@ -10,12 +13,13 @@ class Server
     std::string             _password;
     int                     _listen_sd;
     struct sockaddr_in      _addr;
-    struct pollfd         	_fds[5000];
+    std::vector<pollfd>      _fds;
     int                     _nfds;
-    // std::map<int, Clients>  _clients;
+    std::map<int, Client>  _clients;
 
   public:
         Server();
+        Server(unsigned int port);
         
         void setPort(unsigned int port);
         void setPassword(char *password);
@@ -24,6 +28,8 @@ class Server
         std::string getPassword() const { return _password; }
 
         int createServer();
+        void handlIncomeConnections();
+        void handleIncomeData();
         // void updateFileDescrior(int *ng);
 
         ~Server();
