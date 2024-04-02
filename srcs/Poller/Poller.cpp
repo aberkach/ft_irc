@@ -1,13 +1,8 @@
 #include "Poller.hpp"
 
-Poller::Poller( void )
-{
+Poller::Poller( void ) {}
 
-}
-
-Poller::~Poller( void )
-{
-}
+Poller::~Poller( void ){}
 
 void	Poller::push(int fd, short events)
 {
@@ -22,7 +17,6 @@ void	Poller::push(int fd, short events)
 	pfd.revents = 0;
 	_pfds.push_back(pfd);
 }
-
 
 void	Poller::pop(int fd)
 {

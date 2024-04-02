@@ -1,6 +1,5 @@
 #include "client.hpp"
 
-
 Client::Client(int sock) : socket(sock) , nickname(""), username(""), realname("") {};
 
 void Client::setNickname(const std::string& nick) 
@@ -17,7 +16,6 @@ void Client::setRealname(const std::string& real)
 {
      realname = real; 
 };
-
 
 std::string Client::getNickname() const
 {

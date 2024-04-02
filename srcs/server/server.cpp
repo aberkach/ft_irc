@@ -124,6 +124,35 @@ void Server::handleIncomeData() {
 			else {
 				buffer[rc] = '\0';
 				std::string message(buffer);
+				if (message.substr(0,5) == "PASS ")
+				{
+					std::string pass = message.substr(5, message.size() - 6);
+					std::cout << "PASS :"<< pass <<":DONE"<< std::endl;
+					if (pass == _password)
+					{
+						std::cout << "password correct" << std::endl;
+						send(_fds[i].fd,"password correct\n", 17, 0);
+					}
+					else
+					{
+						std::cout << "password incorrect" << std::endl;
+						send(_fds[i].fd,"password incorrect\n", 20, 0);
+					}
+				}
+				else if (message.substr(0,5) == "NICK ")
+				{
+					
+				}
+				else if (message.substr(0,5) == "USER ")
+				{
+
+				}
+				else
+				{
+					std::cout << "command not available" << std::endl;
+					send(_fds[i].fd,"command not found\n", 19, 0);
+				}
+
 				// here we can do whatever we want with the message
 				//........
 				std::cout << message ;
