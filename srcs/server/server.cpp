@@ -1,4 +1,5 @@
 #include "server.hpp"
+#include <cstddef>
 
 void Err(std::string msg, int exitFalg)
 {
@@ -7,13 +8,16 @@ void Err(std::string msg, int exitFalg)
 		exit(1);
 }
 
+// default constructor :
+
 Server::Server()
 {
 }
 
+// parameterized constructor : initialize the server socket and set the port number
 Server::Server(unsigned int port)
 {
-	_fds.resize(5000);
+	_fds.resize(1500);
 	_listen_sd = socket(AF_INET, SOCK_STREAM, 0); // Create a TCP socket
 	if (_listen_sd < 0)
 		Err("socket() failed", 1);
@@ -55,9 +59,9 @@ Server::Server(unsigned int port)
 	_fds[0].fd = _listen_sd;
 	_fds[0].events = POLLIN;
 	_fds[0].revents = 0;
-	_nfds = 1;
 }
 
+// Setters ::---------------------------------------------------------------------------------
 
 void Server::setPort(unsigned int port) {
     if (port > 1023 && port <= 65535)
@@ -73,7 +77,9 @@ void Server::setPassword(char *password) {
         throw std::logic_error("Password must be at least 8 characters long");
 }
 
+// ---------------------------------------------------------------------------------------------
 
+// Handle incoming connections:
 void Server::handlIncomeConnections() {
 	if (_fds[0].revents == POLLIN)
 	{
@@ -82,27 +88,33 @@ void Server::handlIncomeConnections() {
 	    if (newSck < 0)
 	        perror("  accept() failed");
 	    else {
+			// Resize the fds array if it's full
+			if (_nfds >= _fds.size())
+				_fds.resize(_fds.size() * 2);
 	        // Add the new client socket to the fds array and clientsFds map
 	        std::cout << "New incoming connection - " << newSck << std::endl;
-	        _fds[_nfds].fd = newSck;
-	        _fds[_nfds].events = POLLIN;
 	        fcntl(newSck, F_SETFL, O_NONBLOCK);
+			_fds[_nfds].fd = newSck;
+	        _fds[_nfds].events = POLLIN;
+			_fds[_nfds].revents = 0;
+			// Add the new client to the clients map
 	        _clients.insert(std::pair<int, Client>(newSck, Client(newSck)));
 	        _nfds++;
 	    }
 	}
 }
 
+// Handle incoming data from clients :
 void Server::handleIncomeData() {
 	char buffer[1024];
 	int rc;
-	for (int i = 1; i < _nfds; i++) {
+	for (size_t i = 1; i < _nfds; i++) {
 		if (_fds[i].revents & POLLIN) {
-			rc = recv(_fds[i].fd, buffer, (sizeof(buffer) - 1), 0);
+			rc = recv(_fds[i].fd, buffer, sizeof(buffer), 0);
 			if (rc < 0)
-				perror("  recv() failed");
+				Err("recv() failed", 0);
 			else if (rc == 0) {
-				std::cout << "Connection closed" << i << std::endl;
+				std::cout << "Connection closed" << std::endl;
 				// Remove closed client from fds array and clientsFds map
 				_clients.erase(_fds[i].fd);
 				close(_fds[i].fd);
@@ -113,32 +125,27 @@ void Server::handleIncomeData() {
 				std::string message(buffer);
 				// here we can do whatever we want with the message
 				//........
-				std::cout << message << std::endl;
+				std::cout << message ;
 			}
 		}
 	}
 }
 
 int Server::createServer() 
-{	
-	char   buffer[1024];
-	int    current_size = 0;
+{
+	int    current_size;
 	int rc;
 	_nfds = 1;
 
-	
 	// Start listening for incoming connections
 	std::cout << "server is running" << std::endl;
 	while (true) {
 	    // Wait for events on monitored file descriptors
 	    rc = poll(_fds.data(), _nfds, 0);
-	
+
 	    // If poll failed or timeout occurred, continue to the next iteration
 	    if (rc <= 0)
 	        continue;
-		
-	    current_size = _nfds;
-	
 	    // Check for incoming connection on the server socket
 		handlIncomeConnections();	    
 
@@ -147,7 +154,7 @@ int Server::createServer()
 	
 	    // Compact the fds array to remove closed client sockets
 	    current_size = 0;
-	    for (int i = 0; i < _nfds; i++) {
+	    for (size_t i = 0; i < _nfds; i++) {
 	        if (_fds[i].fd >= 0) {
 	            _fds[current_size] = _fds[i];
 	            current_size++;
