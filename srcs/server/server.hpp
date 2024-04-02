@@ -10,7 +10,7 @@
 class Server
 {
   private:
-    unsigned int            _port;
+    uint16_t	            _port;
     std::string             _password;
     int                     _listen_sd;
     struct sockaddr_in      _addr;
@@ -20,10 +20,10 @@ class Server
 
   public:
         Server();
-        Server(unsigned int port);
+        Server(uint16_t port, char *password);
         
-        void setPort(unsigned int port);
-        void setPassword(char *password);
+        // void setPort(unsigned int port);
+        // void setPassword(char *password);
 
         unsigned int getPort() const { return _port; }
         std::string getPassword() const { return _password; }
