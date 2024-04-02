@@ -1,29 +1,42 @@
-NAME = ircserv
+EXE := ircserv
 
-HEADER = ./server/includes/server.hpp ./server/includes/clients.hpp
+CPP := c++ -std=c++98
 
-SRCS = main.cpp ./server/srcs/server.cpp ./server/srcs/clients.cpp
+CPPFLAGS := -Wall -Wextra -Wshadow
+# -g -Werror stop rendring global useless in local
 
-CPP = c++ -std=c++98
+HEADER := $(FILE:.cpp=.hpp) ./Inc/ft_irc.hpp ./Inc/define.hpp \
 
-CFLAGS = -Wall -Wextra -Werror# -g #-fsanitize=address,undefined
+FILE := ./srcs/client/client.cpp		./srcs/server/server.cpp 		./srcs/tools/health.cpp		./srcs/Poller/Poller.cpp \
 
-OBJS = $(SRCS:.cpp=.o)
+OBJ := $(FILE:.cpp=.o)
 
-all: $(NAME)
+M = MAKE_PUSH
 
-$(NAME): $(OBJS)
-	$(CPP) $(CFLAGS) -o $(NAME) $(OBJS)
+################################### RULES ###################################
 
-%.o: %.cpp #$(HEADER)
-	$(CPP) $(CFLAGS) -c $< -o $@
+all : $(EXE)
 
-clean:
-	rm -f $(OBJS)
+$(EXE): $(OBJ)
+	$(CPP) $(CPPFLAGS) $(OBJ) ./srcs/main.cpp -o $(EXE)
 
-fclean: clean
-	rm -f $(NAME)
+%.o: %.cpp $(HEADER)
+	$(CPP) $(CPPFLAGS) -c -o $@ $<
+
+clean :
+	rm -rf $(OBJ)
+
+fclean : clean
+	rm -rf $(EXE)
 
 re: fclean all
 
-.PHONY: all clean fclean re
+push:
+	git add .
+	git status
+	git commit -m "$(M)"
+	git push
+
+##############################################################################
+
+.PHONY: all clean fclean re push
