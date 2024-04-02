@@ -127,7 +127,7 @@ void Server::handleIncomeData() {
 				if (message.substr(0,5) == "PASS ")
 				{
 					std::string pass = message.substr(5, message.size() - 6);
-					std::cout << "PASS :"<< pass <<":DONE"<< std::endl;
+					// std::cout << "PASS :"<< pass <<":DONE"<< std::endl;
 					if (pass == _password)
 					{
 						std::cout << "password correct" << std::endl;
@@ -139,12 +139,14 @@ void Server::handleIncomeData() {
 						send(_fds[i].fd,"password incorrect\n", 20, 0);
 					}
 				}
-				else if (message.substr(0,5) == "NICK ")
+				else if (message.substr(0,5) == "NICK ") // NICK nicknome
 				{
-					
+					std::string pass = message.substr(5, message.size() - 6);
+
 				}
-				else if (message.substr(0,5) == "USER ")
+				else if (message.substr(0,5) == "USER ") //USER logino 0 * realfr
 				{
+					std::string pass = message.substr(5, message.size() - 6);
 
 				}
 				else
