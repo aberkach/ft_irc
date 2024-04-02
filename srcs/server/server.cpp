@@ -1,29 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   server.cpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/21 01:37:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/01 01:55:29 by abberkac         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include "../includes/server.hpp"
-#include <cctype>
-#include <cstring>
-#include <string>
-#include <sys/fcntl.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <iostream>
-
-
-
-#define TRUE             1
-#define FALSE            0
-
+#include "server.hpp"
 
 void Err(std::string msg, int exitFalg)
 {
@@ -32,15 +7,13 @@ void Err(std::string msg, int exitFalg)
 		exit(1);
 }
 
-Server::Server() {
-	_port = 0;
-	_password = "";
-	_listen_sd = -1;
-
+Server::Server() : _port(0), _password(""), _listen_sd(-1)
+{
 	_listen_sd = socket(AF_INET, SOCK_STREAM, 0); // Create a TCP socket
 	if (_listen_sd < 0)
 		Err("socket() failed", 1);
-	
+	// _listen_sd < 0 ? Err("socket() failed", 1) : void(0);
+
 	// Set socket option to allow address reuse
 	int on = 1;
 	if (setsockopt(_listen_sd, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on)) < 0) {
@@ -79,9 +52,6 @@ Server::Server() {
 	_nfds = 1;
 }
 
-Server::~Server() {
-    return;
-}
 
 void Server::setPort(unsigned int port) {
     if (port > 1023 && port <= 65535)
@@ -98,7 +68,7 @@ void Server::setPassword(char *password) {
 }
 
 // void Server::updateFileDescrior(int *nfds)
-// {
+// {ı
 // 	if (_fds)
 // 		delete[] _fds;
 // 	_fds = new struct pollfd((*nfds) + 1);
@@ -125,7 +95,8 @@ int Server::createServer()
 		int sock_len = sizeof(_addr);
 	
 	    // Check for incoming connection on the server socket
-	    if (_fds[0].revents == POLLIN) {
+	    if (_fds[0].revents == POLLIN)
+		{
 			int newSck = accept(_listen_sd, (struct sockaddr *)&_addr, (socklen_t*)&sock_len);
 	        if (newSck < 0)
 	            perror("  accept() failed");
@@ -141,7 +112,8 @@ int Server::createServer()
 	    }
 	
 	    // Iterate through fds array to check for messages from clients
-	    for (int i = 1; i < current_size; i++) {
+	    for (int i = 1; i < current_size; i++)
+		{
 	        if (_fds[i].revents & POLLIN) {
 	            // Receive message from client
 	            rc = recv(_fds[i].fd, buffer, (sizeof(buffer) - 1), 0);
@@ -177,8 +149,6 @@ int Server::createServer()
 }
 
 
-
-
-
-
-
+Server::~Server() {
+    return;
+}
