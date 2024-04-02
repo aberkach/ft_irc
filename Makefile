@@ -5,10 +5,10 @@ CPP := c++ -std=c++98
 CPPFLAGS := -Wall -Wextra -Wshadow -fsanitize=address -g 
 # -g -Werror stop rendring global useless in local
 
-HEADER := $(FILE:.cpp=.hpp) ./Inc/ft_irc.hpp ./Inc/define.hpp \
+HEADER := ./srcs/server/server.hpp ./srcs/server/client.hpp ./srcs/tools/health.hpp ./srcs/Poller/Poller.hpp ./Inc/ft_irc.hpp ./Inc/define.hpp \
 
 FILE := ./srcs/client/client.cpp		./srcs/server/server.cpp 		./srcs/tools/health.cpp		./srcs/Poller/Poller.cpp \
-
+		./srcs/main.cpp
 OBJ := $(FILE:.cpp=.o)
 
 M = MAKE_PUSH
@@ -18,7 +18,7 @@ M = MAKE_PUSH
 all : $(EXE)
 
 $(EXE): $(OBJ)
-	$(CPP) $(CPPFLAGS) $(OBJ) ./srcs/main.cpp -o $(EXE)
+	$(CPP) $(CPPFLAGS) $(OBJ)  -o $(EXE)
 
 %.o: %.cpp $(HEADER)
 	$(CPP) $(CPPFLAGS) -c -o $@ $<

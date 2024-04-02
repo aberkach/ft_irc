@@ -3,6 +3,7 @@
 
 #include "../../Inc/define.hpp"
 #include "../client/client.hpp"
+#include <cstddef>
 #include <sys/poll.h>
 #include <vector>
 
@@ -13,9 +14,9 @@ class Server
     std::string             _password;
     int                     _listen_sd;
     struct sockaddr_in      _addr;
-    std::vector<pollfd>      _fds;
-    int                     _nfds;
-    std::map<int, Client>  _clients;
+    std::vector<pollfd>    	_fds;
+    size_t                  _nfds;
+    std::map<int, Client>	_clients;
 
   public:
         Server();
