@@ -12,6 +12,7 @@ class Client
         std::string realname;
         std::vector<std::string> channels;
         bool _registered;
+        bool _validPass;
 
     public:
         Client(int sock);
@@ -20,11 +21,13 @@ class Client
         void setUsername(const std::string& user);
         void setRealname(const std::string& real);
         void setRegistered(bool reg) { _registered = reg; }
+        void setValidPass(bool pass) { _validPass = pass; }
 
         std::string getNickname() const ;
         std::string getUsername() const ;
         std::string getRealname() const ;
         bool getRegistered() const { return _registered; }
+        bool getValidPass() const { return _validPass; }
 
         ~Client(void);
 };
