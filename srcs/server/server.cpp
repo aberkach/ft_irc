@@ -168,14 +168,15 @@ void Server::handleIncomeData() {
 				buffer[rc] = '\0';
 				std::string message(buffer);
 				
-				// try {
-				// 	authentication(message, _clients.find(_fds[i].fd));
-				// } catch (std::logic_error &e) {
-				// 	std::cerr << e.what() << std::endl;
-				// 	continue;
-				// 	// send(_fds[i].fd, e.what(), strlen(e.what()), 0);
-				// }
-				
+				// if the client is not registered yet, authenticate the client
+				try {
+					authentication(message, _clients.find(_fds[i].fd));
+				} catch (std::logic_error &e) {
+					std::cerr << e.what() << std::endl;
+					continue;
+					// send(_fds[i].fd, e.what(), strlen(e.what()), 0);
+				}
+
 				// if (message.substr(0,5) == "PASS ")
 				// {
 				// 	std::string pass = message.substr(5, message.size() - 6);
