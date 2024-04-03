@@ -31,6 +31,7 @@ class Server
         int createServer();
         void handlIncomeConnections();
         void handleIncomeData();
+        void authentication(std::string message, std::map<int, Client>::iterator client);
         // void updateFileDescrior(int *ng);
 
         ~Server();
