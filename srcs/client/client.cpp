@@ -1,6 +1,7 @@
 #include "client.hpp"
 
-Client::Client(int sock) : socket(sock) , nickname(""), username(""), realname(""), _registered(false) {};
+Client::Client(int sock) : socket(sock) , nickname(""), username(""), 
+        realname(""), _registered(false), _validPass(false) {};
 
 void Client::setNickname(const std::string& nick) 
 {
