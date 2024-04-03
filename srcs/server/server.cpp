@@ -1,6 +1,6 @@
 #include "server.hpp"
 #include <cstddef>
-#include <sys/_types/_u_int16_t.h>
+#include <sstream>
 
 void Err(std::string msg, int exitFalg)
 {
@@ -80,6 +80,7 @@ Server::Server(uint16_t port, char *password) : _port(port), _password(password)
 
 // ---------------------------------------------------------------------------------------------
 
+
 // Handle incoming connections:
 void Server::handlIncomeConnections() {
 	if (_fds[0].revents == POLLIN)
@@ -105,6 +106,48 @@ void Server::handlIncomeConnections() {
 	}
 }
 
+void Server::authentication(std::string message, std::map<int, Client>::iterator client)
+{
+	std::stringstream ss(message);
+	std::string pass;
+	// std::string user;
+	// std::string nick;
+	// int n;
+	// char c;
+	if ((ss >> pass || !ss.eof()) && pass != "PASS"){
+		throw std::logic_error("You should Enter PASS <password>");
+	}
+	if (pass == "PASS"){
+		if ((ss >> pass || !ss.eof()) && pass == _password){
+			std::cout << "password correct" << std::endl;
+			client->second.setRegistered(true);
+		}
+		else
+			throw std::logic_error("password incorrect");
+	}
+	// if (client->second.getRegistered()){
+
+	// 	if ((ss >> user || !ss.eof() ) && (user == "USER"  || user == "NICK")){
+	// 		if (user == "USER"){
+	// 			if (((ss >> user >> n  >> c >> nick) || !ss.eof()) && nick.size() == '\0'){
+	// 				std::cout << "user : " << user << std::endl;
+	// 				std::cout << "n : " << n << std::endl;
+	// 				std::cout << "c : " << c << std::endl;
+	// 				return ;
+	// 			}
+	// 		}
+	// 		else if (user == "NICK"){
+	// 			if (ss >> user || !ss.eof()){
+	// 				std::cout << "user : " << user << std::endl;
+	// 				return ;
+	// 			}
+	// 		}
+	// 		else
+	// 			throw std::logic_error("Wrong command");
+	// 	}
+	// }
+}
+
 // Handle incoming data from clients :
 void Server::handleIncomeData() {
 	char buffer[1024];
@@ -124,40 +167,49 @@ void Server::handleIncomeData() {
 			else {
 				buffer[rc] = '\0';
 				std::string message(buffer);
-				if (message.substr(0,5) == "PASS ")
-				{
-					std::string pass = message.substr(5, message.size() - 6);
-					// std::cout << "PASS :"<< pass <<":DONE"<< std::endl;
-					if (pass == _password)
-					{
-						std::cout << "password correct" << std::endl;
-						send(_fds[i].fd,"password correct\n", 17, 0);
-					}
-					else
-					{
-						std::cout << "password incorrect" << std::endl;
-						send(_fds[i].fd,"password incorrect\n", 20, 0);
-					}
-				}
-				else if (message.substr(0,5) == "NICK ") // NICK nicknome
-				{
-					std::string pass = message.substr(5, message.size() - 6);
+				
+				// try {
+				// 	authentication(message, _clients.find(_fds[i].fd));
+				// } catch (std::logic_error &e) {
+				// 	std::cerr << e.what() << std::endl;
+				// 	continue;
+				// 	// send(_fds[i].fd, e.what(), strlen(e.what()), 0);
+				// }
+				
+				// if (message.substr(0,5) == "PASS ")
+				// {
+				// 	std::string pass = message.substr(5, message.size() - 6);
+				// 	// std::cout << "PASS :"<< pass <<":DONE"<< std::endl;
+				// 	if (pass == _password)
+				// 	{
+				// 		std::cout << "password correct" << std::endl;
+				// 		send(_fds[i].fd,"password correct\n", 17, 0);
+				// 	}
+				// 	else
+				// 	{
+				// 		std::cout << "password incorrect" << std::endl;
+				// 		send(_fds[i].fd,"password incorrect\n", 20, 0);
+				// 	}
+				// }
+				// else if (message.substr(0,5) == "NICK ") // NICK nicknome
+				// {
+				// 	std::string pass = message.substr(5, message.size() - 6);
 
-				}
-				else if (message.substr(0,5) == "USER ") //USER logino 0 * realfr
-				{
-					std::string pass = message.substr(5, message.size() - 6);
+				// }
+				// else if (message.substr(0,5) == "USER ") //USER logino 0 * realfr
+				// {
+				// 	std::string pass = message.substr(5, message.size() - 6);
 
-				}
-				else
-				{
-					std::cout << "command not available" << std::endl;
-					send(_fds[i].fd,"command not found\n", 19, 0);
-				}
+				// }
+				// else
+				// {
+				// 	std::cout << "command not available" << std::endl;
+				// 	send(_fds[i].fd,"command not found\n", 19, 0);
+				// }
 
 				// here we can do whatever we want with the message
 				//........
-				std::cout << message ;
+				// std::cout << message ;
 			}
 		}
 	}
