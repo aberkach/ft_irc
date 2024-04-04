@@ -3,7 +3,7 @@
 Client::Client(int sock) : socket(sock) , _registered(false) , _validPass(false) , 
         nickname(""), username(""), realname("")
 {
-    // memset(&_addr, 0, sizeof(_addr));
+    memset(&_addr, 0, sizeof(_addr));
 };
 
 void Client::setNickname(const std::string& nick) 

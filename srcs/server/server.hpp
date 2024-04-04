@@ -18,7 +18,7 @@ class Server {
         std::vector<pollfd>    	_fds;
         size_t                  _nfds;
         std::map<int, Client>	_clients;
-        std::map<std::string, Channel> server_channels; // list of channels in the server
+      //   std::map<std::string, Channel> server_channels; // list of channels in the server
 
   public:
         Server(void);

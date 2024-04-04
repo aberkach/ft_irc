@@ -132,12 +132,11 @@ void Server::command_list(std::string &message, Client &cling)
 			cling.setRealname(message.substr(5, message.length() - 6)); // pase iside and return bool for parse output
 		}
 		else
-			std::cout << "try registring first please" << std::endl;
+			std::cout << "try registring first using these commands PASS nick user" << std::endl;
 	}
 	else
 	{
-		std::cout << HEADER << std::endl;
-		std::cout<< "client already registed and has a on status" << std::endl;
+		send(cling.getsocket(),"mar7ba\n",8,0);
 	}
 }
 
@@ -145,10 +144,10 @@ void Server::command_list(std::string &message, Client &cling)
 void Server::handleIncomeData() {
 	char buffer[1024];
 	int rc;
-	for (size_t i = 1; i < _nfds; i++) {
+	for (size_t i = 1; i < _nfds; i++) 
+	{
 		if (_fds[i].revents & POLLIN) {
 			// setClientStatus(_clients.find(_fds[i].fd)->second);
-			_clients.find(_fds[i].fd)->second.refstatus();
 			rc = recv(_fds[i].fd, buffer, sizeof(buffer), 0);
 			if (rc < 0)
 				Err("recv() failed", 0);
@@ -165,6 +164,7 @@ void Server::handleIncomeData() {
 				// if the client is not registered yet, authenticate the client
 
 				command_list(message, _clients.find(_fds[i].fd)->second);
+				_clients.find(_fds[i].fd)->second.refstatus();
 				// try {
 				// } catch (std::logic_error &e) {
 				// 	std::cerr << e.what() << std::endl;
@@ -173,7 +173,7 @@ void Server::handleIncomeData() {
 
 				// here we can do whatever we want with the message
 				//........
-				std::cout << "FULL CONMNAD ="<< message;
+				// std::cout << "FULL CONMNAD ="<< message;
 			}
 		}
 	}
@@ -195,7 +195,7 @@ int Server::createServer()
 	    if (rc <= 0)
 	        continue;
 	    // Check for incoming connection on the server socket
-		handlIncomeConnections();	    
+		handlIncomeConnections();
 
 	    // Iterate through fds array to check for messages from clients
 	    handleIncomeData();

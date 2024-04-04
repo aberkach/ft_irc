@@ -15,21 +15,19 @@
 
 #include "../../Inc/define.hpp"
 
+// class Channel {
+//   private:
+//     std::string                 _name; // name of the channel
+//     std::string                 _topic; // topic of the channel
+//     // std::map<int, Client>         _users; // list of users in the channel
+//   public:
+//     Channel();
+//     Channel(std::string name);
+//     Channel(const Channel &src);
+//     ~Channel();
 
-
-class Channel {
-  private:
-    std::string                 _name; // name of the channel
-    std::string                 _topic; // topic of the channel
-    // std::map<int, Client>         _users; // list of users in the channel
-  public:
-    Channel();
-    Channel(std::string name);
-    Channel(const Channel &src);
-    ~Channel();
-
-    std::string getName() const;
-    void setName(std::string name);
-};
+//     std::string getName() const;
+//     void setName(std::string name);
+// };
 
 #endif

@@ -15,7 +15,7 @@ class Client
         std::string nickname;
         std::string username;
         std::string realname;
-        std::map<std::string, Channel> joined_channels;
+        // std::map<std::string, Channel> joined_channels;
 
     public:
         sockaddr_in _addr;
@@ -35,11 +35,16 @@ class Client
         std::string getRealname() const ;
         bool getRegistered() { return _registered; }
         bool getValidPass() { return _validPass; }
+        int getsocket() {return socket;}
 
         void refstatus()
         {
-            if (_validPass == true && !nickname.empty() && !username.empty() && !realname.empty())
+            if (_registered == false && _validPass == true && !nickname.empty() && !username.empty() && !realname.empty())
+            {
                 _registered = true;
+                send(socket,HEADER"\n",sizeof(HEADER),0);
+            }
+
         }
 
         ~Client(void);
