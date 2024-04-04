@@ -17,10 +17,9 @@ class Client
         bool _validPass;
         std::map<std::string, Channel> joined_channels;
 
-    public :
+    public:
         sockaddr_in _addr;
 
-    public:
         Client(int sock);
 
         void setNickname(const std::string& nick);
