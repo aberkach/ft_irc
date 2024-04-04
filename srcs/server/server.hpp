@@ -2,7 +2,9 @@
 #define SERVER_HPP__
 
 #include "../../Inc/define.hpp"
-#include "../client/client.hpp"
+#include "../../Inc/ft_irc.hpp"
+#include "../channel/channel.hpp"
+
 #include <cstddef>
 #include <sys/poll.h>
 #include <vector>
@@ -17,6 +19,7 @@ class Server
     std::vector<pollfd>    	_fds;
     size_t                  _nfds;
     std::map<int, Client>	_clients;
+    std::map<std::string, Channel> _channels; // list of channels in the server
 
   public:
         Server();

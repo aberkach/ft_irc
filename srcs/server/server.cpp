@@ -85,8 +85,10 @@ Server::Server(uint16_t port, char *password) : _port(port), _password(password)
 void Server::handlIncomeConnections() {
 	if (_fds[0].revents == POLLIN)
 	{
+		// std::pair<int, Client> client(0, Client(0));
+		Client client(0);
 		int sock_len = sizeof(_addr);
-		int newSck = accept(_listen_sd, (struct sockaddr *)&_addr, (socklen_t*)&sock_len);
+		int newSck = accept(_listen_sd, (struct sockaddr *)&client._addr, (socklen_t*)&sock_len);
 	    if (newSck < 0)
 	        perror("  accept() failed");
 	    else {
@@ -194,7 +196,7 @@ void Server::handleIncomeData() {
 					std::cerr << e.what() << std::endl;
 					continue;
 				}
-
+				
 				// if (message.substr(0,5) == "PASS ")
 				// {
 				// 	std::string pass = message.substr(5, message.size() - 6);

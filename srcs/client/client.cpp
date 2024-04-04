@@ -1,7 +1,9 @@
 #include "client.hpp"
 
 Client::Client(int sock) : socket(sock) , nickname(""), username(""), 
-        realname(""), _registered(false), _validPass(false) {};
+        realname(""), _registered(false), _validPass(false) {
+        memset(&_addr, 0, sizeof(_addr));
+};
 
 void Client::setNickname(const std::string& nick) 
 {

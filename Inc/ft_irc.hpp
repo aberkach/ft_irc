@@ -4,9 +4,9 @@
 #include "define.hpp"
 
 #include "../srcs/Poller/Poller.hpp"
-#include "../srcs/server/server.hpp"
 #include "../srcs/client/client.hpp"
 #include "../srcs/tools/health.hpp"
+#include "../srcs/server/server.hpp"
 
 
 #endif // SERVER_HPP
