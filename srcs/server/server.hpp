@@ -30,7 +30,9 @@ class Server {
         int createServer();
         void handlIncomeConnections();
         void handleIncomeData();
-        void authentication(std::string &message, int fd);
+
+        void command_list(std::string &message, Client &cling);
+        // void setClientStatus(Client &cling);
         // void updateFileDescrior(int *ng);
 
         ~Server();

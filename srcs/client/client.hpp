@@ -10,11 +10,11 @@ class Client
 {
     private:
         int socket;
+        bool _registered;
+        bool _validPass;
         std::string nickname;
         std::string username;
         std::string realname;
-        bool _registered;
-        bool _validPass;
         std::map<std::string, Channel> joined_channels;
 
     public:
@@ -27,14 +27,20 @@ class Client
         void setRealname(const std::string& real);
         void setRegistered(bool reg) { _registered = reg; }
         void setValidPass(bool pass) { _validPass = pass; }
+
         void setSckAddr(sockaddr_in addr) { this->_addr = addr; }
 
         std::string getNickname() const ;
         std::string getUsername() const ;
         std::string getRealname() const ;
-        bool getRegistered() const { return _registered; }
-        bool getValidPass() const { return _validPass; }
+        bool getRegistered() { return _registered; }
+        bool getValidPass() { return _validPass; }
 
+        void refstatus()
+        {
+            if (_validPass == true && !nickname.empty() && !username.empty() && !realname.empty())
+                _registered = true;
+        }
 
         ~Client(void);
 };

@@ -20,10 +20,10 @@ Channel::Channel(std::string name) : _name(name)
 {
 }
 
-Channel::Channel(const Channel &src)
-{
-    *this = src;
-}
+// Channel::Channel(const Channel &src)
+// {
+//     // *this = src;
+// }
 
 Channel::~Channel()
 {
