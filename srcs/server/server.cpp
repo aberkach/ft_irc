@@ -107,65 +107,25 @@ void Server::handlIncomeConnections()
 	}
 }
 
-void Server::authentication(std::string message, std::map<int, Client>::iterator client)
+void Server::authentication(std::string &message, int fd)
 {
-	std::stringstream stream(message);
-	std::string pass;
-	std::string user;
-	std::string nick;
-	std::string	mode;
-	std::string unused;
-	std::string userName;
-	std::string realName;
+	std::string command;
+	// _clients[fd];
 
-	// if the client is not registered yet, authenticate the client :
-	if ((stream >> pass || !stream.eof()) && pass == "PASS" && !client->second.getValidPass()){
-		if ((stream >> pass || !stream.eof()) && pass == _password)
+	if (_clients[fd].getRegistered() == false)
+	{
+			//authenticate the client
+		if (message.substr(0 ,5) == "PASS ")
 		{
 			std::cout << "password correct" << std::endl;
-			client->second.setValidPass(true);
-			// check if the client entered the NICK command :
-			if (((stream >> nick || !stream.eof() ) && (nick == "NICK")) && client->second.getValidPass()){
-				if ((stream >> nick || !stream.eof()))
-				{
-					client->second.setNickname(nick);
-					// check if the client entered the USER command :
-					if ((stream >> user || !stream.eof()) && user == "USER"){
-						if ((stream >> userName || !stream.eof()) && (stream >> mode || !stream.eof()) && (stream >> unused \
-						  || !stream.eof()) && (stream >> realName || !stream.eof()))
-						{
-							client->second.setUsername(userName);
-							client->second.setRealname(realName);
-						}		
-						else
-						{
-							client->second.setValidPass(false);
-							client->second.setNickname("");
-							throw std::logic_error("You should Enter USER <username> <mode> <unused> <realname>");
-						}
-					}
-					else
-					{
-						client->second.setValidPass(false);
-						client->second.setNickname("");
-						throw std::logic_error("You should Enter USER <username> <mode> <unused> <realname>");
-					}
-				}
-				else
-				{
-					client->second.setValidPass(false);
-					throw std::logic_error("You should Enter NICK <nickname>");
-				}
-			}
 		}
 		else
-			throw std::logic_error("password incorrect");
+			throw std::logic_error("wrong password");
 	}
-
-	// if (client->second.getNickname() != "" && client->second.getUsername() != "")
-	// 	client->second.setRegistered(true);
-	// else
-	// 	throw std::logic_error("You should Enter NICK <nickname> and USER <username> <mode> <unused> <realname>");
+	else
+	{
+		std::cout<< "client already registed and has a on status" << std::endl;
+	}
 }
 
 // Handle incoming data from clients :
@@ -187,10 +147,9 @@ void Server::handleIncomeData() {
 			else {
 				buffer[rc] = '\0';
 				std::string message(buffer);
-				
 				// if the client is not registered yet, authenticate the client
 				try {
-					authentication(message, _clients.find(_fds[i].fd));
+					authentication(message, _fds[i].fd);
 				} catch (std::logic_error &e) {
 					std::cerr << e.what() << std::endl;
 					continue;
@@ -198,9 +157,7 @@ void Server::handleIncomeData() {
 
 				// here we can do whatever we want with the message
 				//........
-				std::cout << "nick : " << _clients.find(_fds[i].fd)->second.getNickname() << std::endl;
-				std::cout << "username : " << _clients.find(_fds[i].fd)->second.getUsername() << std::endl;
-				std::cout << message ;
+				std::cout << message << std::endl;
 			}
 		}
 	}
