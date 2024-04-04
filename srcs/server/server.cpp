@@ -107,23 +107,36 @@ void Server::handlIncomeConnections()
 	}
 }
 
-void Server::authentication(std::string &message, int fd)
+void Server::command_list(std::string &message, Client &cling)
 {
 	std::string command;
 	// _clients[fd];
 
-	if (_clients[fd].getRegistered() == false)
+	if (cling.getRegistered() == false)
 	{
 			//authenticate the client
-		if (message.substr(0 ,5) == "PASS ")
+		if (cling.getValidPass() == false && message.substr(0 ,5) == "PASS ")
 		{
-			std::cout << "password correct" << std::endl;
+			if (message.substr(5, message.length() - 6) == _password )
+				cling.setValidPass(true);
+			else
+				std::cout<<"wrong password try againe"<<std::endl;
+		}
+		else if (cling.getValidPass() == true && message.substr(0 ,5) == "NICK ")
+		{
+			cling.setNickname(message.substr(5, message.length() - 6));
+		}
+		else if (cling.getValidPass() == true && message.substr(0 ,5) == "USER ")
+		{
+			cling.setUsername(message.substr(5, message.length() - 6));
+			cling.setRealname(message.substr(5, message.length() - 6)); // pase iside and return bool for parse output
 		}
 		else
-			throw std::logic_error("wrong password");
+			std::cout << "try registring first please" << std::endl;
 	}
 	else
 	{
+		std::cout << HEADER << std::endl;
 		std::cout<< "client already registed and has a on status" << std::endl;
 	}
 }
@@ -134,6 +147,8 @@ void Server::handleIncomeData() {
 	int rc;
 	for (size_t i = 1; i < _nfds; i++) {
 		if (_fds[i].revents & POLLIN) {
+			// setClientStatus(_clients.find(_fds[i].fd)->second);
+			_clients.find(_fds[i].fd)->second.refstatus();
 			rc = recv(_fds[i].fd, buffer, sizeof(buffer), 0);
 			if (rc < 0)
 				Err("recv() failed", 0);
@@ -148,16 +163,17 @@ void Server::handleIncomeData() {
 				buffer[rc] = '\0';
 				std::string message(buffer);
 				// if the client is not registered yet, authenticate the client
-				try {
-					authentication(message, _fds[i].fd);
-				} catch (std::logic_error &e) {
-					std::cerr << e.what() << std::endl;
-					continue;
-				}
+
+				command_list(message, _clients.find(_fds[i].fd)->second);
+				// try {
+				// } catch (std::logic_error &e) {
+				// 	std::cerr << e.what() << std::endl;
+				// 	continue;
+				// }
 
 				// here we can do whatever we want with the message
 				//........
-				std::cout << message << std::endl;
+				std::cout << "FULL CONMNAD ="<< message;
 			}
 		}
 	}
