@@ -2,6 +2,9 @@
 #define CLIENT_HPP
 
 #include "../../Inc/define.hpp"
+#include "../channel/channel.hpp"
+#include <netinet/in.h>
+#include <sys/socket.h>
 
 class Client
 {
@@ -10,9 +13,11 @@ class Client
         std::string nickname;
         std::string username;
         std::string realname;
-        std::vector<std::string> channels;
+        std::map<std::string, Channel> _channels;
         bool _registered;
         bool _validPass;
+    public :
+        sockaddr_in _addr;
 
     public:
         Client(int sock);
@@ -22,12 +27,14 @@ class Client
         void setRealname(const std::string& real);
         void setRegistered(bool reg) { _registered = reg; }
         void setValidPass(bool pass) { _validPass = pass; }
+        void setSckAddr(sockaddr_in addr) { this->_addr = addr; }
 
         std::string getNickname() const ;
         std::string getUsername() const ;
         std::string getRealname() const ;
         bool getRegistered() const { return _registered; }
         bool getValidPass() const { return _validPass; }
+
 
         ~Client(void);
 };
