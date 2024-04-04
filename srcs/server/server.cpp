@@ -11,9 +11,7 @@ void Err(std::string msg, int exitFalg)
 
 // default constructor :
 
-Server::Server()
-{
-}
+// Server::Server() {}
 
 // parameterized constructor : initialize the server socket and set the port number
 Server::Server(uint16_t port, char *password) : _port(port), _password(password)
@@ -82,7 +80,8 @@ Server::Server(uint16_t port, char *password) : _port(port), _password(password)
 
 
 // Handle incoming connections:
-void Server::handlIncomeConnections() {
+void Server::handlIncomeConnections() 
+{
 	if (_fds[0].revents == POLLIN)
 	{
 		// std::pair<int, Client> client(0, Client(0));
@@ -196,37 +195,6 @@ void Server::handleIncomeData() {
 					std::cerr << e.what() << std::endl;
 					continue;
 				}
-				
-				// if (message.substr(0,5) == "PASS ")
-				// {
-				// 	std::string pass = message.substr(5, message.size() - 6);
-				// 	// std::cout << "PASS :"<< pass <<":DONE"<< std::endl;
-				// 	if (pass == _password)
-				// 	{
-				// 		std::cout << "password correct" << std::endl;
-				// 		send(_fds[i].fd,"password correct\n", 17, 0);
-				// 	}
-				// 	else
-				// 	{
-				// 		std::cout << "password incorrect" << std::endl;
-				// 		send(_fds[i].fd,"password incorrect\n", 20, 0);
-				// 	}
-				// }
-				// else if (message.substr(0,5) == "NICK ") // NICK nicknome
-				// {
-				// 	std::string pass = message.substr(5, message.size() - 6);
-
-				// }
-				// else if (message.substr(0,5) == "USER ") //USER logino 0 * realfr
-				// {
-				// 	std::string pass = message.substr(5, message.size() - 6);
-
-				// }
-				// else
-				// {
-				// 	std::cout << "command not available" << std::endl;
-				// 	send(_fds[i].fd,"command not found\n", 19, 0);
-				// }
 
 				// here we can do whatever we want with the message
 				//........
@@ -272,6 +240,6 @@ int Server::createServer()
 }
 
 
-Server::~Server() {
-    return;
+Server::~Server(void) {
+	close(_listen_sd);
 }
