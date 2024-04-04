@@ -12,29 +12,29 @@
 
 #include "../channel/channel.hpp"
 
-Channel::Channel() : _name("default")
-{
-}
-
-Channel::Channel(std::string name) : _name(name)
-{
-}
-
-// Channel::Channel(const Channel &src)
+// Channel::Channel() : _name("default")
 // {
-//     // *this = src;
 // }
 
-Channel::~Channel()
-{
-}
+// Channel::Channel(std::string name) : _name(name)
+// {
+// }
 
-std::string Channel::getName() const
-{
-    return _name;
-}
+// // Channel::Channel(const Channel &src)
+// // {
+// //     // *this = src;
+// // }
 
-void Channel::setName(std::string name)
-{
-    _name = name;
-}
+// Channel::~Channel()
+// {
+// }
+
+// std::string Channel::getName() const
+// {
+//     return _name;
+// }
+
+// void Channel::setName(std::string name)
+// {
+//     _name = name;
+// }
