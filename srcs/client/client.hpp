@@ -13,9 +13,10 @@ class Client
         std::string nickname;
         std::string username;
         std::string realname;
-        std::map<std::string, Channel> _channels;
         bool _registered;
         bool _validPass;
+        std::map<std::string, Channel> joined_channels;
+
     public :
         sockaddr_in _addr;
 

@@ -12,21 +12,18 @@
 class Server
 {
   private:
-    uint16_t	            _port;
+    uint16_t	              _port;
     std::string             _password;
     int                     _listen_sd;
     struct sockaddr_in      _addr;
     std::vector<pollfd>    	_fds;
     size_t                  _nfds;
     std::map<int, Client>	_clients;
-    std::map<std::string, Channel> _channels; // list of channels in the server
+    std::map<std::string, Channel> server_channels; // list of channels in the server
+    Server(void);
 
   public:
-        Server();
         Server(uint16_t port, char *password);
-        
-        // void setPort(unsigned int port);
-        // void setPassword(char *password);
 
         unsigned int getPort() const { return _port; }
         std::string getPassword() const { return _password; }
