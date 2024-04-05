@@ -107,73 +107,57 @@ void Server::handlIncomeConnections()
 	}
 }
 
-void Server::authentication(std::string message, std::map<int, Client>::iterator client)
+	// cant start with :
+		// Dollar ($, 0x24)
+		// Colon (:, 0x3A)
+		// Any character listed as a channel type (#, &)
+		// Any character listed as a channel membership prefix (@, ~, &, %, +)
+void Server::command_list(std::string &message, Client &cling)
 {
-	std::stringstream stream(message);
-	std::string pass;
-	std::string user;
-	std::string nick;
-	std::string	mode;
-	std::string unused;
-	std::string userName;
-	std::string realName;
+	std::string command;
+	// _clients[fd];
 
-	// if the client is not registered yet, authenticate the client :
-	if ((stream >> pass || !stream.eof()) && pass == "PASS" && !client->second.getValidPass()){
-		if ((stream >> pass || !stream.eof()) && pass == _password)
+	if (cling.getRegistered() == false)
+	{
+			//authenticate the client
+		if (cling.getValidPass() == false && message.substr(0 ,5) == "PASS ")
 		{
-			std::cout << "password correct" << std::endl;
-			client->second.setValidPass(true);
-			// check if the client entered the NICK command :
-			if (((stream >> nick || !stream.eof() ) && (nick == "NICK")) && client->second.getValidPass()){
-				if ((stream >> nick || !stream.eof()))
-				{
-					client->second.setNickname(nick);
-					// check if the client entered the USER command :
-					if ((stream >> user || !stream.eof()) && user == "USER"){
-						if ((stream >> userName || !stream.eof()) && (stream >> mode || !stream.eof()) && (stream >> unused \
-						  || !stream.eof()) && (stream >> realName || !stream.eof()))
-						{
-							client->second.setUsername(userName);
-							client->second.setRealname(realName);
-						}		
-						else
-						{
-							client->second.setValidPass(false);
-							client->second.setNickname("");
-							throw std::logic_error("You should Enter USER <username> <mode> <unused> <realname>");
-						}
-					}
-					else
-					{
-						client->second.setValidPass(false);
-						client->second.setNickname("");
-						throw std::logic_error("You should Enter USER <username> <mode> <unused> <realname>");
-					}
-				}
-				else
-				{
-					client->second.setValidPass(false);
-					throw std::logic_error("You should Enter NICK <nickname>");
-				}
-			}
+			if (message.substr(5, message.length() - 6) == _password )
+				cling.setValidPass(true);
+			else
+				std::cout<<"wrong password try againe"<<std::endl;
+		}
+		else if (cling.getValidPass() == true && message.substr(0 ,5) == "NICK ") // this should be uniq to only one user
+		{
+			// parse for the following ...
+			// 	should be uniq to only one client 
+			// 	shouldnt start with the following ===> $ : # & + ~  %
+			// 	shouldnt contain eny of these ===> space , * ? ! @ .
+			
+			cling.setNickname(message.substr(5, message.length() - 6));
+		}
+		else if (cling.getValidPass() == true && message.substr(0 ,5) == "USER ")
+		{
+			cling.setUsername(message.substr(5, message.length() - 6));
+			cling.setRealname(message.substr(5, message.length() - 6)); // pase iside and return bool for parse output
 		}
 		else
-			throw std::logic_error("password incorrect");
+			std::cout << "try registring first using these commands PASS nick user" << std::endl;
 	}
-
-	// if (client->second.getNickname() != "" && client->second.getUsername() != "")
-	// 	client->second.setRegistered(true);
-	// else
-	// 	throw std::logic_error("You should Enter NICK <nickname> and USER <username> <mode> <unused> <realname>");
+	else
+	{
+		send(cling.getsocket(),"mar7ba\n",8,0);
+	}
 }
 
 // Handle incoming data from clients :
 void Server::handleIncomeData() {
 	char buffer[1024];
 	int rc;
-	for (size_t i = 1; i < _nfds; i++) {
+	for (size_t i = 1; i < _nfds; i++) 
+	{
 		if (_fds[i].revents & POLLIN) {
+			// setClientStatus(_clients.find(_fds[i].fd)->second);
 			rc = recv(_fds[i].fd, buffer, sizeof(buffer), 0);
 			if (rc < 0)
 				Err("recv() failed", 0);
@@ -187,20 +171,19 @@ void Server::handleIncomeData() {
 			else {
 				buffer[rc] = '\0';
 				std::string message(buffer);
-				
 				// if the client is not registered yet, authenticate the client
-				try {
-					authentication(message, _clients.find(_fds[i].fd));
-				} catch (std::logic_error &e) {
-					std::cerr << e.what() << std::endl;
-					continue;
-				}
+
+				command_list(message, _clients.find(_fds[i].fd)->second);
+				_clients.find(_fds[i].fd)->second.refstatus();
+				// try {
+				// } catch (std::logic_error &e) {
+				// 	std::cerr << e.what() << std::endl;
+				// 	continue;
+				// }
 
 				// here we can do whatever we want with the message
 				//........
-				std::cout << "nick : " << _clients.find(_fds[i].fd)->second.getNickname() << std::endl;
-				std::cout << "username : " << _clients.find(_fds[i].fd)->second.getUsername() << std::endl;
-				std::cout << message ;
+				// std::cout << "FULL CONMNAD ="<< message;
 			}
 		}
 	}
@@ -222,7 +205,7 @@ int Server::createServer()
 	    if (rc <= 0)
 	        continue;
 	    // Check for incoming connection on the server socket
-		handlIncomeConnections();	    
+		handlIncomeConnections();
 
 	    // Iterate through fds array to check for messages from clients
 	    handleIncomeData();
