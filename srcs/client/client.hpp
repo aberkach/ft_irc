@@ -22,9 +22,10 @@ class Client
 
         Client(int sock);
 
-        void setNickname(const std::string& nick);
-        void setUsername(const std::string& user);
-        void setRealname(const std::string& real);
+        bool setNickname(const std::string& nick);
+        bool setUsername(const std::string& user);
+        bool setRealname(const std::string& real);
+
         void setRegistered(bool reg) { _registered = reg; }
         void setValidPass(bool pass) { _validPass = pass; }
 

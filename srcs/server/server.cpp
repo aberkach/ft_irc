@@ -107,6 +107,11 @@ void Server::handlIncomeConnections()
 	}
 }
 
+	// cant start with :
+		// Dollar ($, 0x24)
+		// Colon (:, 0x3A)
+		// Any character listed as a channel type (#, &)
+		// Any character listed as a channel membership prefix (@, ~, &, %, +)
 void Server::command_list(std::string &message, Client &cling)
 {
 	std::string command;
@@ -122,8 +127,13 @@ void Server::command_list(std::string &message, Client &cling)
 			else
 				std::cout<<"wrong password try againe"<<std::endl;
 		}
-		else if (cling.getValidPass() == true && message.substr(0 ,5) == "NICK ")
+		else if (cling.getValidPass() == true && message.substr(0 ,5) == "NICK ") // this should be uniq to only one user
 		{
+			// parse for the following ...
+			// 	should be uniq to only one client 
+			// 	shouldnt start with the following ===> $ : # & + ~  %
+			// 	shouldnt contain eny of these ===> space , * ? ! @ .
+			
 			cling.setNickname(message.substr(5, message.length() - 6));
 		}
 		else if (cling.getValidPass() == true && message.substr(0 ,5) == "USER ")

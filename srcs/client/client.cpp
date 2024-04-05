@@ -6,19 +6,29 @@ Client::Client(int sock) : socket(sock) , _registered(false) , _validPass(false)
     memset(&_addr, 0, sizeof(_addr));
 };
 
-void Client::setNickname(const std::string& nick) 
+bool Client::setNickname(const std::string& nick) 
 {
-     nickname = nick; 
+    // 	shouldnt start with the following ===> $ : # & + ~  %
+    if (nick.empty() ||  nick[0] == '$' || nick[0] == ':' || nick[0] == '#' || nick[0] == '&' ||  nick[0] == '+'
+            ||  nick[0] == '~' ||  nick[0] == '%' )
+        return (false);
+    if (nick)
+    
+    nickname = nick;
+    return (true);
 };
 
-void Client::setUsername(const std::string& user) 
+bool Client::setUsername(const std::string& user) 
 {
-     username = user; 
+    username = user;
+
+    return (false);
 };
 
-void Client::setRealname(const std::string& real) 
+bool Client::setRealname(const std::string& real) 
 {
      realname = real; 
+     return (false);
 };
 
 std::string Client::getNickname() const
