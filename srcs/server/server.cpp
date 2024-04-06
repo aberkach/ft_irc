@@ -2,6 +2,7 @@
 #include "server.hpp"
 #include <cstddef>
 #include <sstream>
+#include <arpa/inet.h> // print ip adrss
 
 void Err(std::string msg, int exitFalg)
 {
@@ -118,52 +119,59 @@ void Server::handlIncomeConnections()
 		// Any character listed as a channel membership prefix (@, ~, &, %, +)
 void Server::command_list(std::string &message, Client &cling)
 {
-	std::string command;
-	// _clients[fd];
+	std::string command = message.substr(0 ,5);
+	std::string argument = message.substr(5,message.length() - 6);
 
 	if (cling.getRegistered() == false)
 	{
-			//authenticate the client
-		if (cling.getValidPass() == false && message.substr(0 ,5) == "PASS ")
+		//authenticate the client
+		if (cling.getValidPass() == false && command == "PASS ")
 		{
-			if (message.substr(5, message.length() - 6) == _password)
+			if (argument == _password)
 			{
 				cling.setValidPass(true);
 				std::cout << "success pass" << std::endl;
 			}
 			else
 			{
-				// std::ostringstream oss;
-				// oss << cling._addr.sin_addr.s_addr;
-				// std::string errorMsg =;
-				std::cout << cling._addr.sin_addr.s_addr << std::endl;
-				// out << ":irc.1337.ma 464 " <<  cling._addr.sin_addr  << " :Password incorrect";
-				//
-				// send(cling.getsocket(), out , out.size(), 0);
+				std::string response = ERR_PASSWDMISMATCH(std::string(inet_ntoa(cling._addr.sin_addr))) + '\n';
+				send(cling.getsocket(), response.c_str() , response.size(), 0);
+				return;
 			}
 		}
-		else if (cling.getValidPass() == true && message.substr(0 ,5) == "NICK ") // this should be uniq to only one user
+		else if (cling.getValidPass() == true && cling.getNickname().empty() && command == "NICK ")
 		{
 			std::map<int, Client>::const_iterator it;
 
-			for (it = _clients.begin() ; it != _clients.end(); ++it)
+			if (command.empty())
 			{
-				if (it->second.getNickname() == message.substr(5, message.length() - 6))
+				std::string response = ERR_NONICKNAMEGIVEN(std::string(inet_ntoa(cling._addr.sin_addr))) + '\n';
+				send(cling.getsocket(), response.c_str() , response.size(), 0);
+				return;
+			}
+			for (it = _clients.begin() ; it != _clients.end(); ++it)  // this should be uniq to only one user
+			{
+				if (it->second.getNickname() == argument) // dosnt get free when client leaves !!
 				{
-					std::cout << "Nickname already in use" << std::endl; // works but when connection is close the client class still lives on
-        			return;
+					std::string response = ERR_NICKNAMEINUSE(std::string(inet_ntoa(cling._addr.sin_addr))) + '\n';
+					send(cling.getsocket(), response.c_str() , response.size(), 0);
+					return;
 				}
 			}
-			if (cling.setNickname(message.substr(5, message.length() - 6)) == false)
-				std::cout<<"wrong nickname"<<std::endl;
+			if (cling.setNickname(argument) == false)
+			{
+				std::string response = ERR_ERRONEUSNICKNAME(std::string(inet_ntoa(cling._addr.sin_addr)),argument) + '\n';
+				send(cling.getsocket(), response.c_str() , response.size(), 0);
+				return;
+			}
 		}
-		else if (cling.getValidPass() == true && message.substr(0 ,5) == "USER ")
+		else if (cling.getValidPass() == true && command == "USER ")
 		{
-			cling.setUsername(message.substr(5, message.length() - 6));
-			cling.setRealname(message.substr(5, message.length() - 6)); // pase iside and return bool for parse output
+			cling.setUsername(argument);
+			cling.setRealname(argument); // pase iside and return bool for parse output
 		}
 		else
-			std::cout << "try registring first using these commands PASS nick user" << std::endl;
+			std::cout << "try registring first using these commands PASS nick user" << std::endl; // print using an error code
 	}
 	else
 	{
@@ -192,8 +200,11 @@ void Server::handleIncomeData() {
 			else {
 				buffer[rc] = '\0';
 				std::string message(buffer);
-				// if the client is not registered yet, authenticate the client
 
+				// here we can do whatever we want with the message
+				//........
+
+				// if the client is not registered yet, authenticate the client
 				command_list(message, _clients.find(_fds[i].fd)->second);
 				_clients.find(_fds[i].fd)->second.refstatus();
 				// try {
@@ -201,9 +212,6 @@ void Server::handleIncomeData() {
 				// 	std::cerr << e.what() << std::endl;
 				// 	continue;
 				// }
-
-				// here we can do whatever we want with the message
-				//........
 				// std::cout << "FULL CONMNAD ="<< message;
 			}
 		}

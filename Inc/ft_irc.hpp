@@ -10,14 +10,14 @@
 
 // client connected to the server
 #define RPL_WELCOME(client) ":irc.1337.ma 001 " + (client) + " :Welcome to the IRC Network, " + (client)
-
 #define RPL_YOURHOST(client, servername, version) ":irc.1337.ma 002 " + (client) + " :Your host is " + (servername) + ", running version " + (version)
 #define RPL_CREATED(client, time) ":irc.1337.ma 003 " + (client) + " :This server was created " + (time)
 #define RPL_MYINFO(client, servername, version) ":irc.1337.ma 004 " + (client) + " :" + (servername) + " " + (version)
 #define RPL_ISUPPORT(client)  ":irc.1337.ma 005 " + (client) + " :are supported by this server"
 
+
 #define ERR_ALREADYREGISTERED(client) ":irc.1337.ma 462 " +  (client) + " :You may not reregister"
-#define ERR_ERRONEUSNICKNAME(client, command) ":irc.1337.ma 432 " +  (client) + " " + command + " ::Erroneus nickname"
+#define ERR_ERRONEUSNICKNAME(client, command) ":irc.1337.ma 432 " +  (client) + " " + (command) + " :Erroneus nickname"
 #define ERR_UNKNOWNCOMMAND(client, command) ":irc.1337.ma 421 " +  (client) + " " + (command) + " :Unknown command"
 #define ERR_NOSUCHNICK(client1, client2) ":irc.1337.ma 401 " + (client1) + " " + (client2) + " :No such nick"
 #define ERR_NEEDMOREPARAMS(client, command) ":irc.1337.ma 461 " + (client) + " " + (command) + " :Not enough parameters"
@@ -26,7 +26,9 @@
 #define ERR_NOTONCHANNEL(client, channel)  ":irc.1337.ma 442 " + (client) + " " + (channel) + " :You're not on that channel"
 #define ERR_USERNOTINCHANNEL(client, nickname, channel) ":irc.1337.ma 441 " + (client) + " " + (nickname) + " " + (channel) + " :They aren't on that channel"
 #define ERR_CHANOPRIVSNEEDED(client, channel) ":irc.1337.ma 482 " + (client) + " " + (channel) + " :You're not channel operator"
+
 #define ERR_PASSWDMISMATCH(client) ":irc.1337.ma 464 " + (client) + " :Password incorrect"
+
 #define ERR_USERONCHANNEL(client, nick, channel) ":irc.1337.ma 443 " + (client) + " " + (nick) + " " + (channel) + " :is already on channel"
 #define ERR_INVITEONLYCHAN(client, channel) ":irc.1337.ma 473 " + (client) + " " + (channel) + " :Cannot join channel (+i)"
 #define ERR_BADCHANMASK(channel)  ":irc.1337.ma 476 " + (channel) + " :Bad Channel Mask"

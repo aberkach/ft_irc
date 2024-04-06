@@ -10,11 +10,11 @@
 // c++ headers:
 #include <iostream>
 #include <string>
+#include <cstring>
+#include <vector>
 #include <map>
 #include <set>
 #include <cctype>
-#include <cstring>
-#include <vector>
 
 // sys network headers:
 #include <sys/socket.h>
