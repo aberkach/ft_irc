@@ -119,7 +119,17 @@ void Server::handlIncomeConnections()
 		// Any character listed as a channel membership prefix (@, ~, &, %, +)
 void Server::command_list(std::string &message, Client &cling)
 {
-	std::string command = message.substr(0 ,5);
+	std::string command, argument;
+
+	if (message.size() >= 5)
+	    command = message.substr(0 ,5);
+
+	for (int i = 0; command[i]; i++)
+		command[i] = toupper(command[i]);
+
+	if (message.size() > 6)
+	    argument = message.substr(5, message.size() - 6);
+
 	std::string argument = message.substr(5,message.length() - 6);
 
 	if (cling.getRegistered() == false)
@@ -149,7 +159,7 @@ void Server::command_list(std::string &message, Client &cling)
 				send(cling.getsocket(), response.c_str() , response.size(), 0);
 				return;
 			}
-			for (it = _clients.begin() ; it != _clients.end(); ++it)  // this should be uniq to only one user
+			for (it = _clients.begin() ; it != _clients.end(); ++it)
 			{
 				if (it->second.getNickname() == argument) // dosnt get free when client leaves !!
 				{
@@ -170,8 +180,8 @@ void Server::command_list(std::string &message, Client &cling)
 			cling.setUsername(argument);
 			cling.setRealname(argument); // pase iside and return bool for parse output
 		}
-		else
-			std::cout << "try registring first using these commands PASS nick user" << std::endl; // print using an error code
+		// else
+		// 	std::cout << "try registring first using these commands PASS nick user" << std::endl; // print using an error code
 	}
 	else
 	{
