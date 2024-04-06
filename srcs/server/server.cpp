@@ -1,3 +1,4 @@
+#include "../../Inc/ft_irc.hpp"
 #include "server.hpp"
 #include <cstddef>
 #include <sstream>
@@ -84,24 +85,27 @@ void Server::handlIncomeConnections()
 {
 	if (_fds[0].revents == POLLIN)
 	{
-		// std::pair<int, Client> client(0, Client(0));
-		Client client(0);
-		int sock_len = sizeof(_addr);
-		int newSck = accept(_listen_sd, (struct sockaddr *)&client._addr, (socklen_t*)&sock_len);
+		struct sockaddr_in client_adrs;
+		socklen_t sock_len = sizeof(client_adrs);
+		memset(&client_adrs, 0, sock_len);
+
+		int newSck = accept(_listen_sd, (struct sockaddr *)&client_adrs, &sock_len);
 	    if (newSck < 0)
 	        perror("  accept() failed");
+		
 	    else {
 			// Resize the fds array if it's full
 			if (_nfds >= _fds.size())
 				_fds.resize(_fds.size() * 2);
 	        // Add the new client socket to the fds array and clientsFds map
 	        std::cout << "New incoming connection - " << newSck << std::endl;
+			// std::cout << client_adrs.sin_addr.s_addr << std::endl;
 	        fcntl(newSck, F_SETFL, O_NONBLOCK);
 			_fds[_nfds].fd = newSck;
 	        _fds[_nfds].events = POLLIN;
 			_fds[_nfds].revents = 0;
 			// Add the new client to the clients map
-	        _clients.insert(std::pair<int, Client>(newSck, Client(newSck)));
+	        _clients.insert(std::pair<int, Client>(newSck, Client(newSck, client_adrs)));
 	        _nfds++;
 	    }
 	}
@@ -122,19 +126,36 @@ void Server::command_list(std::string &message, Client &cling)
 			//authenticate the client
 		if (cling.getValidPass() == false && message.substr(0 ,5) == "PASS ")
 		{
-			if (message.substr(5, message.length() - 6) == _password )
+			if (message.substr(5, message.length() - 6) == _password)
+			{
 				cling.setValidPass(true);
+				std::cout << "success pass" << std::endl;
+			}
 			else
-				std::cout<<"wrong password try againe"<<std::endl;
+			{
+				// std::ostringstream oss;
+				// oss << cling._addr.sin_addr.s_addr;
+				// std::string errorMsg =;
+				std::cout << cling._addr.sin_addr.s_addr << std::endl;
+				// out << ":irc.1337.ma 464 " <<  cling._addr.sin_addr  << " :Password incorrect";
+				//
+				// send(cling.getsocket(), out , out.size(), 0);
+			}
 		}
 		else if (cling.getValidPass() == true && message.substr(0 ,5) == "NICK ") // this should be uniq to only one user
 		{
-			// parse for the following ...
-			// 	should be uniq to only one client 
-			// 	shouldnt start with the following ===> $ : # & + ~  %
-			// 	shouldnt contain eny of these ===> space , * ? ! @ .
-			
-			cling.setNickname(message.substr(5, message.length() - 6));
+			std::map<int, Client>::const_iterator it;
+
+			for (it = _clients.begin() ; it != _clients.end(); ++it)
+			{
+				if (it->second.getNickname() == message.substr(5, message.length() - 6))
+				{
+					std::cout << "Nickname already in use" << std::endl; // works but when connection is close the client class still lives on
+        			return;
+				}
+			}
+			if (cling.setNickname(message.substr(5, message.length() - 6)) == false)
+				std::cout<<"wrong nickname"<<std::endl;
 		}
 		else if (cling.getValidPass() == true && message.substr(0 ,5) == "USER ")
 		{

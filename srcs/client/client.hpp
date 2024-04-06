@@ -1,5 +1,5 @@
-#ifndef CLIENT_HPP
-#define CLIENT_HPP
+#ifndef CLIENT_HPP__
+#define CLIENT_HPP__
 
 #include "../../Inc/define.hpp"
 #include "../channel/channel.hpp"
@@ -20,7 +20,7 @@ class Client
     public:
         sockaddr_in _addr;
 
-        Client(int sock);
+        Client(int sock, struct sockaddr_in &client_adrs);
 
         bool setNickname(const std::string& nick);
         bool setUsername(const std::string& user);
