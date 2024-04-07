@@ -21,7 +21,7 @@ M = MAKE_PUSH
 all : $(EXE)
 
 $(EXE): $(OBJ)
-	$(CPP) $(CPPFLAGS) $(OBJ)  -o $(EXE)
+	$(CPP) $(CPPFLAGS) $(OBJ) -o $(EXE)
 
 %.o: %.cpp $(HEADER)
 	$(CPP) $(CPPFLAGS) -c -o $@ $<

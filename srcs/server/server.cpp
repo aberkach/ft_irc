@@ -1,6 +1,10 @@
 #include "server.hpp"
+#include <algorithm>
 #include <cstddef>
+#include <cstdlib>
 #include <sstream>
+#include <string>
+#include <vector>
 
 void Err(std::string msg, int exitFalg)
 {
@@ -20,9 +24,7 @@ Server::Server(uint16_t port, char *password) : _port(port), _password(password)
 	_listen_sd = socket(AF_INET, SOCK_STREAM, 0); // Create a TCP socket
 	if (_listen_sd < 0)
 		Err("socket() failed", 1);
-	// _listen_sd < 0 ? Err("socket() failed", 1) : void(0);
-
-	// Set socket option to allow address reuse
+	// Set socket option to allow the server to reuse the address and port
 	int on = 1;
 	if (setsockopt(_listen_sd, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on)) < 0) {
 	    close(_listen_sd);
@@ -87,6 +89,8 @@ void Server::handlIncomeConnections()
 		// std::pair<int, Client> client(0, Client(0));
 		Client client(0);
 		int sock_len = sizeof(_addr);
+
+		// Accept incoming connection
 		int newSck = accept(_listen_sd, (struct sockaddr *)&client._addr, (socklen_t*)&sock_len);
 	    if (newSck < 0)
 	        perror("  accept() failed");
@@ -97,6 +101,7 @@ void Server::handlIncomeConnections()
 	        // Add the new client socket to the fds array and clientsFds map
 	        std::cout << "New incoming connection - " << newSck << std::endl;
 	        fcntl(newSck, F_SETFL, O_NONBLOCK);
+			// add the new client to the fds (of poll)
 			_fds[_nfds].fd = newSck;
 	        _fds[_nfds].events = POLLIN;
 			_fds[_nfds].revents = 0;
@@ -150,6 +155,138 @@ void Server::command_list(std::string &message, Client &cling)
 	}
 }
 
+std::vector<std::string> split(std::string str, char delim)
+{
+    // split the string by the delim
+	std::vector<std::string> tokens;
+	std::string token;
+
+	for (size_t i = 0; i < str.length(); i++)
+	{
+		if (str[i] == delim)
+		{
+			tokens.push_back(token);
+			token.clear();
+		}
+		else
+			token += str[i];
+	}
+	tokens.push_back(token);
+	return tokens;
+}
+
+void Server::command_join(std::string &message, Client &client) {
+	// split the message by space
+	std::vector<std::string> splitedMsg = split(message, ' ');
+    
+	if (splitedMsg.begin() != splitedMsg.end())
+	{
+		// get the command
+		std::string command = *splitedMsg.begin();
+		// check if the command is JOIN
+		if ((command == "JOIN" || "join") && splitedMsg.size() > 0 ){
+			// remove the command from the message
+			splitedMsg.erase(splitedMsg.begin());
+			std::vector<std::string> channels;
+            std::vector<std::string> keys;
+			// check if the message contains a key
+            if (splitedMsg.size()  >= 2)
+            {
+				keys = split(splitedMsg[1], ',');
+                for (size_t i = 0; i < keys.size(); i++)
+                {
+                    std::string key = keys[i];
+					// check if the key is valid
+                    if (key.find_first_of(" ,\a\b\f\t\v$:&+~%#") != std::string::npos)
+					{
+						std::cout << "Error: invalid channel key " << key << std::endl;
+						continue;
+					}
+					// check if the key in the end of the message
+					if (key.find_first_of("\r\n") != std::string::npos)
+						break;
+                }
+            }
+			// check if the message contains a channel name
+            if (splitedMsg.size() > 0)
+            {
+				// split the message by comma
+                channels = split(splitedMsg[0], ',');
+                // loop through the channels names
+                for (size_t i = 0; i < channels.size(); i++)
+                {
+                    std::string chnName = channels[i];
+					 // check if the channel name is valid
+                    if ((chnName[0] != '#'))
+					{
+                        std::cout << "Error: invalid channel name" << std::endl;
+						continue;
+					}
+					if ((chnName.find_first_of(" ,\a\b\f\t\v") != std::string::npos) || (chnName.find_first_of("$:&+~%") != std::string::npos))
+					{
+						std::cout << "Error: invalid channel name" << std::endl;
+						continue;
+					}
+					else
+                    {
+						// check if the channel already exist
+						std::map<std::string, Channel>::iterator it = server_channels.find(chnName);
+						// if the channel doesn't exist, create a new one
+						if (it == server_channels.end())
+						{
+							Channel newChannel(chnName);
+							server_channels.insert(std::pair<std::string, Channel>(chnName, newChannel));
+							// check if the channel has a key
+							if (keys.size() > 0)
+							{
+								// set the key for the channel
+								server_channels.find(chnName)->second.setKey(keys[0]);
+								if (keys.size() > 1)
+									keys.erase(keys.begin());;
+							}
+							else
+								server_channels.find(chnName)->second.setKey("");
+						}
+						// if the channel already exist, check if the client is already in the channel
+						else {
+							// if the client is already in the channel, do nothing
+							if (it->second.isClientExist(client.getNickname()))
+							{
+								std::cout << "Error: you are already in the channel" << std::endl;
+								continue;
+							}
+							// if the client is not in the channel, add the client to the channel
+							else
+							{
+								// check if the channel has a key
+								if (it->second.getKey() != "")
+								{
+									// if the key is correct
+									if (it->second.getKey() == keys[0])
+									{
+										// add the client to the channel
+										it->second.addUser(client);
+										if (keys.size() > 1)
+											keys.erase(keys.begin());
+									}
+									else
+									{
+										std::cout << "Error: invalid channel key" << std::endl;
+										continue;
+									}
+								}
+								// if the channel doesn't have a key, add the client to the channel
+								else
+									it->second.addUser(client);
+							}
+						}
+                    }
+                }
+            }
+        }
+    }
+}
+
 // Handle incoming data from clients :
 void Server::handleIncomeData() {
 	char buffer[1024];
@@ -173,13 +310,9 @@ void Server::handleIncomeData() {
 				std::string message(buffer);
 				// if the client is not registered yet, authenticate the client
 
-				command_list(message, _clients.find(_fds[i].fd)->second);
-				_clients.find(_fds[i].fd)->second.refstatus();
-				// try {
-				// } catch (std::logic_error &e) {
-				// 	std::cerr << e.what() << std::endl;
-				// 	continue;
-				// }
+				// command_list(message, _clients.find(_fds[i].fd)->second);
+				// _clients.find(_fds[i].fd)->second.refstatus();
+				command_join(message, _clients.find(_fds[i].fd)->second);
 
 				// here we can do whatever we want with the message
 				//........

@@ -1,5 +1,5 @@
 
-#include "../Inc/ft_irc.hpp"
+#include "server/server.hpp"
 
 int main(int ac, char **av)
 {

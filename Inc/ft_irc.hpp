@@ -6,7 +6,7 @@
 #include "../srcs/Poller/Poller.hpp"
 #include "../srcs/client/client.hpp"
 #include "../srcs/tools/health.hpp"
-#include "../srcs/server/server.hpp"
+// #include "../srcs/server/server.hpp"
 
 // client connected to the server
 #define RPL_WELCOME(client) ":irc.1337.ma 001 " + (client) + " :Welcome to the IRC Network, " + (client)
