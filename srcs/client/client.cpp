@@ -12,7 +12,7 @@ bool Client::setNickname(const std::string& nick)
     if (nick.empty() ||  nick[0] == '$' || nick[0] == ':' || nick[0] == '#' || nick[0] == '&' ||  nick[0] == '+'
             ||  nick[0] == '~' ||  nick[0] == '%' )
         return (false);
-    if (nick)
+    // if (nick)
     
     nickname = nick;
     return (true);

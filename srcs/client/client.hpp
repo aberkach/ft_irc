@@ -2,7 +2,6 @@
 #define CLIENT_HPP
 
 #include "../../Inc/define.hpp"
-#include "../channel/channel.hpp"
 #include <netinet/in.h>
 #include <sys/socket.h>
 

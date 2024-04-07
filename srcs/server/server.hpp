@@ -3,12 +3,12 @@
 
 #include "../../Inc/define.hpp"
 #include "../../Inc/ft_irc.hpp"
-#include "../channel/channel.hpp"
 
 #include <cstddef>
 #include <sys/poll.h>
 #include <vector>
 
+#include "../channel/channel.hpp"
 class Server {
   private:
         uint16_t	              _port;
@@ -18,7 +18,7 @@ class Server {
         std::vector<pollfd>    	_fds;
         size_t                  _nfds;
         std::map<int, Client>	_clients;
-      //   std::map<std::string, Channel> server_channels; // list of channels in the server
+        std::map<std::string, Channel> server_channels; // list of channels in the server
 
   public:
         Server(void);
@@ -32,6 +32,7 @@ class Server {
         void handleIncomeData();
 
         void command_list(std::string &message, Client &cling);
+        void command_join(std::string &message, Client &client);
         // void setClientStatus(Client &cling);
         // void updateFileDescrior(int *ng);
 
