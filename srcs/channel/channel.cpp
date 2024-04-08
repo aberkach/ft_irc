@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/07 01:53:18 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/07 23:07:53 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,11 +50,11 @@ void Channel::setKey(std::string key)
     _key = key;
 } 
 
-bool Channel::isClientExist(std::string nickname)
+bool Channel::isClientExist(int clientFd)
 {
     for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); it++)
     {
-        if (it->second.getNickname() == nickname)
+        if (it->second.getsocket() == clientFd)
             return true;
     }
     return false;

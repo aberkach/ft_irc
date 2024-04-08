@@ -31,8 +31,9 @@ class Server {
         void handlIncomeConnections();
         void handleIncomeData();
 
+         void parseCommand(std::string &message, Client &cling);
         void command_list(std::string &message, Client &cling);
-        void command_join(std::string &message, Client &client);
+        void command_join(std::vector<std::string> &splitedMsg, Client &client);
         // void setClientStatus(Client &cling);
         // void updateFileDescrior(int *ng);
 

@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:32:12 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/07 01:43:36 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/07 23:06:48 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ class Channel {
     void setName(std::string name);
     void setKey(std::string key);
 
-    bool isClientExist(std::string nickname);
+    bool isClientExist(int clientFd);
     void addUser(Client &client);
 };
 
