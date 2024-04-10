@@ -11,32 +11,40 @@ Client::Client(int sock, struct sockaddr_in &client_adrs) : socket(sock) , _regi
 // 	should be uniq to only one client 
 // 	shouldnt start with the following ===> $ : # & + ~  %
 // 	shouldnt contain eny of these ===> space , * ? ! @ .
+#define NICKLEN 10
+#define USERLEN 9
+#define REALLEN 32
+
 bool Client::setNickname(const std::string& nick) // use regualr expression in the future
 {
-    if (nick.empty() ||  nick[0] == '$' || nick[0] == ':' || nick[0] == '#' || nick[0] == '&' ||  nick[0] == '+'
-            ||  nick[0] == '~' ||  nick[0] == '%' )
+    if (nick.empty() || nick[0] == '$' || nick[0] == ':' || nick[0] == '#' || nick[0] == '&' ||  nick[0] == '+'
+            ||  nick[0] == '~' ||  nick[0] == '%' || ::isdigit(nick[0]))
         return (false);
     for (int i = 0; nick[i] ;i++)
     {
         if (nick[i] == ' ' || nick[i] == ',' || nick[i] == '*' || nick[i] == '?' || nick[i] == '!' || nick[i] == '@' || nick[i] == '.')
             return (false);
     }
-    nickname = nick;
+    nickname = nick.substr(0,NICKLEN);
     return (true);
 };
 
+
 bool Client::setUsername(const std::string& user) 
 {
-    username = user;
-
-    return (false);
+    username = "~" + user.substr(0, USERLEN);
+    return (true);
 };
 
 bool Client::setRealname(const std::string& real) 
 {
-     realname = real; 
-     return (false);
+    if (real.empty())
+        return (false);
+     realname = real.substr(0,REALLEN);
+     return (true);
 };
+
+/// getters :
 
 std::string Client::getNickname() const
 {

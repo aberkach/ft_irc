@@ -25,7 +25,6 @@ class Client
         bool setNickname(const std::string& nick);
         bool setUsername(const std::string& user);
         bool setRealname(const std::string& real);
-
         void setRegistered(bool reg) { _registered = reg; }
         void setValidPass(bool pass) { _validPass = pass; }
 
@@ -43,7 +42,12 @@ class Client
             if (_registered == false && _validPass == true && !nickname.empty() && !username.empty() && !realname.empty())
             {
                 _registered = true;
-                send(socket,HEADER"\n",sizeof(HEADER),0);
+
+                send(socket,HEADER"\r\n",sizeof(HEADER),0);
+                send(socket,HEADER"\r\n",sizeof(HEADER),0);
+                send(socket,HEADER"\r\n",sizeof(HEADER),0);
+                send(socket,HEADER"\r\n",sizeof(HEADER),0);
+                send(socket,HEADER"\r\n",sizeof(HEADER),0);
             }
 
         }

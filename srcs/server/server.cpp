@@ -80,7 +80,6 @@ Server::Server(uint16_t port, char *password) : _port(port), _password(password)
 
 // ---------------------------------------------------------------------------------------------
 
-
 // Handle incoming connections:
 void Server::handlIncomeConnections() 
 {
@@ -117,86 +116,114 @@ void Server::handlIncomeConnections()
 		// Colon (:, 0x3A)
 		// Any character listed as a channel type (#, &)
 		// Any character listed as a channel membership prefix (@, ~, &, %, +)
-void Server::command_list(std::string &message, Client &cling)
+
+std::vector<std::string> split(const std::string& s, char delim)
 {
-	std::string command, argument;
+    std::vector<std::string> tokens;
+    std::string token;
+    std::istringstream tokenStream(s);
 
-	if (message.size() >= 5)
-	    command = message.substr(0 ,5);
-
-	for (int i = 0; command[i]; i++)
-		command[i] = toupper(command[i]);
-
-	if (message.size() > 6)
-	    argument = message.substr(5, message.size() - 6);
-
-	std::string argument = message.substr(5,message.length() - 6);
-
-	if (cling.getRegistered() == false)
+    while (std::getline(tokenStream, token, delim)) 
 	{
-		//authenticate the client
-		if (cling.getValidPass() == false && command == "PASS ")
-		{
-			if (argument == _password)
-			{
-				cling.setValidPass(true);
-				std::cout << "success pass" << std::endl;
-			}
-			else
-			{
-				std::string response = ERR_PASSWDMISMATCH(std::string(inet_ntoa(cling._addr.sin_addr))) + '\n';
-				send(cling.getsocket(), response.c_str() , response.size(), 0);
-				return;
-			}
-		}
-		else if (cling.getValidPass() == true && cling.getNickname().empty() && command == "NICK ")
-		{
-			std::map<int, Client>::const_iterator it;
+		if (!token.empty())
+        	tokens.push_back(token);
+    }
+    return tokens;
+}
 
-			if (command.empty())
-			{
-				std::string response = ERR_NONICKNAMEGIVEN(std::string(inet_ntoa(cling._addr.sin_addr))) + '\n';
-				send(cling.getsocket(), response.c_str() , response.size(), 0);
-				return;
-			}
-			for (it = _clients.begin() ; it != _clients.end(); ++it)
-			{
-				if (it->second.getNickname() == argument) // dosnt get free when client leaves !!
-				{
-					std::string response = ERR_NICKNAMEINUSE(std::string(inet_ntoa(cling._addr.sin_addr))) + '\n';
-					send(cling.getsocket(), response.c_str() , response.size(), 0);
-					return;
-				}
-			}
-			if (cling.setNickname(argument) == false)
-			{
-				std::string response = ERR_ERRONEUSNICKNAME(std::string(inet_ntoa(cling._addr.sin_addr)),argument) + '\n';
-				send(cling.getsocket(), response.c_str() , response.size(), 0);
-				return;
-			}
-		}
-		else if (cling.getValidPass() == true && command == "USER ")
+void Server::passCommand(std::vector<std::string> &fields, Client &user) // only one time
+{
+	// if he register or nope
+	if (fields.empty())
+		std::cout <<  "<client> <command> :Not enough parameters" << std::endl;
+	else if (user.getValidPass() == false) // check for client to be registerd 
+	{
+		if (fields[0] == _password)
+			user.setValidPass(true);
+		else
 		{
-			cling.setUsername(argument);
-			cling.setRealname(argument); // pase iside and return bool for parse output
+			std::cout << "<client> :Password incorrect" << std::endl;
 		}
-		// else
-		// 	std::cout << "try registring first using these commands PASS nick user" << std::endl; // print using an error code
 	}
 	else
+		std::cout << "<client> :You may not reregister" << std::endl;
+}
+
+void Server::nickCommand(std::vector<std::string> &fields, Client &user) // can be resent after reg
+{
+	if (fields.empty())
+		std::cout << "<client> :No nickname given" << std::endl;
+	else if (user.getValidPass() == true)
 	{
-		send(cling.getsocket(),"mar7ba\n",8,0);
+		std::map<int, Client>::const_iterator it;
+
+		for (it = _clients.begin() ; it != _clients.end(); ++it)
+		{
+			if (it->second.getNickname() == fields[0]) // dosnt get free when client leaves !!
+			{
+				std::cout << "<client> <nick> :Nickname is already in use" << std::endl;
+				// std::string response = ERR_NICKNAMEINUSE(std::string(inet_ntoa(user._addr.sin_addr))) + '\n';
+				// send(user.getsocket(), response.c_str() , response.size(), 0);
+				return;
+			}
+		}
+		if (user.setNickname(fields[0]) == false)
+		{
+			std::cout << "<client> <nick> :Erroneus nickname" << std::endl;
+		}
 	}
+	else
+		std::cout << "u need to send the password first" << std::endl;
+}
+
+void Server::userCommand(std::string& message, std::vector<std::string> &fields, Client &user) // only one
+{
+	if (!user.getRegistered())
+	{
+		if (user.getValidPass())
+		{
+			if (fields.size() > 3) // real name may contain spaces
+			{
+				size_t p;
+				if (( p = message.find_first_of(":")) == std::string::npos || fields[1] != "0" || fields[2] != "*" || !user.setUsername(fields[0]) || !user.setRealname(message.substr(p + 1)))
+					std::cout <<  "format : USER  <username> 0 * :<realname> " << std::endl;
+			}
+			else
+				std::cout <<  "<client> <command> :Not enough parameters" << std::endl;
+		}
+		else
+			std::cout << "u need to send the password first" << std::endl;
+	}
+	else
+		std::cout << "<client> :You may not reregister" << std::endl;
+}
+
+
+void Server::commandList(std::string& message, std::vector<std::string> &fields, Client &user)
+{
+	std::string command(fields[0]);
+	fields.erase(fields.begin());
+
+	if (command == "PASS")
+		passCommand(fields, user);
+	else if (command == "NICK")
+		nickCommand(fields, user);
+	else if (command == "USER")
+		userCommand(message, fields, user);
+    else
+        std::cout<< "421 ERR_UNKNOWNCOMMAND :Unknown command" << std::endl;
 }
 
 // Handle incoming data from clients :
-void Server::handleIncomeData() {
-	char buffer[1024];
+void 
+Server::handleIncomeData() 
+{
+	char buffer[1024] = {0} ;
 	int rc;
+
 	for (size_t i = 1; i < _nfds; i++) 
 	{
 		if (_fds[i].revents & POLLIN) {
-			// setClientStatus(_clients.find(_fds[i].fd)->second);
 			rc = recv(_fds[i].fd, buffer, sizeof(buffer), 0);
 			if (rc < 0)
 				Err("recv() failed", 0);
@@ -206,23 +233,23 @@ void Server::handleIncomeData() {
 				_clients.erase(_fds[i].fd);
 				close(_fds[i].fd);
 				_fds[i].fd = -1;
-			}
+			} 
 			else {
-				buffer[rc] = '\0';
-				std::string message(buffer);
-
 				// here we can do whatever we want with the message
 				//........
+				buffer[rc] = '\0';
+				std::string rec(buffer);
+				size_t pos = rec.find_first_of("\r\n\0");
+				std::string message = rec.substr(0,pos);
+				std::vector<std::string> fields = split(message, ' ');
 
-				// if the client is not registered yet, authenticate the client
-				command_list(message, _clients.find(_fds[i].fd)->second);
+				if (!fields.empty())
+				{
+    				for (std::string::size_type j = 0; j < fields[0].size(); ++j) // check latter
+    				    fields[0][j] = std::toupper(fields[0][j]);
+					commandList(message ,fields, _clients.find(_fds[i].fd)->second);
+				}
 				_clients.find(_fds[i].fd)->second.refstatus();
-				// try {
-				// } catch (std::logic_error &e) {
-				// 	std::cerr << e.what() << std::endl;
-				// 	continue;
-				// }
-				// std::cout << "FULL CONMNAD ="<< message;
 			}
 		}
 	}
