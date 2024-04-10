@@ -131,7 +131,7 @@ std::vector<std::string> split(const std::string& s, char delim)
     return tokens;
 }
 
-void Server::passCommand(std::vector<std::string> &fields, Client &user) // only one time
+void Server::passCommand(const std::vector<std::string> &fields, Client &user) // only one time
 {
 	// if he register or nope
 	if (fields.empty())
@@ -149,7 +149,17 @@ void Server::passCommand(std::vector<std::string> &fields, Client &user) // only
 		std::cout << "<client> :You may not reregister" << std::endl;
 }
 
-void Server::nickCommand(std::vector<std::string> &fields, Client &user) // can be resent after registration
+std::string stringUpper(const std::string &_str)
+{
+	std::string upper(_str);
+
+    for (std::string::size_type i = 0; i < _str.size(); ++i)
+        upper[i] = ::toupper(_str[i]);
+
+	return(upper);
+}
+
+void Server::nickCommand(const std::vector<std::string> &fields, Client &user) // can be resent after registration
 {
 	if (user.getValidPass() == true)
 	{
@@ -162,7 +172,7 @@ void Server::nickCommand(std::vector<std::string> &fields, Client &user) // can 
 		}
 		for (it = _clients.begin() ; it != _clients.end(); ++it)
 		{
-			if (it->second.getNickname() == fields[0]) // dosnt get free when client leaves !!
+			if (stringUpper(it->second.getNickname()) == stringUpper(fields[0])) // dosnt get free when client leaves !! // nicknames, channel names casemapping sensitivity !!!
 			{
 				std::cout << "<client> <nick> :Nickname is already in use" << std::endl;
 				// std::string response = ERR_NICKNAMEINUSE(std::string(inet_ntoa(user._addr.sin_addr))) + '\n';
@@ -177,7 +187,7 @@ void Server::nickCommand(std::vector<std::string> &fields, Client &user) // can 
 		std::cout << "u need to send the password first" << std::endl;
 }
 
-void Server::userCommand(std::string& message, std::vector<std::string> &fields, Client &user) // only one
+void Server::userCommand(const std::string& message, const std::vector<std::string> &fields, Client &user) // only one
 {
 	if (!user.getRegistered())
 	{
@@ -200,7 +210,7 @@ void Server::userCommand(std::string& message, std::vector<std::string> &fields,
 }
 
 
-void Server::commandList(std::string& message, std::vector<std::string> &fields, Client &user)
+void Server::commandList(const std::string& message, std::vector<std::string> &fields,const Client &user)
 {
 	std::string command(fields[0]);
 	fields.erase(fields.begin());
@@ -245,11 +255,10 @@ Server::handleIncomeData()
 
 				if (!fields.empty())
 				{
-    				for (std::string::size_type j = 0; j < fields[0].size(); ++j) // check latter
-    				    fields[0][j] = std::toupper(fields[0][j]);
+					fields[0] = stringUpper(fields[0]);
 					commandList(rec ,fields, _clients.find(_fds[i].fd)->second);
+					_clients.find(_fds[i].fd)->second.refStatus();
 				}
-				_clients.find(_fds[i].fd)->second.refstatus();
 			}
 		}
 	}

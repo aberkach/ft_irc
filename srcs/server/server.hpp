@@ -15,10 +15,9 @@ class Server {
         std::string             _password;
         int                     _listen_sd;
         struct sockaddr_in      _addr;
-        std::vector<pollfd>    	_fds;
         size_t                  _nfds;
-        std::map<int, Client>	_clients;
-
+        std::vector<pollfd>    	_fds;
+        std::map<int, Client>   _clients;
       //   std::map<std::string, Channel> server_channels; // list of channels in the server
 
   public:
@@ -32,28 +31,16 @@ class Server {
         void  handlIncomeConnections();
         void  handleIncomeData();
 
-        void commandList(std::string& message, std::vector<std::string> &fields, Client &cling);
+        void commandList(const std::string& message, std::vector<std::string> &fields, const Client &cling);
 
         // void updateFileDescrior(int *ng);
 
         ~Server();
 
-      private:
-        // static void passCommandStatic(Server* server, std::vector<std::string> &fields, Client &user) {
-        //   server->passCommand(fields, user);
-        // }
-
-        // static void nickCommandStatic(Server* server, std::vector<std::string> &fields, Client &user) {
-        //     server->nickCommand(fields, user);
-        // }
-
-        // static void userCommandStatic(Server* server, std::vector<std::string> &fields, Client &user) {
-        //     server->userCommand(fields, user);
-        // }
-
-        void passCommand(std::vector<std::string> &fields, Client &user);
-        void nickCommand(std::vector<std::string> &fields, Client &user);
-        void userCommand(std::string& message, std::vector<std::string> &fields, Client &user);
+      private: // these will be stand alone functions undifined in the class
+        void passCommand(const std::vector<std::string> &fields, Client &user);
+        void nickCommand(const std::vector<std::string> &fields, Client &user);
+        void userCommand(const std::string& message, const std::vector<std::string> &fields, Client &user);
 
 
 };
