@@ -1,3 +1,4 @@
+
 EXE := ircserv
 
 CPP := c++ -std=c++98

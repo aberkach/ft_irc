@@ -149,14 +149,17 @@ void Server::passCommand(std::vector<std::string> &fields, Client &user) // only
 		std::cout << "<client> :You may not reregister" << std::endl;
 }
 
-void Server::nickCommand(std::vector<std::string> &fields, Client &user) // can be resent after reg
+void Server::nickCommand(std::vector<std::string> &fields, Client &user) // can be resent after registration
 {
-	if (fields.empty())
-		std::cout << "<client> :No nickname given" << std::endl;
-	else if (user.getValidPass() == true)
+	if (user.getValidPass() == true)
 	{
 		std::map<int, Client>::const_iterator it;
 
+		if (fields.empty())
+		{
+			std::cout << "<client> :No nickname given" << std::endl;
+			return;
+		}
 		for (it = _clients.begin() ; it != _clients.end(); ++it)
 		{
 			if (it->second.getNickname() == fields[0]) // dosnt get free when client leaves !!
@@ -168,9 +171,7 @@ void Server::nickCommand(std::vector<std::string> &fields, Client &user) // can 
 			}
 		}
 		if (user.setNickname(fields[0]) == false)
-		{
 			std::cout << "<client> <nick> :Erroneus nickname" << std::endl;
-		}
 	}
 	else
 		std::cout << "u need to send the password first" << std::endl;
@@ -239,15 +240,14 @@ Server::handleIncomeData()
 				//........
 				buffer[rc] = '\0';
 				std::string rec(buffer);
-				size_t pos = rec.find_first_of("\r\n\0");
-				std::string message = rec.substr(0,pos);
-				std::vector<std::string> fields = split(message, ' ');
+				rec = rec.substr(0,rec.find_first_of("\r\n\0"));
+				std::vector<std::string> fields = split(rec, ' ');
 
 				if (!fields.empty())
 				{
     				for (std::string::size_type j = 0; j < fields[0].size(); ++j) // check latter
     				    fields[0][j] = std::toupper(fields[0][j]);
-					commandList(message ,fields, _clients.find(_fds[i].fd)->second);
+					commandList(rec ,fields, _clients.find(_fds[i].fd)->second);
 				}
 				_clients.find(_fds[i].fd)->second.refstatus();
 			}
