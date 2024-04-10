@@ -175,8 +175,8 @@ void Server::nickCommand(const std::vector<std::string> &fields, Client &user) /
 			if (stringUpper(it->second.getNickname()) == stringUpper(fields[0])) // dosnt get free when client leaves !! // nicknames, channel names casemapping sensitivity !!!
 			{
 				std::cout << "<client> <nick> :Nickname is already in use" << std::endl;
-				// std::string response = ERR_NICKNAMEINUSE(std::string(inet_ntoa(user._addr.sin_addr))) + '\n';
-				// send(user.getsocket(), response.c_str() , response.size(), 0);
+				std::string response = ERR_NICKNAMEINUSE(std::string(inet_ntoa(user._addr.sin_addr))) + '\n';
+				send(user.getSocket(),  , response.size(), 0);
 				return;
 			}
 		}
