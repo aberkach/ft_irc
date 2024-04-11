@@ -118,17 +118,23 @@ void Server::handlIncomeConnections()
 		// Any character listed as a channel type (#, &)
 		// Any character listed as a channel membership prefix (@, ~, &, %, +)
 
-std::vector<std::string> split(const std::string& s, char delim)
+std::vector<std::string> split(std::string str, char delim)
 {
+    // split the string by the delim
     std::vector<std::string> tokens;
     std::string token;
-    std::istringstream tokenStream(s);
 
-    while (std::getline(tokenStream, token, delim)) 
-	{
-		if (!token.empty())
-        	tokens.push_back(token);
+    for (size_t i = 0; i < str.length(); i++)
+    {
+        if (str[i] == delim || str[i] == '\n' || str[i] == '\r')
+        {
+            tokens.push_back(token);
+            token.clear();
+        }
+        else
+            token += str[i];
     }
+    tokens.push_back(token);
     return tokens;
 }
 
@@ -184,6 +190,7 @@ void Server::processTheJoinArgs(std::vector<std::string> &channels , std::vector
             {
                 if (createChannel(chnName, keys, client))
                     continue;
+				std::cout << client.getNickname() << " created the channel " << chnName << std::endl;
                 // here we can send a message to the client to inform him that the channel is created
                 // ....
             }
@@ -193,7 +200,8 @@ void Server::processTheJoinArgs(std::vector<std::string> &channels , std::vector
                 // if the client is already in the channel, do nothing
                 if (chnIt->second.isClientExist(client.getNickname()) == true)
                 {
-                    std::cout << "Error: you are already in the channel" << std::endl;
+                    // std::cout << "Error: you are already in the channel" << std::endl;
+					std::cout << client.getNickname() << " is already in the channel " << chnName << std::endl;
                     // here we can send an error message to the client
                     // ....
                     continue;
@@ -230,6 +238,7 @@ void Server::processTheJoinArgs(std::vector<std::string> &channels , std::vector
                         if (chnIt->second.getKey() == "")
                         {
                             chnIt->second.addUser(client);
+							std::cout << client.getNickname() << " joined the channel " << chnName << std::endl;
                             // here we can send a message to the client to inform him that he joined the channel
                             // ....
                         }
@@ -403,7 +412,7 @@ Server::handleIncomeData()
 				//........
 				buffer[rc] = '\0';
 				std::string rec(buffer);
-				rec = rec.substr(0,rec.find_first_of("\r\n\0"));
+				// rec = rec.substr(0,rec.find_first_of("\r\n"));
 				std::vector<std::string> fields = split(rec, ' ');
 
 				if (!fields.empty())
