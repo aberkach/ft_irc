@@ -176,7 +176,7 @@ void Server::nickCommand(const std::vector<std::string> &fields, Client &user) /
 			{
 				std::cout << "<client> <nick> :Nickname is already in use" << std::endl;
 				std::string response = ERR_NICKNAMEINUSE(std::string(inet_ntoa(user._addr.sin_addr))) + '\n';
-				send(user.getSocket(),  , response.size(), 0);
+				// send(user.getSocket(),  , response.size(), 0);
 				return;
 			}
 		}
@@ -210,7 +210,7 @@ void Server::userCommand(const std::string& message, const std::vector<std::stri
 }
 
 
-void Server::commandList(const std::string& message, std::vector<std::string> &fields,const Client &user)
+void Server::commandList(const std::string& message, std::vector<std::string> &fields, Client &user)
 {
 	std::string command(fields[0]);
 	fields.erase(fields.begin());

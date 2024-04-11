@@ -30,17 +30,20 @@ Client::Client(const Client& user) : _socket(user._socket) , _registered(user._r
 /// @brief
 /// #### setters ####
 
-void Client::setValidPass(bool status)
+void 
+Client::setValidPass(bool status)
 {
     _validPass = status;
 };
 
-void Client::setRegistered(bool status )
+void 
+Client::setRegistered(bool status )
 {
     _registered = status;
 };
 
-bool Client::setNickname(const std::string& nickName)
+bool 
+Client::setNickname(const std::string& nickName)
 {
     if (nickName.empty() || nickName[0] == '$' || nickName[0] == ':' || nickName[0] == '#' || nickName[0] == '&' ||  nickName[0] == '+'
             ||  nickName[0] == '~' ||  nickName[0] == '%' || ::isdigit(nickName[0]))
@@ -54,8 +57,8 @@ bool Client::setNickname(const std::string& nickName)
     return (true);
 };
 
-
-bool Client::setUsername(const std::string& userName) 
+bool 
+Client::setUsername(const std::string& userName) 
 {
     if (userName.empty())
         return (false);
@@ -63,7 +66,8 @@ bool Client::setUsername(const std::string& userName)
     return (true);
 };
 
-bool Client::setRealname(const std::string& realName) 
+bool 
+Client::setRealname(const std::string& realName) 
 {
     if (realName.empty())
         return (false);
@@ -74,45 +78,61 @@ bool Client::setRealname(const std::string& realName)
 /// @brief
 /// #### getters ####
 
-bool Client::getRegistered(void) const
+bool 
+Client::getRegistered(void) const
 {
     return _registered;
 };
 
-int  Client::getSocket(void) const
+int  
+Client::getSocket(void) const
 {
     return _socket;
 };
 
-bool Client::getValidPass(void) const
+bool 
+Client::getValidPass(void) const
 {
     return _validPass;
 };
 
 
-std::string Client::getNickname(void) const
+std::string 
+Client::getNickname(void) const
 {
     return _nickName;
 };
 
-std::string Client::getUsername(void) const
+std::string 
+Client::getUsername(void) const
 {
     return _userName;
 };
 
-std::string Client::getRealname(void) const
+std::string 
+Client::getRealname(void) const
 {
     return _realName;
 };
 
-void Client::refStatus(void)
+inline void replyTo(int socket, std::string buffer)
+{
+    send(socket, buffer.c_str() , buffer.size() , 0);
+};
+
+void 
+Client::refStatus(void)
 {
     if (_registered == false && _validPass == true && !_nickName.empty() && !_userName.empty() && !_realName.empty())
     {
         _registered = true;
-
-        // send(_socket,HEADER"\r\n",sizeof(HEADER),0);
+        replyTo(_socket, RPL_WELCOME(_nickName));
+        replyTo(_socket, RPL_YOURHOST(_nickName));
+        replyTo(_socket, RPL_CREATED(_nickName));
+        replyTo(_socket, RPL_MYINFO(_nickName));
+        replyTo(_socket, RPL_ISUPPORT(_nickName));
     }
+
 };
 
 Client::~Client(void)

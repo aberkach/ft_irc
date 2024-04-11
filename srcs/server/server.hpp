@@ -31,7 +31,7 @@ class Server {
         void  handlIncomeConnections();
         void  handleIncomeData();
 
-        void commandList(const std::string& message, std::vector<std::string> &fields, const Client &cling);
+        void commandList(const std::string& message, std::vector<std::string> &fields, Client &cling);
 
         // void updateFileDescrior(int *ng);
 
