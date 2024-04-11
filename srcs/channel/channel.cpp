@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/07 23:07:53 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/10 02:17:01 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,13 @@ std::string Channel::getKey() const
 {
     return _key;
 }
+void Channel::getUsers()
+{
+    for (std::map<int, Client>::iterator it = _users.begin(); it != _users.end(); it++)
+    {
+        std::cout << it->first << " ";
+    }
+}
 
 void Channel::setName(std::string name)
 {
@@ -52,7 +59,7 @@ void Channel::setKey(std::string key)
 
 bool Channel::isClientExist(int clientFd)
 {
-    for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); it++)
+    for (std::map<int, Client>::iterator it = _users.begin(); it != _users.end(); it++)
     {
         if (it->second.getsocket() == clientFd)
             return true;
@@ -62,5 +69,5 @@ bool Channel::isClientExist(int clientFd)
 
 void Channel::addUser(Client &client)
 {
-    _users.insert(std::pair<std::string, Client>(client.getNickname(), client));
+    _users.insert(std::pair<int, Client>(client.getsocket(), client));
 }

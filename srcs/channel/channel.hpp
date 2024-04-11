@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:32:12 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/07 23:06:48 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/10 02:16:18 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ class Channel {
     std::string                 _name; // name of the channel
     std::string                 _topic; // topic of the channel
     std::string                 _key; // key of the channel
-    std::map<std::string, Client>         _users; // list of users in the channel
+    std::map<int, Client>         _users; // list of users in the channel
   public:
     Channel();
     Channel(std::string name);
@@ -32,6 +32,7 @@ class Channel {
 
     std::string getName() const;
     std::string getKey() const; 
+    void getUsers();
 
     void setName(std::string name);
     void setKey(std::string key);

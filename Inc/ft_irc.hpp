@@ -10,7 +10,6 @@
 
 // client connected to the server
 #define RPL_WELCOME(client) ":irc.1337.ma 001 " + (client) + " :Welcome to the IRC Network, " + (client)
-
 #define RPL_YOURHOST(client, servername, version) ":irc.1337.ma 002 " + (client) + " :Your host is " + (servername) + ", running version " + (version)
 #define RPL_CREATED(client, time) ":irc.1337.ma 003 " + (client) + " :This server was created " + (time)
 #define RPL_MYINFO(client, servername, version) ":irc.1337.ma 004 " + (client) + " :" + (servername) + " " + (version)
