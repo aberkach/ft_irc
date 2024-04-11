@@ -118,42 +118,21 @@ void Server::handlIncomeConnections()
 		// Any character listed as a channel type (#, &)
 		// Any character listed as a channel membership prefix (@, ~, &, %, +)
 
-// std::vector<std::string> split(const std::string& s, char delim)
-// {
-//     std::vector<std::string> tokens;
-//     std::string token;
-//     std::istringstream tokenStream(s);
-
-//     while (std::getline(tokenStream, token, delim)) 
-// 	{
-// 		if (!token.empty())
-//         	tokens.push_back(token);
-//     }
-//     return tokens;
-// }
-
-// --------------------------------
-
-// split the string by the delim and (/n, /r)
-std::vector<std::string> split(std::string str, char delim)
+std::vector<std::string> split(const std::string& s, char delim)
 {
-    // split the string by the delim
     std::vector<std::string> tokens;
     std::string token;
+    std::istringstream tokenStream(s);
 
-    for (size_t i = 0; i < str.length(); i++)
-    {
-        if (str[i] == delim || str[i] == '\n' || str[i] == '\r')
-        {
-            tokens.push_back(token);
-            token.clear();
-        }
-        else
-            token += str[i];
+    while (std::getline(tokenStream, token, delim)) 
+	{
+		if (!token.empty())
+        	tokens.push_back(token);
     }
-    tokens.push_back(token);
     return tokens;
 }
+
+// --------------------------------
 
 int Server::createChannel(std::string &chnName, std::vector<std::string> &keys, Client &client) {
     Channel newChannel(chnName);
