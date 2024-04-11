@@ -6,11 +6,12 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/10 02:17:01 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/11 03:08:58 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../channel/channel.hpp"
+#include <string>
 
 Channel::Channel() : _name("default")
 {
@@ -40,7 +41,7 @@ std::string Channel::getKey() const
 }
 void Channel::getUsers()
 {
-    for (std::map<int, Client>::iterator it = _users.begin(); it != _users.end(); it++)
+    for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); it++)
     {
         std::cout << it->first << " ";
     }
@@ -55,13 +56,13 @@ void Channel::setName(std::string name)
 void Channel::setKey(std::string key)
 {
     _key = key;
-} 
+}
 
-bool Channel::isClientExist(int clientFd)
+bool Channel::isClientExist(std::string nickName)
 {
-    for (std::map<int, Client>::iterator it = _users.begin(); it != _users.end(); it++)
+    for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); it++)
     {
-        if (it->second.getsocket() == clientFd)
+        if (it->second.getNickname() == nickName)
             return true;
     }
     return false;
@@ -69,5 +70,5 @@ bool Channel::isClientExist(int clientFd)
 
 void Channel::addUser(Client &client)
 {
-    _users.insert(std::pair<int, Client>(client.getsocket(), client));
+    _users.insert(std::pair<std::string, Client>(client.getNickname(), client));
 }

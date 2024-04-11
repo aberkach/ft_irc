@@ -1,5 +1,5 @@
-#ifndef CLIENT_HPP
-#define CLIENT_HPP
+#ifndef CLIENT_HPP__
+#define CLIENT_HPP__
 
 #include "../../Inc/define.hpp"
 #include <netinet/in.h>
@@ -7,45 +7,40 @@
 
 class Client
 {
-    private:
-        int socket;
-        bool _registered;
-        bool _validPass;
-        std::string nickname;
-        std::string username;
-        std::string realname;
-        // std::map<std::string, Channel> joined_channels;
-
     public:
         sockaddr_in _addr;
 
-        Client(int sock);
+    private:
+        int _socket;
+        bool _registered;
+        bool _validPass;
+        std::string _nickName;
+        std::string _userName;
+        std::string _realName;
+        // std::map<std::string, Channel> joined_channels;
 
-        bool setNickname(const std::string& nick);
-        bool setUsername(const std::string& user);
-        bool setRealname(const std::string& real);
+    public:
+        Client(void);
+        Client(int socket, struct sockaddr_in &addr);
+        Client(const Client& user);
 
-        void setRegistered(bool reg) { _registered = reg; }
-        void setValidPass(bool pass) { _validPass = pass; }
+        void setValidPass(bool status);
+        void setRegistered(bool status);
+        bool setNickname(const std::string& nickName);
+        bool setUsername(const std::string& userName);
+        bool setRealname(const std::string& realName);
 
-        void setSckAddr(sockaddr_in addr) { this->_addr = addr; }
+        // void setAddress(sockaddr_in userAddr) { _addr = userAddr; }
+        // void getAddress(sockaddr_in userAddr) { _addr = userAddr; }
 
-        std::string getNickname() const ;
-        std::string getUsername() const ;
-        std::string getRealname() const ;
-        bool getRegistered() { return _registered; }
-        bool getValidPass() { return _validPass; }
-        int getsocket() {return socket;}
+        std::string getNickname(void) const ;
+        std::string getUsername(void) const ;
+        std::string getRealname(void) const ;
+        bool getRegistered(void) const;
+        bool getValidPass(void) const ;
+        int  getSocket(void) const;
 
-        void refstatus()
-        {
-            if (_registered == false && _validPass == true && !nickname.empty() && !username.empty() && !realname.empty())
-            {
-                _registered = true;
-                send(socket,HEADER"\n",sizeof(HEADER),0);
-            }
-
-        }
+        void refStatus(void);
 
         ~Client(void);
 };
