@@ -1,10 +1,4 @@
 #include "server.hpp"
-#include <algorithm>
-#include <cstddef>
-#include <cstdlib>
-#include <sstream>
-#include <string>
-#include <vector>
 
 void Err(std::string msg, int exitFalg)
 {
@@ -112,49 +106,7 @@ void Server::handlIncomeConnections()
 	}
 }
 
-// 	// cant start with :
-// 		// Dollar ($, 0x24)
-// 		// Colon (:, 0x3A)
-// 		// Any character listed as a channel type (#, &)
-// 		// Any character listed as a channel membership prefix (@, ~, &, %, +)
-// void Server::command_list(std::string &message, Client &cling)
-// {
-// 	std::string command;
-// 	// _clients[fd];
-
-// 	if (cling.getRegistered() == false)
-// 	{
-// 			//authenticate the client
-// 		if (cling.getValidPass() == false && message.substr(0 ,5) == "PASS ")
-// 		{
-// 			if (message.substr(5, message.length() - 6) == _password )
-// 				cling.setValidPass(true);
-// 			else
-// 				std::cout<<"wrong password try againe"<<std::endl;
-// 		}
-// 		else if (cling.getValidPass() == true && message.substr(0 ,5) == "NICK ") // this should be uniq to only one user
-// 		{
-// 			// parse for the following ...
-// 			// 	should be uniq to only one client 
-// 			// 	shouldnt start with the following ===> $ : # & + ~  %
-// 			// 	shouldnt contain eny of these ===> space , * ? ! @ .
-			
-// 			cling.setNickname(message.substr(5, message.length() - 6));
-// 		}
-// 		else if (cling.getValidPass() == true && message.substr(0 ,5) == "USER ")
-// 		{
-// 			cling.setUsername(message.substr(5, message.length() - 6));
-// 			cling.setRealname(message.substr(5, message.length() - 6)); // pase iside and return bool for parse output
-// 		}
-// 		else
-// 			std::cout << "try registring first using these commands PASS nick user" << std::endl;
-// 	}
-// 	else
-// 	{
-// 		send(cling.getsocket(),"mar7ba\n",8,0);
-// 	}
-// }
-
+// split the string by the delim and (/n, /r)
 std::vector<std::string> split(std::string str, char delim)
 {
     // split the string by the delim
@@ -175,105 +127,139 @@ std::vector<std::string> split(std::string str, char delim)
 	return tokens;
 }
 
-void Server::command_join(std::vector<std::string> &splitedMsg, Client &client) {
-    
-	if (splitedMsg.begin() != splitedMsg.end())
+int Server::createChannel(std::string &chnName, std::vector<std::string> &keys, Client &client) {
+	Channel newChannel(chnName);
+	server_channels.insert(std::pair<std::string, Channel>(chnName, newChannel));
+	// check if the channel has a key
+	if (keys.size() > 0)
 	{
-		std::vector<std::string> channels;
-        std::vector<std::string> keys;
-		// check if the message contains a key
-        if (splitedMsg.size()  >= 2)
+		// check if the key is valid
+		if (keys[0].find_first_of(" ,\a\b\f\t\v$:&+~%") != std::string::npos)
+		{
+			keys.erase(keys.begin());
+			server_channels.erase(chnName);
+			std::cout << "Error: invalid channel key" << std::endl;
+			// here we can send an error message to the client
+			// ....
+			return 1;
+		}
+		// set the key for the channel
+		server_channels.find(chnName)->second.setKey(keys[0]);
+		keys.erase(keys.begin());;
+	}
+	else
+		server_channels.find(chnName)->second.setKey("");
+	// add the client to the channel
+	server_channels.find(chnName)->second.addUser(client);
+	return 0;
+}
+
+void Server::processTheJoinArgs(std::vector<std::string> &channels , std::vector<std::string> &keys, Client &client)
+{
+	for (size_t i = 0; i < channels.size(); i++)
+    {
+        std::string chnName = channels[i];
+		// check if the channel name is valid
+		if ((chnName[0] != '#') || (chnName.find_first_of(" ,\a\b\f\t\v$:&+~%") != std::string::npos))
+		{
+			std::cout << "Error: invalid channel name" << std::endl;
+			// here we can send an error message to the client
+			// ....
+			if (keys.size() > 0)
+				keys.erase(keys.begin());
+			continue;
+		}
+		else
         {
-			keys = split(splitedMsg[1], ',');
-            for (size_t i = 0; i < keys.size(); i++)
-            {
-                std::string key = keys[i];
-				// check if the key is valid
-                if (key.find_first_of(" ,\a\b\f\t\v$:&+~%#") != std::string::npos)
+			std::map<std::string, Channel>::iterator chnIt = server_channels.find(chnName);
+			// if the channel doesn't exist, create a new one
+			if (chnIt == server_channels.end())
+			{
+				if (createChannel(chnName, keys, client))
+					continue;
+				// here we can send a message to the client to inform him that the channel is created
+				// ....
+			}
+			// if the channel already exist, check if the client is already in the channel
+			else 
+			{
+				// if the client is already in the channel, do nothing
+				if (chnIt->second.isClientExist(client.getsocket()) == true)
 				{
-					std::cout << "Error: invalid channel key " << key << std::endl;
+					std::cout << "Error: you are already in the channel" << std::endl;
+					// here we can send an error message to the client
+					// ....
 					continue;
 				}
-            }
-        }
-		// check if the message contains a channel name
-        if (splitedMsg.size() > 0)
-        {
-			// split the message by comma
-            channels = split(splitedMsg[0], ',');
-            // loop through the channels names
-            for (size_t i = 0; i < channels.size(); i++)
-            {
-                std::string chnName = channels[i];
-				// check if the channel name is valid
-				if (chnName.find_first_of("\r\n") != std::string::npos)
-					chnName.erase(chnName.find_first_of("\r\n"));
-				if ((chnName[0] != '#') || (chnName.find_first_of(" ,\a\b\f\t\v$:&+~%") != std::string::npos))
-				{
-					std::cout << "Error: invalid channel name" << std::endl;
-					continue;
-				}
+				// if the client is not in the channel, add the client to the channel
 				else
-                {
-					std::map<std::string, Channel>::iterator chnIt = server_channels.find(chnName);
-					// if the channel doesn't exist, create a new one
-					if (chnIt == server_channels.end())
+				{
+					// check if the channel has a key
+					if (keys.size() > 0)
 					{
-						Channel newChannel(chnName);
-						server_channels.insert(std::pair<std::string, Channel>(chnName, newChannel));
-						// check if the channel has a key
-						if (keys.size() > 0)
+						// if the key is correct
+						if (keys[0] == chnIt->second.getKey())
 						{
-							// set the key for the channel
-							server_channels.find(chnName)->second.setKey(keys[0]);
-							if (keys.size() > 1)
-								keys.erase(keys.begin());;
+							// add the client to the channel
+							chnIt->second.addUser(client);
+							keys.erase(keys.begin());
+							// here we can send a message to the client to inform him that he joined the channel
+							// ....
 						}
+						// if the key is incorrect
 						else
-							server_channels.find(chnName)->second.setKey("");
-						// add the client to the channel
-						server_channels.find(chnName)->second.addUser(client);
-						// print the channel name and key
-						std::cout << "Channel name: " << chnName << std::endl;
-						std::cout << "Channel key: " << server_channels.find(chnName)->second.getKey() << std::endl;
-					}
-					// if the channel already exist, check if the client is already in the channel
-					else {
-						// if the client is already in the channel, do nothing
-						if (chnIt->second.isClientExist(client.getsocket()) == true)
 						{
-							std::cout << "Error: you are already in the channel" << std::endl;
+							std::cout << "Error: incorrect channel key" << std::endl;
+							// here we can send an error message to the client
+							// ....
+							keys.erase(keys.begin());
 							continue;
 						}
-						// if the client is not in the channel, add the client to the channel
+					}
+					// if the channel doesn't have a key, add the client to the channel
+					else
+					{
+						// if the channel has no key, add the client to the channel
+						if (chnIt->second.getKey() == "")
+						{
+							chnIt->second.addUser(client);
+							// here we can send a message to the client to inform him that he joined the channel
+							// ....
+						}
 						else
 						{
-							// check if the channel has a key
-							if (chnIt->second.getKey() != "")
-							{
-								// if the key is correct
-								if (chnIt->second.getKey() == keys[0])
-								{
-									// add the client to the channel
-									chnIt->second.addUser(client);
-									if (keys.size() > 1)
-										keys.erase(keys.begin());
-								}
-								else
-								{
-									std::cout << "Error: invalid channel key "<< keys[0] << std::endl;
-									continue;
-								}
-							}
-							// if the channel doesn't have a key, add the client to the channel
-							else
-								chnIt->second.addUser(client);
+							std::cout << "Error: channel has a key" << std::endl;
+							// here we can send an error message to the client
+							// ....
+							continue;
 						}
 					}
-                }
-            }
+				}
+			}
+
         }
     }
+}
+
+void Server::command_join(std::vector<std::string> &splitedMsg, Client &client) {
+
+	std::vector<std::string> channels;
+    std::vector<std::string> keys;
+	// check if the message contains a channel name
+    if (splitedMsg.size() > 0)
+    {
+		// split the channels and keys by comma
+        channels = split(splitedMsg[0], ',');
+		keys = split(splitedMsg[1], ',');
+		// process the channels and keys
+		processTheJoinArgs(channels, keys, client);
+    }
+    else
+	{
+		std::cout << "Error: empty args" << std::endl;
+		// here we can send an error message to the client
+		// ....
+	}
 }
 
 
@@ -284,9 +270,8 @@ void Server::parseCommand(std::string &message, Client &cling)
 	if (splitedMsg.begin() != splitedMsg.end())
 	{
 		command = *splitedMsg.begin();
-		// if (command == "LIST")
-		// 	command_list(message, cling);
-		if (command == "JOIN"){
+		std::cout << "command = " << command << std::endl;
+		if (command == "JOIN" || command == "join"){
 			splitedMsg.erase(splitedMsg.begin());
 			command_join(splitedMsg, cling);
 		}
@@ -318,16 +303,12 @@ void Server::handleIncomeData() {
 			}
 			else {
 				buffer[rc] = '\0';
+				// here we need to check if the message is finished or not
+				// ........
+
+				// if the message is not finished, we need to wait for the next part of the message
 				std::string message(buffer);
-				// if the client is not registered yet, authenticate the client
-
 				parseCommand(message, _clients.find(_fds[i].fd)->second);
-				// command_list(message, _clients.find(_fds[i].fd)->second);
-				// _clients.find(_fds[i].fd)->second.refstatus();
-
-				// here we can do whatever we want with the message
-				//........
-				// std::cout << "FULL CONMNAD ="<< message;
 			}
 		}
 	}
