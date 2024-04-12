@@ -127,10 +127,9 @@ std::vector<std::string> split(const std::string& s, char delim)
 
 inline void replyTo(int socket, std::string buffer); // manage these latter !!!!
 
-void Server::passCommand(const std::vector<std::string> &fields, Client &user) // only one time
+void Server::passCommand(const std::vector<std::string> &fields, Client &user)
 {
-	// if he register or nope
-	if (user.getValidPass() == false) // check for client to be registerd 
+	if (user.getValidPass() == false)
 	{
 		if (fields.empty())
 			replyTo(user.getSocket(), ERR_NEEDMOREPARAMS("Guest", "PASS"));
@@ -180,7 +179,7 @@ void Server::nickCommand(const std::vector<std::string> &fields, Client &user) /
 		replyTo(user.getSocket(), ERR_FIRSTCOMMAND);
 }
 
-void Server::userCommand(const std::string& message, const std::vector<std::string> &fields, Client &user) // only one
+void Server::userCommand(const std::string& message, const std::vector<std::string> &fields, Client &user)
 {
 	if (!user.getRegistered())
 	{
