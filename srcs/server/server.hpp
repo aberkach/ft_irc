@@ -2,13 +2,11 @@
 #define SERVER_HPP__
 
 #include "../../Inc/define.hpp"
-// #include "../../Inc/ft_irc.hpp"
 #include "../channel/channel.hpp"
-#include "../client/client.hpp"
-
 #include <cstddef>
 #include <sys/poll.h>
 #include <vector>
+
 
 class Server {
   private:
@@ -42,10 +40,17 @@ class Server {
         void  passCommand(const std::vector<std::string> &fields, Client &user);
         void  nickCommand(const std::vector<std::string> &fields, Client &user);
         void  userCommand(const std::string& message, const std::vector<std::string> &fields, Client &user);
-        int   createChannel(std::string &chnName, std::vector<std::string> &keys, Client &client);
         void  joinCommand(std::vector<std::string> &fields, Client &client);
+        int   createChannel(std::string &chnName, std::vector<std::string> &keys, Client &client);
         void  processTheJoinArgs(std::vector<std::string> &channels , std::vector<std::string> &keys, Client &client);
 
 };
+
+std::vector<std::string> split(std::string str, char delim);
+std::string stringUpper(const std::string &_str);
+
+inline void replyTo(int socket, std::string buffer) {
+	send(socket, buffer.c_str(), buffer.size(), 0);
+}
 
 #endif
