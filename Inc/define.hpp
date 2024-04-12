@@ -68,20 +68,21 @@
 #define NOTE7  std::string(":") + SERVERNAME + " NOTICE Guest :**NICKLEN=" + CNICKLEN + " USERLEN=" + CUSERLEN + " REALLEN=" + CREALLEN + " characters\n"\
                "                            if u pass the token, the value will be truncated to fit the server needs\r\n"
 
-#define RPL_WELCOME(nick, user, host)  std::string(":") + SERVERNAME + " 001 " + (nick) + " :Welcome to the internet relay chat Network, " + (nick) + "[!" + (user) + "@" + (host) + "]\r\n"
-#define RPL_YOURHOST(nick, host, port) std::string(":") + SERVERNAME + " 002 " + (nick) + " :Your host is " SERVERNAME "[" + (host) + "/" + (port) + "], running version " VERSION  "\r\n"
-#define RPL_CREATED(nick, datetime)    std::string(":") + SERVERNAME + " 003 " + (nick) + " :This server was created " + (datetime) + "\r\n"
-#define RPL_MYINFO(nick)               std::string(":") + SERVERNAME + " 004 " + (nick) + " " + SERVERNAME + " " + VERSION + " " + USERMODES + " " + CHANELMODES + " [" + CHANELMODESPARAMETER + "]\r\n"
-#define RPL_ISUPPORT(nick)             std::string(":") + SERVERNAME + " 005 " + (nick) + " " COMMANDS " :are supported by this server\r\n"
+#define RPL_WELCOME(nick, user, host)        std::string(":") + SERVERNAME + " 001 " + (nick) + " :Welcome to the internet relay chat Network, " + (nick) + "[!" + (user) + "@" + (host) + "]\r\n"
+#define RPL_YOURHOST(nick, host, port)       std::string(":") + SERVERNAME + " 002 " + (nick) + " :Your host is " SERVERNAME "[" + (host) + "/" + (port) + "], running version " VERSION  "\r\n"
+#define RPL_CREATED(nick, datetime)          std::string(":") + SERVERNAME + " 003 " + (nick) + " :This server was created " + (datetime) + "\r\n"
+#define RPL_MYINFO(nick)                     std::string(":") + SERVERNAME + " 004 " + (nick) + " " + SERVERNAME + " " + VERSION + " " + USERMODES + " " + CHANELMODES + " [" + CHANELMODESPARAMETER + "]\r\n"
+#define RPL_ISUPPORT(nick)                   std::string(":") + SERVERNAME + " 005 " + (nick) + " " COMMANDS " :are supported by this server\r\n"
 
-#define ERR_NONICKNAMEGIVEN(nick)                     ":" + SERVERNAME + " 431 " + (nick) + " :No nickname given\r\n"
-#define ERR_ERRONEUSNICKNAME(nick, command)           ":" + SERVERNAME + " 432 " + (nick) + " " + (command) + " :Erroneus nickname\r\n"
-#define ERR_NICKNAMEINUSE(nick)                       ":" + SERVERNAME + " 433 " + (nick) +  " :Nickname is already in use\r\n"
+#define ERR_NONICKNAMEGIVEN(nick)            std::string(":") + SERVERNAME + " 431 " + (nick) + " :No nickname given\r\n"
+#define ERR_ERRONEUSNICKNAME(nick)           std::string(":") + SERVERNAME + " 432 " + (nick) + " :Erroneus nickname\r\n"
+#define ERR_NICKNAMEINUSE(nick)              std::string(":") + SERVERNAME + " 433 " + (nick) + " :Nickname is already in use\r\n"
 
-#define ERR_NEEDMOREPARAMS(nick, command)             ":" + SERVERNAME + " 461 " + (nick) + " " + (command) + " :Not enough parameters\r\n"
-#define ERR_ALREADYREGISTERED(nick)                   ":" + SERVERNAME + " 462 " + (nick) + " :You may not reregister\r\n"
-#define ERR_PASSWDMISMATCH(nick)                      ":" + SERVERNAME + " 464 Guest :Password incorrect\r\n"
-#define ERR_FIRSTCOMMAND(nick)                        ":" + SERVERNAME + " 465 Guest :Server is expecting 'PASS <password>' first\r\n"
+#define ERR_USERFORMAT                       std::string(":") + SERVERNAME + " 460 Guest :Use format USER <username> 0 * :<realname>\r\n"
+#define ERR_NEEDMOREPARAMS(nick, command)    std::string(":") + SERVERNAME + " 461 " + (nick) + " " + (command) + " :Not enough parameters\r\n"
+#define ERR_ALREADYREGISTERED(nick)          std::string(":") + SERVERNAME + " 462 " + (nick) + " :You may not reregister\r\n"
+#define ERR_PASSWDMISMATCH                   std::string(":") + SERVERNAME + " 464 Guest :Password incorrect\r\n"
+#define ERR_FIRSTCOMMAND                     std::string(":") + SERVERNAME + " 465 Guest :Server is expecting 'PASS <password>' first\r\n"
 
 // #define ERR_UNKNOWNCOMMAND(client, command)             ":" SERVERNAME " 421 " +  (client) + " " + (command) + " :Unknown command" + "\r\n"
 // #define ERR_NOSUCHNICK(client1, client2)                ":" SERVERNAME " 401 " + (client1) + " " + (client2) + " :No such nick" + "\r\n"

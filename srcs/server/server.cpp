@@ -125,22 +125,22 @@ std::vector<std::string> split(const std::string& s, char delim)
     return tokens;
 }
 
+inline void replyTo(int socket, std::string buffer); // manage these latter !!!!
+
 void Server::passCommand(const std::vector<std::string> &fields, Client &user) // only one time
 {
 	// if he register or nope
-	if (fields.empty())
-		std::cout <<  "<client> <command> :Not enough parameters" << std::endl;
-	else if (user.getValidPass() == false) // check for client to be registerd 
+	if (user.getValidPass() == false) // check for client to be registerd 
 	{
-		if (fields[0] == _password)
+		if (fields.empty())
+			replyTo(user.getSocket(), ERR_NEEDMOREPARAMS(user.getNickname(), "PASS"));
+		else if (fields[0] == _password)
 			user.setValidPass(true);
 		else
-		{
-			std::cout << "<client> :Password incorrect" << std::endl;
-		}
+			replyTo(user.getSocket(), ERR_PASSWDMISMATCH);
 	}
 	else
-		std::cout << "<client> :You may not reregister" << std::endl;
+		replyTo(user.getSocket(), ERR_ALREADYREGISTERED(user.getNickname()));
 }
 
 std::string stringUpper(const std::string &_str)
@@ -157,28 +157,27 @@ void Server::nickCommand(const std::vector<std::string> &fields, Client &user) /
 {
 	if (user.getValidPass() == true)
 	{
-		std::map<int, Client>::const_iterator it;
-
 		if (fields.empty())
 		{
-			std::cout << "<client> :No nickname given" << std::endl;
+			replyTo(user.getSocket(), ERR_NONICKNAMEGIVEN(user.getNickname()));
 			return;
 		}
+		std::map<int, Client>::const_iterator it;
+		
 		for (it = _clients.begin() ; it != _clients.end(); ++it)
 		{
 			if (stringUpper(it->second.getNickname()) == stringUpper(fields[0])) // dosnt get free when client leaves !! // nicknames, channel names casemapping sensitivity !!!
 			{
-				std::cout << "<client> <nick> :Nickname is already in use" << std::endl;
-				// std::string response = ERR_NICKNAMEINUSE(std::string(inet_ntoa(user._addr.sin_addr))) + '\n';
-				// send(user.getSocket(),  , response.size(), 0);
+				replyTo(user.getSocket(), ERR_NICKNAMEINUSE(user.getNickname()));
 				return;
 			}
 		}
+		// add a condition for the msg in case he is registerd and changed his name to smthing else !!!
 		if (user.setNickname(fields[0]) == false)
-			std::cout << "<client> <nick> :Erroneus nickname" << std::endl;
+			replyTo(user.getSocket(), ERR_ERRONEUSNICKNAME(user.getNickname()));
 	}
 	else
-		std::cout << "u need to send the password first" << std::endl;
+		replyTo(user.getSocket(), ERR_FIRSTCOMMAND);
 }
 
 void Server::userCommand(const std::string& message, const std::vector<std::string> &fields, Client &user) // only one
@@ -191,16 +190,16 @@ void Server::userCommand(const std::string& message, const std::vector<std::stri
 			{
 				size_t p;
 				if (( p = message.find_first_of(":")) == std::string::npos || fields[1] != "0" || fields[2] != "*" || !user.setUsername(fields[0]) || !user.setRealname(message.substr(p + 1)))
-					std::cout <<  "format : USER  <username> 0 * :<realname> " << std::endl;
+					replyTo(user.getSocket(), ERR_USERFORMAT);
 			}
 			else
-				std::cout <<  "<client> <command> :Not enough parameters" << std::endl;
+				replyTo(user.getSocket(), ERR_NEEDMOREPARAMS(user.getNickname(), "USER"));
 		}
 		else
-			std::cout << "u need to send the password first" << std::endl;
+			replyTo(user.getSocket(), ERR_FIRSTCOMMAND);
 	}
 	else
-		std::cout << "<client> :You may not reregister" << std::endl;
+		replyTo(user.getSocket(), ERR_ALREADYREGISTERED(user.getNickname()));
 }
 
 
