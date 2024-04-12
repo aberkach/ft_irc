@@ -133,7 +133,7 @@ void Server::passCommand(const std::vector<std::string> &fields, Client &user) /
 	if (user.getValidPass() == false) // check for client to be registerd 
 	{
 		if (fields.empty())
-			replyTo(user.getSocket(), ERR_NEEDMOREPARAMS(user.getNickname(), "PASS"));
+			replyTo(user.getSocket(), ERR_NEEDMOREPARAMS("Guest", "PASS"));
 		else if (fields[0] == _password)
 			user.setValidPass(true);
 		else
@@ -168,13 +168,13 @@ void Server::nickCommand(const std::vector<std::string> &fields, Client &user) /
 		{
 			if (stringUpper(it->second.getNickname()) == stringUpper(fields[0])) // dosnt get free when client leaves !! // nicknames, channel names casemapping sensitivity !!!
 			{
-				replyTo(user.getSocket(), ERR_NICKNAMEINUSE(user.getNickname()));
+				replyTo(user.getSocket(), ERR_NICKNAMEINUSE(fields[0]));
 				return;
 			}
 		}
 		// add a condition for the msg in case he is registerd and changed his name to smthing else !!!
 		if (user.setNickname(fields[0]) == false)
-			replyTo(user.getSocket(), ERR_ERRONEUSNICKNAME(user.getNickname()));
+			replyTo(user.getSocket(), ERR_ERRONEUSNICKNAME(fields[0]));
 	}
 	else
 		replyTo(user.getSocket(), ERR_FIRSTCOMMAND);
@@ -193,7 +193,7 @@ void Server::userCommand(const std::string& message, const std::vector<std::stri
 					replyTo(user.getSocket(), ERR_USERFORMAT);
 			}
 			else
-				replyTo(user.getSocket(), ERR_NEEDMOREPARAMS(user.getNickname(), "USER"));
+				replyTo(user.getSocket(), ERR_NEEDMOREPARAMS("Guest", "USER"));
 		}
 		else
 			replyTo(user.getSocket(), ERR_FIRSTCOMMAND);
@@ -215,7 +215,7 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 	else if (command == "USER")
 		userCommand(message, fields, user);
     else
-        std::cout<< "421 ERR_UNKNOWNCOMMAND :Unknown command" << std::endl;
+		replyTo(user.getSocket(), ERR_UNKNOWNCOMMAND(user.getNickname(), command));
 }
 
 // Handle incoming data from clients :

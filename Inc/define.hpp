@@ -56,16 +56,16 @@
 #define CHANELMODES           "fgdrc"
 #define CHANELMODESPARAMETER  "12345"
 
-#define COMMANDS " CHANTYPES=#"
+#define COMMANDS "CHANTYPES=#"
 
-#define NOTE0  std::string(":") + SERVERNAME + " NOTICE Guest :** Looking up your hostname..."
-#define NOTE1  std::string(":") + SERVERNAME + " NOTICE Guest :** Couldn't look up your hostname"
-#define NOTE2  std::string(":") + SERVERNAME + " NOTICE Guest :**You are connected to the server as 'Guest', You have to authenticate to use this server\r\n"
-#define NOTE3  std::string(":") + SERVERNAME + " NOTICE Guest :**Available commands for the authentication process\r\n"
+#define NOTE0  std::string(":") + SERVERNAME + " NOTICE Guest :** Looking up your hostname...\r\n"
+#define NOTE1  std::string(":") + SERVERNAME + " NOTICE Guest :** Couldn't look up your hostname\r\n"
+#define NOTE2  std::string(":") + SERVERNAME + " NOTICE Guest :** You are connected to the server as 'Guest', You have to authenticate to use this server\r\n"
+#define NOTE3  std::string(":") + SERVERNAME + " NOTICE Guest :** Available commands for the authentication process\r\n"
 #define NOTE4  "                            PASS <password>\r\n"
 #define NOTE5  "                            NICK <nickname>\r\n"
 #define NOTE6  "                            USER <username> 0 * :<realname>\r\n"
-#define NOTE7  std::string(":") + SERVERNAME + " NOTICE Guest :**NICKLEN=" + CNICKLEN + " USERLEN=" + CUSERLEN + " REALLEN=" + CREALLEN + " characters\n"\
+#define NOTE7  std::string(":") + SERVERNAME + " NOTICE Guest :** NICKLEN=" + CNICKLEN + " USERLEN=" + CUSERLEN + " REALLEN=" + CREALLEN + " characters\n"\
                "                            if u pass the token, the value will be truncated to fit the server needs\r\n"
 
 #define RPL_WELCOME(nick, user, host)        std::string(":") + SERVERNAME + " 001 " + (nick) + " :Welcome to the internet relay chat Network, " + (nick) + "[!" + (user) + "@" + (host) + "]\r\n"
@@ -74,6 +74,7 @@
 #define RPL_MYINFO(nick)                     std::string(":") + SERVERNAME + " 004 " + (nick) + " " + SERVERNAME + " " + VERSION + " " + USERMODES + " " + CHANELMODES + " [" + CHANELMODESPARAMETER + "]\r\n"
 #define RPL_ISUPPORT(nick)                   std::string(":") + SERVERNAME + " 005 " + (nick) + " " COMMANDS " :are supported by this server\r\n"
 
+#define ERR_UNKNOWNCOMMAND(nick, command)   std::string(":") + SERVERNAME + " 421 " + (nick) + " " + (command) + " :Unknown command\r\n"
 #define ERR_NONICKNAMEGIVEN(nick)            std::string(":") + SERVERNAME + " 431 " + (nick) + " :No nickname given\r\n"
 #define ERR_ERRONEUSNICKNAME(nick)           std::string(":") + SERVERNAME + " 432 " + (nick) + " :Erroneus nickname\r\n"
 #define ERR_NICKNAMEINUSE(nick)              std::string(":") + SERVERNAME + " 433 " + (nick) + " :Nickname is already in use\r\n"
@@ -84,7 +85,6 @@
 #define ERR_PASSWDMISMATCH                   std::string(":") + SERVERNAME + " 464 Guest :Password incorrect\r\n"
 #define ERR_FIRSTCOMMAND                     std::string(":") + SERVERNAME + " 465 Guest :Server is expecting 'PASS <password>' first\r\n"
 
-// #define ERR_UNKNOWNCOMMAND(client, command)             ":" SERVERNAME " 421 " +  (client) + " " + (command) + " :Unknown command" + "\r\n"
 // #define ERR_NOSUCHNICK(client1, client2)                ":" SERVERNAME " 401 " + (client1) + " " + (client2) + " :No such nick" + "\r\n"
 // #define ERR_NOSUCHCHANNEL(client, channel)              ":" SERVERNAME " 403 " + (client) + " " + (channel) + " :No such channel" + "\r\n"
 // #define ERR_BADCHANNELKEY(client, channel)              ":" SERVERNAME " 475 " + (client) + " " + (channel) + " :Cannot join channel (+k)" + "\r\n"
