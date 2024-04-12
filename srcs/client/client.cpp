@@ -3,6 +3,22 @@
 #define NICKLEN 10 // maybe warn about these ?
 #define USERLEN 9
 #define REALLEN 32
+#include <arpa/inet.h> // print ip adrss
+
+
+/// TOOLS
+inline void replyTo(int socket, std::string buffer)
+{
+    send(socket, buffer.c_str() , buffer.size() , 0);
+};
+
+std::string getTime() 
+{
+    time_t clock = time(nullptr);
+    std::string timeFormat = ctime(&clock);
+    return (timeFormat.substr(0, timeFormat.find('\n')));
+}
+///TOOLS
 
 /// @brief
 /// #### constructors ####
@@ -16,6 +32,14 @@ Client::Client(void): _socket(-1) , _registered(false) , _validPass(false) ,
 Client::Client(int socket, struct sockaddr_in &addr) : _socket(socket) , _registered(false) , _validPass(false) , 
     _nickName(""), _userName(""), _realName("")
 {
+    replyTo(_socket, NOTE0);
+    replyTo(_socket, NOTE1);
+    replyTo(_socket, NOTE2);
+    replyTo(_socket, NOTE3);
+    replyTo(_socket, NOTE4);
+    replyTo(_socket, NOTE5);
+    replyTo(_socket, NOTE6);
+    replyTo(_socket, NOTE7);
     memset(&_addr, 0, sizeof(_addr));
     memmove(&_addr, &addr, sizeof(_addr));
 };
@@ -115,10 +139,8 @@ Client::getRealname(void) const
     return _realName;
 };
 
-inline void replyTo(int socket, std::string buffer)
-{
-    send(socket, buffer.c_str() , buffer.size() , 0);
-};
+
+/// status ref
 
 void 
 Client::refStatus(void)
@@ -126,9 +148,10 @@ Client::refStatus(void)
     if (_registered == false && _validPass == true && !_nickName.empty() && !_userName.empty() && !_realName.empty())
     {
         _registered = true;
-        replyTo(_socket, RPL_WELCOME(_nickName));
-        replyTo(_socket, RPL_YOURHOST(_nickName));
-        replyTo(_socket, RPL_CREATED(_nickName));
+        char *host = inet_ntoa(_addr.sin_addr);
+        replyTo(_socket, RPL_WELCOME(_nickName, _userName, host));
+        replyTo(_socket, RPL_YOURHOST(_nickName, host, std::to_string(ntohs(_addr.sin_port))));
+        replyTo(_socket, RPL_CREATED(_nickName, getTime()));
         replyTo(_socket, RPL_MYINFO(_nickName));
         replyTo(_socket, RPL_ISUPPORT(_nickName));
     }

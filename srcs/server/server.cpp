@@ -111,12 +111,6 @@ void Server::handlIncomeConnections()
 	}
 }
 
-	// cant start with :
-		// Dollar ($, 0x24)
-		// Colon (:, 0x3A)
-		// Any character listed as a channel type (#, &)
-		// Any character listed as a channel membership prefix (@, ~, &, %, +)
-
 std::vector<std::string> split(const std::string& s, char delim)
 {
     std::vector<std::string> tokens;
@@ -175,7 +169,7 @@ void Server::nickCommand(const std::vector<std::string> &fields, Client &user) /
 			if (stringUpper(it->second.getNickname()) == stringUpper(fields[0])) // dosnt get free when client leaves !! // nicknames, channel names casemapping sensitivity !!!
 			{
 				std::cout << "<client> <nick> :Nickname is already in use" << std::endl;
-				std::string response = ERR_NICKNAMEINUSE(std::string(inet_ntoa(user._addr.sin_addr))) + '\n';
+				// std::string response = ERR_NICKNAMEINUSE(std::string(inet_ntoa(user._addr.sin_addr))) + '\n';
 				// send(user.getSocket(),  , response.size(), 0);
 				return;
 			}
