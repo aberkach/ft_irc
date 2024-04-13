@@ -171,15 +171,15 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 		joinCommand(fields, user);
 	else if (command == "QUIT")
 	{
-		replyTo(user.getSocket(), "Goodbye");
-		std::cout << "Connection closed " << user.getSocket() << std::endl;
+		char *host = inet_ntoa(user._addr.sin_addr);
+		replyTo(user.getSocket(), QUIT_MSG(user.getNickname(), user.getRealname(), host, " <with QUIT command>"));
+		std::cout << "Connection closed with: " << user.getNickname() << std::endl;
 		close(user.getSocket());
+		user.setSocket(-1);
 		_clients.erase(user.getSocket());
 	}
 	else if (command == "KICK")
-	{
-		
-	}
+		kickCommand(fields, user);
 	else
 		replyTo(user.getSocket(), ERR_UNKNOWNCOMMAND(user.getNickname(), command));
 }
@@ -256,7 +256,6 @@ int Server::createServer()
 	    _nfds = current_size;
 	}
 }
-
 
 Server::~Server(void) {
 	close(_listen_sd);

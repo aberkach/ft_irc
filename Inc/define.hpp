@@ -85,6 +85,8 @@
 #define ERR_PASSWDMISMATCH                   std::string(":") + SERVERNAME + " 464 Guest :Password incorrect\r\n"
 #define ERR_FIRSTCOMMAND                     std::string(":") + SERVERNAME + " 465 Guest :Server is expecting 'PASS <password>' first\r\n"
 
+#define QUIT_MSG(nickname, username, ipaddr, reason)                  ":"+ (nickname) + "!~" + (username) + "@" + (ipaddr) + " QUIT :Client Quit" + (reason) + "\r\n"
+
 // #define ERR_NOSUCHNICK(client1, client2)                ":" SERVERNAME " 401 " + (client1) + " " + (client2) + " :No such nick" + "\r\n"
 // #define ERR_NOSUCHCHANNEL(client, channel)              ":" SERVERNAME " 403 " + (client) + " " + (channel) + " :No such channel" + "\r\n"
 // #define ERR_BADCHANNELKEY(client, channel)              ":" SERVERNAME " 475 " + (client) + " " + (channel) + " :Cannot join channel (+k)" + "\r\n"
@@ -106,7 +108,6 @@
 // #define RPL_ENDOFWHO(client)                                          ":" SERVERNAME " 315 " + (client) + " :End of /WHO list" + "\r\n"
 // #define RPL_NICK(client, username,ipaddr, newnick)                    ":" + (client) + "!~" + (username) + "@"+ (ipaddr) + " NICK :"+(newnick) + "\r\n"
 // #define KICK_MSG(client, ipaddr, channel, kicked, reason)             ":" + (client) + "!~" + (ipaddr) + " KICK " + (channel) + " " + kicked + " " + reason + "\r\n"
-// #define QUIT_MSG(nickname, username, ipaddr, reason)                  ":"+ (nickname) + "!~" + (username) + "@" + (ipaddr) + " QUIT :Client Quit" + (reason) + "\r\n"
 // #define PRIVMSG(client, username, ipaddr, target, message)            ":" + (client) + "!~" + (username) + "@" + (ipaddr) + " PRIVMSG " + (target) + " :" + (message) + "\r\n"
 // #define JOIN_SUCC(nickname, username, client_ip, channel)             ":" + (nickname) + "!~" + (username) + "@" + (client_ip) + " JOIN " + (channel) + "\r\n"
 // #define MODE_MSG(client, username,ipaddr, channel,added_mode, target) ":" + (client) + "!~" + (username) +"@" + (ipaddr) + " MODE " + (channel) + " " +(added_mode) +  target + "\r\n"

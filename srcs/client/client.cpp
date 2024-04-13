@@ -54,6 +54,12 @@ Client::Client(const Client& user) : _socket(user._socket) , _registered(user._r
 /// @brief
 /// #### setters ####
 
+void
+Client::setSocket(int socket)
+{
+    _socket = socket;
+};
+
 void 
 Client::setValidPass(bool status)
 {

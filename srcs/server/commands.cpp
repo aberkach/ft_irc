@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:19:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/13 12:31:19 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/13 16:30:23 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,7 @@ void Server::kickCommand (std::vector<std::string> &fields, Client &client) {
     if (client.getRegistered()) {
 
         if (fields.size() < 2) {
-            std::cout << "Error: missing args" << std::endl;
-            // here we can send an error message to the client
-            // ....
+            replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "KICK"));
             return;
         }
         std::string chnName = fields[0];
@@ -200,11 +198,7 @@ void Server::processTheJoinArgs(std::vector<std::string> &channels , std::vector
             
             // join the channel
             if (!joinChannel(chnName, keys, client, chnIt))
-            {
                 continue;
-                // here we can send a message to the client to inform him that he joined the channel
-                // ....
-            }
 
         }
     }
@@ -227,11 +221,7 @@ void Server::joinCommand(std::vector<std::string> &fields, Client &client) {
     	    processTheJoinArgs(channels, keys, client);
     	}
     	else
-    	{
-    	    std::cout << "Error: empty args" << std::endl;
-    	    // here we can send an error message to the client
-    	    // ....
-    	}
+            replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "JOIN"));
 	}
 	else
 	{
