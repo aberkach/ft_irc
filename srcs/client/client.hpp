@@ -24,6 +24,7 @@ class Client
         Client(int socket, struct sockaddr_in &addr);
         Client(const Client& user);
 
+        void setSocket(int socket);
         void setValidPass(bool status);
         void setRegistered(bool status);
         bool setNickname(const std::string& nickName);

@@ -48,6 +48,10 @@ class Server {
         void  processTheJoinArgs(std::vector<std::string> &channels , std::vector<std::string> &keys, Client &client);
         bool  joinChannel(std::string &chnName, std::vector<std::string> &keys, Client &client, chnMapIt &);
 
+        // operators methods :
+
+        void kickCommand(std::vector<std::string> &fields, Client &client);
+
 };
 
 std::vector<std::string> splitByDelim(std::string str, char delim);

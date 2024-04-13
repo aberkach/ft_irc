@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:19:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/13 09:38:00 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/13 16:30:23 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,57 @@
 #include <string>
 #include <vector>
 
+// kick command
 
-	// cant start with :
-		// Dollar ($, 0x24)
-		// Colon (:, 0x3A)
-		// Any character listed as a channel type (#, &)
-		// Any character listed as a channel membership prefix (@, ~, &, %, +)
+//TODO: this still on testing
+void Server::kickCommand (std::vector<std::string> &fields, Client &client) {
+    if (client.getRegistered()) {
+
+        if (fields.size() < 2) {
+            replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "KICK"));
+            return;
+        }
+        std::string chnName = fields[0];
+        std::string nickName = fields[1];
+        std::vector<std::string> usersBeKicked;
+        if (nickName.find_first_of(',') != std::string::npos)
+            usersBeKicked = splitByDelim(nickName, ',');
+        else
+            usersBeKicked.push_back(nickName);
+        chnMapIt chnIt = server_channels.find(chnName);
+        if (chnIt == server_channels.end())
+        {
+            std::cout << "Error: channel doesn't exist" << std::endl;
+            // here we can send an error message to the client
+            // ....
+            return;
+        }
+        if (chnIt->second.isOperator(client)) {
+            for (size_t i = 0; i < usersBeKicked.size(); i++)
+            {
+                if (chnIt->second.isClientExist(usersBeKicked[i]))
+                {
+                    chnIt->second.removeUser(chnIt->second.getUser(usersBeKicked[i]));
+                    std::cout << "kicked " << usersBeKicked[i] << " from " << chnName << std::endl;
+                    // here we can send a message to the client to inform him that he is kicked
+                    // ....
+                }
+                else
+                {
+                    std::cout << "Error: user doesn't exist" << std::endl;
+                    // here we can send an error message to the client
+                    // ....
+                }
+            }
+        }
+        else
+        {
+            std::cout << "Error: you are not an operator" << std::endl;
+            // here we can send an error message to the client
+            // ....
+        }
+    }
+}
 
 bool Server::createChannel(std::string &chnName, std::vector<std::string> &keys, Client &client) {
     // check if the channel already exist
@@ -30,7 +75,7 @@ bool Server::createChannel(std::string &chnName, std::vector<std::string> &keys,
         // ....
         if (keys.size() > 0)
             keys.erase(keys.begin());
-        return true;
+        return false;
     }
     Channel newChannel(chnName);
     server_channels.insert(std::pair<std::string, Channel>(chnName, newChannel));
@@ -45,7 +90,7 @@ bool Server::createChannel(std::string &chnName, std::vector<std::string> &keys,
             std::cout << "Error: invalid channel key" << std::endl;
             // here we can send an error message to the client
             // ....
-            return true;
+            return false;
         }
         // set the key for the channel
         server_channels.find(chnName)->second.setKey(keys[0]);
@@ -53,16 +98,18 @@ bool Server::createChannel(std::string &chnName, std::vector<std::string> &keys,
     }
     else
         server_channels.find(chnName)->second.setKey("");
+    // make the client an operator of the channel
+    server_channels.find(chnName)->second.addOperator(client);
     // add the client to the channel
     server_channels.find(chnName)->second.addUser(client);
-    return 0;
+    return true;
 }
 
 bool Server::joinChannel(std::string &chnName, std::vector<std::string> &keys, Client &client, chnMapIt &chnIt) {
     // if the channel doesn't exist, create a new one
     if (chnIt == server_channels.end())
     {
-        if (createChannel(chnName, keys, client))
+        if (!createChannel(chnName, keys, client))
             return false;
 		std::cout << client.getNickname() << " created the channel " << chnName << std::endl;
         // here we can send a message to the client to inform him that the channel is created
@@ -150,12 +197,8 @@ void Server::processTheJoinArgs(std::vector<std::string> &channels , std::vector
             chnMapIt chnIt = server_channels.find(chnName);
             
             // join the channel
-            if (joinChannel(chnName, keys, client, chnIt))
-            {
+            if (!joinChannel(chnName, keys, client, chnIt))
                 continue;
-                // here we can send a message to the client to inform him that he joined the channel
-                // ....
-            }
 
         }
     }
@@ -178,11 +221,7 @@ void Server::joinCommand(std::vector<std::string> &fields, Client &client) {
     	    processTheJoinArgs(channels, keys, client);
     	}
     	else
-    	{
-    	    std::cout << "Error: empty args" << std::endl;
-    	    // here we can send an error message to the client
-    	    // ....
-    	}
+            replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "JOIN"));
 	}
 	else
 	{
