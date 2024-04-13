@@ -1,24 +1,8 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Poller.cpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: ZakariaElbouzkri <elbouzkri9@gmail.com>    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/21 05:20:40 by ZakariaElbo       #+#    #+#             */
-/*   Updated: 2024/03/21 16:42:55 by ZakariaElbo      ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "Poller.hpp"
 
-Poller::Poller( void )
-{
-}
+Poller::Poller( void ) {}
 
-Poller::~Poller( void )
-{
-}
+Poller::~Poller( void ){}
 
 void	Poller::push(int fd, short events)
 {
@@ -33,7 +17,6 @@ void	Poller::push(int fd, short events)
 	pfd.revents = 0;
 	_pfds.push_back(pfd);
 }
-
 
 void	Poller::pop(int fd)
 {
