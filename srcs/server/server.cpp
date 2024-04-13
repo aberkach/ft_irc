@@ -213,6 +213,8 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 		nickCommand(fields, user);
 	else if (command == "USER")
 		userCommand(message, fields, user);
+	// else if (command == "PRIVMSG")
+		// privmsgCommand(message, fields, user);
     else
 		replyTo(user.getSocket(), ERR_UNKNOWNCOMMAND(user.getNickname(), command));
 }
