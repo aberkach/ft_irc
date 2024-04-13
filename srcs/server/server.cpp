@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <arpa/inet.h> // print ip adrss
+#include <iostream>
 
 
 void Err(std::string msg, int exitFalg)
@@ -168,6 +169,17 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 		userCommand(message, fields, user);
 	else if (command == "JOIN")
 		joinCommand(fields, user);
+	else if (command == "QUIT")
+	{
+		replyTo(user.getSocket(), "Goodbye");
+		std::cout << "Connection closed " << user.getSocket() << std::endl;
+		close(user.getSocket());
+		_clients.erase(user.getSocket());
+	}
+	else if (command == "KICK")
+	{
+		
+	}
 	else
 		replyTo(user.getSocket(), ERR_UNKNOWNCOMMAND(user.getNickname(), command));
 }
