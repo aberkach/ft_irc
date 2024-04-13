@@ -6,14 +6,14 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/11 03:08:58 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/13 12:29:44 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../channel/channel.hpp"
 #include <string>
 
-Channel::Channel() : _name("default")
+Channel::Channel() : _name("default"), _topic("default"), _key("default")
 {
 }
 
@@ -39,6 +39,12 @@ std::string Channel::getKey() const
 {
     return _key;
 }
+
+Client &Channel::getUser(std::string &nickName)
+{
+    return _users[nickName];
+}
+
 void Channel::getUsers()
 {
     for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); it++)
@@ -71,4 +77,24 @@ bool Channel::isClientExist(std::string nickName)
 void Channel::addUser(Client &client)
 {
     _users.insert(std::pair<std::string, Client>(client.getNickname(), client));
+}
+
+void Channel::removeUser(Client &client)
+{
+    _users.erase(client.getNickname());
+}
+
+void Channel::addOperator(Client &op)
+{
+    _chanOps.push_back(op);
+}
+
+bool Channel::isOperator(Client &op)
+{
+    for (std::vector<Client>::iterator it = _chanOps.begin(); it != _chanOps.end(); it++)
+    {
+        if (it->getNickname() == op.getNickname())
+            return true;
+    }
+    return false;
 }
