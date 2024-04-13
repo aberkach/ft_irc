@@ -6,7 +6,10 @@
 #include <cstddef>
 #include <sys/poll.h>
 #include <vector>
+#include <map>
 
+// define channel map iterator
+typedef std::map<std::string, Channel>::iterator chnMapIt;
 
 class Server {
   private:
@@ -41,12 +44,13 @@ class Server {
         void  nickCommand(const std::vector<std::string> &fields, Client &user);
         void  userCommand(const std::string& message, const std::vector<std::string> &fields, Client &user);
         void  joinCommand(std::vector<std::string> &fields, Client &client);
-        int   createChannel(std::string &chnName, std::vector<std::string> &keys, Client &client);
+        bool  createChannel(std::string &chnName, std::vector<std::string> &keys, Client &client);
         void  processTheJoinArgs(std::vector<std::string> &channels , std::vector<std::string> &keys, Client &client);
+        bool  joinChannel(std::string &chnName, std::vector<std::string> &keys, Client &client, chnMapIt &);
 
 };
 
-std::vector<std::string> split(std::string str, char delim);
+std::vector<std::string> splitByDelim(std::string str, char delim);
 std::string stringUpper(const std::string &_str);
 
 inline void replyTo(int socket, std::string buffer) {

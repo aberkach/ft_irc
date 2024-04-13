@@ -6,11 +6,13 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:19:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/12 19:22:42 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/13 09:38:00 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "server.hpp"
+#include <string>
+#include <vector>
 
 
 	// cant start with :
@@ -19,7 +21,17 @@
 		// Any character listed as a channel type (#, &)
 		// Any character listed as a channel membership prefix (@, ~, &, %, +)
 
-int Server::createChannel(std::string &chnName, std::vector<std::string> &keys, Client &client) {
+bool Server::createChannel(std::string &chnName, std::vector<std::string> &keys, Client &client) {
+    // check if the channel already exist
+    if (!server_channels.empty() && server_channels.find(chnName) != server_channels.end())
+    {
+        std::cout << "Error: channel already exist" << std::endl;
+        // here we can send an error message to the client
+        // ....
+        if (keys.size() > 0)
+            keys.erase(keys.begin());
+        return true;
+    }
     Channel newChannel(chnName);
     server_channels.insert(std::pair<std::string, Channel>(chnName, newChannel));
     // check if the channel has a key
@@ -33,7 +45,7 @@ int Server::createChannel(std::string &chnName, std::vector<std::string> &keys, 
             std::cout << "Error: invalid channel key" << std::endl;
             // here we can send an error message to the client
             // ....
-            return 1;
+            return true;
         }
         // set the key for the channel
         server_channels.find(chnName)->second.setKey(keys[0]);
@@ -46,13 +58,84 @@ int Server::createChannel(std::string &chnName, std::vector<std::string> &keys, 
     return 0;
 }
 
+bool Server::joinChannel(std::string &chnName, std::vector<std::string> &keys, Client &client, chnMapIt &chnIt) {
+    // if the channel doesn't exist, create a new one
+    if (chnIt == server_channels.end())
+    {
+        if (createChannel(chnName, keys, client))
+            return false;
+		std::cout << client.getNickname() << " created the channel " << chnName << std::endl;
+        // here we can send a message to the client to inform him that the channel is created
+        // ....
+    }
+    // if the channel already exist, check if the client is already in the channel
+    else
+    {
+        // if the client is already in the channel, do nothing
+        if (chnIt->second.isClientExist(client.getNickname()) == true)
+        {
+            // std::cout << "Error: you are already in the channel" << std::endl;
+			std::cout << client.getNickname() << " is already in the channel " << chnName << std::endl;
+            // here we can send an error message to the client
+            // ....
+            return false;
+        }
+        // if the client is not in the channel, add the client to the channel
+        else
+        {
+            // check if the channel has a key
+            if (keys.size() > 0)
+            {
+                // if the key is correct
+                if (keys[0] == chnIt->second.getKey())
+                {
+                    // add the client to the channel
+                    chnIt->second.addUser(client);
+                    keys.erase(keys.begin());
+                    // here we can send a message to the client to inform him that he joined the channel
+                    // ....
+                }
+                // if the key is incorrect
+                else
+                {
+                    std::cout << "Error: incorrect channel key" << std::endl;
+                    // here we can send an error message to the client
+                    // ....
+                    keys.erase(keys.begin());
+                    return false;
+                }
+            }
+            // if the channel doesn't have a key, add the client to the channel
+            else
+            {
+                // if the channel has no key, add the client to the channel
+                if (chnIt->second.getKey() == "")
+                {
+                    chnIt->second.addUser(client);
+					std::cout << client.getNickname() << " joined the channel " << chnName << std::endl;
+                    // here we can send a message to the client to inform him that he joined the channel
+                    // ....
+                }
+                else
+                {
+                    std::cout << "Error: channel has a key" << std::endl;
+                    // here we can send an error message to the client
+                    // ....
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
 void Server::processTheJoinArgs(std::vector<std::string> &channels , std::vector<std::string> &keys, Client &client)
 {
     for (size_t i = 0; i < channels.size(); i++)
     {
         std::string chnName = channels[i];
         // check if the channel name is valid
-        if ((chnName[0] != '#') || (chnName.find_first_of(" ,\a\b\f\t\v$:&+~%") != std::string::npos))
+        if ((chnName[0] != '#') || (chnName.find_first_of(" ,\a\b\f\t\v$:+~%") != std::string::npos))
         {
             std::cout << "Error: invalid channel name" << std::endl;
             // here we can send an error message to the client
@@ -63,73 +146,15 @@ void Server::processTheJoinArgs(std::vector<std::string> &channels , std::vector
         }
         else
         {
-            std::map<std::string, Channel>::iterator chnIt = server_channels.find(chnName);
-            // if the channel doesn't exist, create a new one
-            if (chnIt == server_channels.end())
+            // check if the channel already exist
+            chnMapIt chnIt = server_channels.find(chnName);
+            
+            // join the channel
+            if (joinChannel(chnName, keys, client, chnIt))
             {
-                if (createChannel(chnName, keys, client))
-                    continue;
-				std::cout << client.getNickname() << " created the channel " << chnName << std::endl;
-                // here we can send a message to the client to inform him that the channel is created
+                continue;
+                // here we can send a message to the client to inform him that he joined the channel
                 // ....
-            }
-            // if the channel already exist, check if the client is already in the channel
-            else
-            {
-                // if the client is already in the channel, do nothing
-                if (chnIt->second.isClientExist(client.getNickname()) == true)
-                {
-                    // std::cout << "Error: you are already in the channel" << std::endl;
-					std::cout << client.getNickname() << " is already in the channel " << chnName << std::endl;
-                    // here we can send an error message to the client
-                    // ....
-                    continue;
-                }
-                // if the client is not in the channel, add the client to the channel
-                else
-                {
-                    // check if the channel has a key
-                    if (keys.size() > 0)
-                    {
-                        // if the key is correct
-                        if (keys[0] == chnIt->second.getKey())
-                        {
-                            // add the client to the channel
-                            chnIt->second.addUser(client);
-                            keys.erase(keys.begin());
-                            // here we can send a message to the client to inform him that he joined the channel
-                            // ....
-                        }
-                        // if the key is incorrect
-                        else
-                        {
-                            std::cout << "Error: incorrect channel key" << std::endl;
-                            // here we can send an error message to the client
-                            // ....
-                            keys.erase(keys.begin());
-                            continue;
-                        }
-                    }
-                    // if the channel doesn't have a key, add the client to the channel
-                    else
-                    {
-                        // if the channel has no key, add the client to the channel
-                        if (chnIt->second.getKey() == "")
-                        {
-                            chnIt->second.addUser(client);
-							std::cout << client.getNickname() << " joined the channel " << chnName << std::endl;
-                            // here we can send a message to the client to inform him that he joined the channel
-                            // ....
-                        }
-                        else
-                        {
-                            std::cout << "Error: channel has a key" << std::endl;
-                            // here we can send an error message to the client
-                            // ....
-                            continue;
-                        }
-                    }
-                }
             }
 
         }
@@ -147,8 +172,8 @@ void Server::joinCommand(std::vector<std::string> &fields, Client &client) {
     	if (fields.size() > 0 )
     	{
     	    // split the channels and keys by comma
-    	    channels = split(fields[0], ',');
-    	    keys = split(fields[1], ',');
+    	    channels = splitByDelim(fields[0], ',');
+    	    keys = splitByDelim(fields[1], ',');
     	    // process the channels and keys
     	    processTheJoinArgs(channels, keys, client);
     	}

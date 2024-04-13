@@ -1,8 +1,7 @@
 // #include "../../Inc/ft_irc.hpp"
 #include "server.hpp"
-#include "../channel/channel.hpp"
 #include <cstddef>
-#include <sstream>
+#include <cstdlib>
 #include <arpa/inet.h> // print ip adrss
 
 
@@ -11,6 +10,15 @@ void Err(std::string msg, int exitFalg)
 	std::cerr << msg << std::endl;
 	if (exitFalg)
 		exit(1);
+}
+
+std::string trimTheSpaces(const std::string& str)
+{
+    size_t first = str.find_first_not_of(" \t\v\b\r\n");
+    if (std::string::npos == first)
+        return str;
+    size_t last = str.find_last_not_of(" \t\v\b\r\n");
+    return str.substr(first, (last - first + 1));
 }
 
 std::string stringUpper(const std::string &_str)
@@ -23,22 +31,43 @@ std::string stringUpper(const std::string &_str)
 	return(upper);
 }
 
-std::vector<std::string> split(std::string str, char delim)
+
+std::vector<std::string> splitByDelim(std::string str, char delim)
 {
     // split the string by the delim
     std::vector<std::string> tokens;
     std::string token;
 
-    for (size_t i = 0; i < str.length(); i++)
-    {
-        if (str[i] == delim)
-        {
-            tokens.push_back(token);
-            token.clear();
-        }
-        else
-            token += str[i];
-    }
+	if (delim != ' ') {
+    	for (size_t i = 0; i < str.length(); i++)
+    	{
+    	    if (str[i] == delim)
+    	    {
+				// skip the delim
+				if (token.empty())
+					continue;
+    	        tokens.push_back(token);
+    	        token.clear();
+    	    }
+    	    else
+    	        token += str[i];
+    	}
+	}
+	else {
+		for (size_t i = 0; i < str.length(); i++)
+    	{
+    	    if (str[i] == ' ' || str[i] == '\t' || str[i] == '\v' || str[i] == '\b' || str[i] == '\r' || str[i] == '\n')
+    	    {
+				// skip the delim
+				if (token.empty())
+					continue;
+    	        tokens.push_back(token);
+    	        token.clear();
+    	    }
+    	    else
+    	        token += str[i];
+    	}
+	}
     tokens.push_back(token);
     return tokens;
 }
@@ -167,11 +196,10 @@ Server::handleIncomeData()
 				// here we handle the message
 				buffer[rc] = '\0';
 				std::string rec(buffer);
-				// remove the \r\n from the message
-				rec = rec.substr(0,rec.find_first_of("\r\n"));
+				// remove the remove all spaces from the message (included \r\n)
+				rec = trimTheSpaces(rec);
 				// split the message by space
-				std::vector<std::string> fields = split(rec, ' ');
-
+				std::vector<std::string> fields = splitByDelim(rec, ' ');
 
 				if (!fields.empty())
 				{
