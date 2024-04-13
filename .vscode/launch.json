@@ -6,8 +6,8 @@
       "type": "lldb",
       "request": "launch",
       "args": [],
-      "cwd": "/Users/abberkac/Desktop/ft_irc/srcs/client",
-      "program": "/Users/abberkac/Desktop/ft_irc/srcs/client/build/Debug/outDebug"
+      "cwd": "/Users/abberkac/Desktop/ft_irc",
+      "program": "/Users/abberkac/Desktop/ft_irc/build/Debug/outDebug"
     }
   ]
 }

@@ -1,7 +1,10 @@
 #include "../../Inc/ft_irc.hpp"
 #include "server.hpp"
 #include <cstddef>
-#include <sstream>
+#include <cstdlib>
+#include <arpa/inet.h> // print ip adrss
+#include <iostream>
+
 #include <arpa/inet.h> // print ip adrss
 
 void Err(std::string msg, int exitFalg)
@@ -11,9 +14,65 @@ void Err(std::string msg, int exitFalg)
 		exit(1);
 }
 
-// default constructor :
+std::string trimTheSpaces(const std::string& str)
+{
+    size_t first = str.find_first_not_of(" \t\v\b\r\n");
+    if (std::string::npos == first)
+        return str;
+    size_t last = str.find_last_not_of(" \t\v\b\r\n");
+    return str.substr(first, (last - first + 1));
+}
 
-// Server::Server() {}
+std::string stringUpper(const std::string &_str)
+{
+	std::string upper(_str);
+
+    for (std::string::size_type i = 0; i < _str.size(); ++i)
+        upper[i] = ::toupper(_str[i]);
+
+	return(upper);
+}
+
+
+std::vector<std::string> splitByDelim(std::string str, char delim)
+{
+    // split the string by the delim
+    std::vector<std::string> tokens;
+    std::string token;
+
+	if (delim != ' ') {
+    	for (size_t i = 0; i < str.length(); i++)
+    	{
+    	    if (str[i] == delim)
+    	    {
+				// skip the delim
+				if (token.empty())
+					continue;
+    	        tokens.push_back(token);
+    	        token.clear();
+    	    }
+    	    else
+    	        token += str[i];
+    	}
+	}
+	else {
+		for (size_t i = 0; i < str.length(); i++)
+    	{
+    	    if (str[i] == ' ' || str[i] == '\t' || str[i] == '\v' || str[i] == '\b' || str[i] == '\r' || str[i] == '\n')
+    	    {
+				// skip the delim
+				if (token.empty())
+					continue;
+    	        tokens.push_back(token);
+    	        token.clear();
+    	    }
+    	    else
+    	        token += str[i];
+    	}
+	}
+    tokens.push_back(token);
+    return tokens;
+}
 
 // parameterized constructor : initialize the server socket and set the port number
 Server::Server(uint16_t port, char *password) : _port(port), _password(password)
@@ -22,7 +81,6 @@ Server::Server(uint16_t port, char *password) : _port(port), _password(password)
 	_listen_sd = socket(AF_INET, SOCK_STREAM, 0); // Create a TCP socket
 	if (_listen_sd < 0)
 		Err("socket() failed", 1);
-	// _listen_sd < 0 ? Err("socket() failed", 1) : void(0);
 
 	// Set socket option to allow address reuse
 	int on = 1;
@@ -62,21 +120,8 @@ Server::Server(uint16_t port, char *password) : _port(port), _password(password)
 	_fds[0].revents = 0;
 }
 
-// Setters ::---------------------------------------------------------------------------------
+// Setters ::-----------------------------------------------------------------------------------
 
-// void Server::setPort(unsigned int port) {
-//     if (port > 1023 && port <= 65535)
-//         _port = port;
-//     else
-//         throw std::logic_error("Port number must be between 1024 and 65535");
-// }
-
-// void Server::setPassword(char *password) {
-//     if (strlen(password) >= 8)
-//         _password = password;
-//     else
-//         throw std::logic_error("Password must be at least 8 characters long");
-// }
 
 // ---------------------------------------------------------------------------------------------
 
@@ -111,96 +156,6 @@ void Server::handlIncomeConnections()
 	}
 }
 
-std::vector<std::string> split(const std::string& s, char delim)
-{
-    std::vector<std::string> tokens;
-    std::string token;
-    std::istringstream tokenStream(s);
-
-    while (std::getline(tokenStream, token, delim)) 
-	{
-		if (!token.empty())
-        	tokens.push_back(token);
-    }
-    return tokens;
-}
-
-inline void replyTo(int socket, std::string buffer); // manage these latter !!!!
-
-void Server::passCommand(const std::vector<std::string> &fields, Client &user)
-{
-	if (user.getValidPass() == false)
-	{
-		if (fields.empty())
-			replyTo(user.getSocket(), ERR_NEEDMOREPARAMS("Guest", "PASS"));
-		else if (fields[0] == _password)
-			user.setValidPass(true);
-		else
-			replyTo(user.getSocket(), ERR_PASSWDMISMATCH);
-	}
-	else
-		replyTo(user.getSocket(), ERR_ALREADYREGISTERED(user.getNickname()));
-}
-
-std::string stringUpper(const std::string &_str)
-{
-	std::string upper(_str);
-
-    for (std::string::size_type i = 0; i < _str.size(); ++i)
-        upper[i] = ::toupper(_str[i]);
-
-	return(upper);
-}
-
-void Server::nickCommand(const std::vector<std::string> &fields, Client &user) // can be resent after registration
-{
-	if (user.getValidPass() == true)
-	{
-		if (fields.empty())
-		{
-			replyTo(user.getSocket(), ERR_NONICKNAMEGIVEN(user.getNickname()));
-			return;
-		}
-		std::map<int, Client>::const_iterator it;
-		
-		for (it = _clients.begin() ; it != _clients.end(); ++it)
-		{
-			if (stringUpper(it->second.getNickname()) == stringUpper(fields[0])) // dosnt get free when client leaves !! // nicknames, channel names casemapping sensitivity !!!
-			{
-				replyTo(user.getSocket(), ERR_NICKNAMEINUSE(fields[0]));
-				return;
-			}
-		}
-		// add a condition for the msg in case he is registerd and changed his name to smthing else !!!
-		if (user.setNickname(fields[0]) == false)
-			replyTo(user.getSocket(), ERR_ERRONEUSNICKNAME(fields[0]));
-	}
-	else
-		replyTo(user.getSocket(), ERR_FIRSTCOMMAND);
-}
-
-void Server::userCommand(const std::string& message, const std::vector<std::string> &fields, Client &user)
-{
-	if (!user.getRegistered())
-	{
-		if (user.getValidPass())
-		{
-			if (fields.size() > 3) // real name may contain spaces
-			{
-				size_t p;
-				if (( p = message.find_first_of(":")) == std::string::npos || fields[1] != "0" || fields[2] != "*" || !user.setUsername(fields[0]) || !user.setRealname(message.substr(p + 1)))
-					replyTo(user.getSocket(), ERR_USERFORMAT);
-			}
-			else
-				replyTo(user.getSocket(), ERR_NEEDMOREPARAMS("Guest", "USER"));
-		}
-		else
-			replyTo(user.getSocket(), ERR_FIRSTCOMMAND);
-	}
-	else
-		replyTo(user.getSocket(), ERR_ALREADYREGISTERED(user.getNickname()));
-}
-
 
 void Server::commandList(const std::string& message, std::vector<std::string> &fields, Client &user)
 {
@@ -213,9 +168,20 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 		nickCommand(fields, user);
 	else if (command == "USER")
 		userCommand(message, fields, user);
-	// else if (command == "PRIVMSG")
-		// privmsgCommand(message, fields, user);
-    else
+	else if (command == "JOIN")
+		joinCommand(fields, user);
+	else if (command == "QUIT")
+	{
+		char *host = inet_ntoa(user._addr.sin_addr);
+		replyTo(user.getSocket(), QUIT_MSG(user.getNickname(), user.getRealname(), host, " <with QUIT command>"));
+		std::cout << "Connection closed with: " << user.getNickname() << std::endl;
+		close(user.getSocket());
+		user.setSocket(-1);
+		_clients.erase(user.getSocket());
+	}
+	else if (command == "KICK")
+		kickCommand(fields, user);
+	else
 		replyTo(user.getSocket(), ERR_UNKNOWNCOMMAND(user.getNickname(), command));
 }
 
@@ -240,12 +206,13 @@ Server::handleIncomeData()
 				_fds[i].fd = -1;
 			} 
 			else {
-				// here we can do whatever we want with the message
-				//........
+				// here we handle the message
 				buffer[rc] = '\0';
 				std::string rec(buffer);
-				rec = rec.substr(0,rec.find_first_of("\r\n\0"));
-				std::vector<std::string> fields = split(rec, ' ');
+				// remove the remove all spaces from the message (included \r\n)
+				rec = trimTheSpaces(rec);
+				// split the message by space
+				std::vector<std::string> fields = splitByDelim(rec, ' ');
 
 				if (!fields.empty())
 				{
@@ -290,7 +257,6 @@ int Server::createServer()
 	    _nfds = current_size;
 	}
 }
-
 
 Server::~Server(void) {
 	close(_listen_sd);

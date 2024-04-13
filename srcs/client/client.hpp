@@ -2,7 +2,6 @@
 #define CLIENT_HPP__
 
 #include "../../Inc/define.hpp"
-#include "../channel/channel.hpp"
 #include <netinet/in.h>
 #include <sys/socket.h>
 
@@ -25,6 +24,7 @@ class Client
         Client(int socket, struct sockaddr_in &addr);
         Client(const Client& user);
 
+        void setSocket(int socket);
         void setValidPass(bool status);
         void setRegistered(bool status);
         bool setNickname(const std::string& nickName);
