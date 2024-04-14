@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:19:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/13 16:30:23 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/14 14:02:54 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,9 +34,8 @@ void Server::kickCommand (std::vector<std::string> &fields, Client &client) {
         chnMapIt chnIt = server_channels.find(chnName);
         if (chnIt == server_channels.end())
         {
-            std::cout << "Error: channel doesn't exist" << std::endl;
-            // here we can send an error message to the client
-            // ....
+            std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
+            replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(clientHost, chnName));
             return;
         }
         if (chnIt->second.isOperator(client)) {
@@ -44,23 +43,21 @@ void Server::kickCommand (std::vector<std::string> &fields, Client &client) {
             {
                 if (chnIt->second.isClientExist(usersBeKicked[i]))
                 {
+                    // send a message to the client that has been kicked
                     chnIt->second.removeUser(chnIt->second.getUser(usersBeKicked[i]));
-                    std::cout << "kicked " << usersBeKicked[i] << " from " << chnName << std::endl;
-                    // here we can send a message to the client to inform him that he is kicked
-                    // ....
+                    char *clientHost = inet_ntoa(chnIt->second.getUser(usersBeKicked[i]).getAddr().sin_addr);
+                    std::string KickErrMessage = KICK_MSG(client.getNickname(), clientHost, chnName, usersBeKicked[i], "You have been kicked from the channel");
+                    replyTo(chnIt->second.getUser(usersBeKicked[i]).getSocket(), KickErrMessage);
                 }
+                // if the client is not in the channel, send an error message to the client
                 else
-                {
-                    std::cout << "Error: user doesn't exist" << std::endl;
-                    // here we can send an error message to the client
-                    // ....
-                }
+                    replyTo(client.getSocket(), ERR_USERNOTINCHANNEL(client.getNickname(), usersBeKicked[i], chnName));
             }
         }
         else
         {
             std::cout << "Error: you are not an operator" << std::endl;
-            // here we can send an error message to the client
+            // here we send an error message to the client
             // ....
         }
     }
@@ -68,15 +65,16 @@ void Server::kickCommand (std::vector<std::string> &fields, Client &client) {
 
 bool Server::createChannel(std::string &chnName, std::vector<std::string> &keys, Client &client) {
     // check if the channel already exist
-    if (!server_channels.empty() && server_channels.find(chnName) != server_channels.end())
-    {
-        std::cout << "Error: channel already exist" << std::endl;
-        // here we can send an error message to the client
-        // ....
-        if (keys.size() > 0)
-            keys.erase(keys.begin());
-        return false;
-    }
+    
+    // if (!server_channels.empty() && server_channels.find(chnName) != server_channels.end())
+    // {
+    //     std::cout << "Error: channel already exist" << std::endl;
+    //     // here we send an error message to the client
+    //     // ....
+    //     if (keys.size() > 0)
+    //         keys.erase(keys.begin());
+    //     return false;
+    // }
     Channel newChannel(chnName);
     server_channels.insert(std::pair<std::string, Channel>(chnName, newChannel));
     // check if the channel has a key
@@ -85,11 +83,10 @@ bool Server::createChannel(std::string &chnName, std::vector<std::string> &keys,
         // check if the key is valid
         if (keys[0].find_first_of(" ,\a\b\f\t\v$:&+~%") != std::string::npos)
         {
+            // here we send an error message to the client to inform him that the key is incorrect
             keys.erase(keys.begin());
             server_channels.erase(chnName);
-            std::cout << "Error: invalid channel key" << std::endl;
-            // here we can send an error message to the client
-            // ....
+            replyTo(client.getSocket(), ERR_BADCHANNELKEY(client.getNickname(), chnName));
             return false;
         }
         // set the key for the channel
@@ -111,9 +108,9 @@ bool Server::joinChannel(std::string &chnName, std::vector<std::string> &keys, C
     {
         if (!createChannel(chnName, keys, client))
             return false;
-		std::cout << client.getNickname() << " created the channel " << chnName << std::endl;
-        // here we can send a message to the client to inform him that the channel is created
-        // ....
+        // here we send a message to the client to inform him that he joined the channel
+        std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
+        replyTo(client.getSocket(), JOIN_SUCC(client.getNickname(), client.getUsername(), clientHost, chnName));
     }
     // if the channel already exist, check if the client is already in the channel
     else
@@ -121,10 +118,8 @@ bool Server::joinChannel(std::string &chnName, std::vector<std::string> &keys, C
         // if the client is already in the channel, do nothing
         if (chnIt->second.isClientExist(client.getNickname()) == true)
         {
-            // std::cout << "Error: you are already in the channel" << std::endl;
-			std::cout << client.getNickname() << " is already in the channel " << chnName << std::endl;
-            // here we can send an error message to the client
-            // ....
+            std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
+            replyTo(client.getSocket(), ERR_ALREADYINCHANNEL(clientHost, client.getNickname(), chnName));
             return false;
         }
         // if the client is not in the channel, add the client to the channel
@@ -139,15 +134,15 @@ bool Server::joinChannel(std::string &chnName, std::vector<std::string> &keys, C
                     // add the client to the channel
                     chnIt->second.addUser(client);
                     keys.erase(keys.begin());
-                    // here we can send a message to the client to inform him that he joined the channel
-                    // ....
+                    // here we send a message to the client to inform him that he joined the channel
+                    std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
+                    replyTo(client.getSocket(), JOIN_SUCC(client.getNickname(), client.getUsername(), clientHost, chnName));
                 }
                 // if the key is incorrect
                 else
                 {
-                    std::cout << "Error: incorrect channel key" << std::endl;
-                    // here we can send an error message to the client
-                    // ....
+                    // here we send an error message to the client to inform him that the key is incorrect
+                    replyTo(client.getSocket(), ERR_BADCHANNELKEY(client.getNickname(), chnName));
                     keys.erase(keys.begin());
                     return false;
                 }
@@ -159,15 +154,14 @@ bool Server::joinChannel(std::string &chnName, std::vector<std::string> &keys, C
                 if (chnIt->second.getKey() == "")
                 {
                     chnIt->second.addUser(client);
-					std::cout << client.getNickname() << " joined the channel " << chnName << std::endl;
-                    // here we can send a message to the client to inform him that he joined the channel
-                    // ....
+                    // here we send a message to the client to inform him that he joined the channel
+                    std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
+                    replyTo(client.getSocket(), JOIN_SUCC(client.getNickname(), client.getUsername(), clientHost, chnName));
                 }
                 else
                 {
-                    std::cout << "Error: channel has a key" << std::endl;
-                    // here we can send an error message to the client
-                    // ....
+                    // here we send an error message to the client to inform him that the channel has a key
+                    replyTo(client.getSocket(), ERR_BADCHANNELKEY(client.getNickname(), chnName));
                     return false;
                 }
             }
@@ -184,9 +178,8 @@ void Server::processTheJoinArgs(std::vector<std::string> &channels , std::vector
         // check if the channel name is valid
         if ((chnName[0] != '#') || (chnName.find_first_of(" ,\a\b\f\t\v$:+~%") != std::string::npos))
         {
-            std::cout << "Error: invalid channel name" << std::endl;
-            // here we can send an error message to the client
-            // ....
+            // here we send an error message to the client to inform him that the channel name is incorrect
+            replyTo(client.getSocket(), ERR_BADCHANMASK(chnName));
             if (keys.size() > 0)
                 keys.erase(keys.begin());
             continue;
@@ -223,12 +216,9 @@ void Server::joinCommand(std::vector<std::string> &fields, Client &client) {
     	else
             replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "JOIN"));
 	}
+    // if the client is not registered, send an error message    
 	else
-	{
-		std::cout << "u need to registere first" << std::endl;
-		// here we can send an error message to the client
-		// ....
-	}
+		replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));
 }
  
 

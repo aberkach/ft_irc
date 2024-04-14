@@ -146,6 +146,12 @@ Client::getRealname(void) const
 };
 
 
+sockaddr_in Client::getAddr(void) const
+{
+    return _addr;
+};
+
+
 /// status ref
 
 void 

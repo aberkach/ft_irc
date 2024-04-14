@@ -7,6 +7,7 @@
 #include <sys/poll.h>
 #include <vector>
 #include <map>
+#include <arpa/inet.h>
 
 // define channel map iterator
 typedef std::map<std::string, Channel>::iterator chnMapIt;
