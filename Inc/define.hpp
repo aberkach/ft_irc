@@ -85,17 +85,27 @@
 #define ERR_PASSWDMISMATCH                   std::string(":") + SERVERNAME + " 464 Guest :Password incorrect\r\n"
 #define ERR_FIRSTCOMMAND                     std::string(":") + SERVERNAME + " 465 Guest :Server is expecting 'PASS <password>' first\r\n"
 
+#define ERR_NOTREGISTERED(client)                                     ":" SERVERNAME " 451 " + (client) + " :You have not registered" + "\r\n"
+
+#define ERR_NOSUCHCHANNEL(client, channel)              ":" SERVERNAME " 403 " + (client) + " " + (channel) + " :No such channel" + "\r\n"
+#define ERR_USERNOTINCHANNEL(client, nickname, channel) ":" SERVERNAME " 441 " + (client) + " " + (nickname) + " " + (channel) + " :They aren't on that channel" + "\r\n"
+#define ERR_NOTONCHANNEL(client, channel)               ":" SERVERNAME " 442 " + (client) + " " + (channel) + " :You're not on that channel" + "\r\n"
+#define ERR_ALREADYINCHANNEL(client, nick, channel)        ":" SERVERNAME " 443 " + (client) + " " + (nick) + " " + (channel) + " :is already on channel" + "\r\n"
+#define ERR_BADCHANNELKEY(client, channel)              ":" SERVERNAME " 475 " + (client) + " " + (channel) + " :Cannot join channel (+k)" + "\r\n"
+#define ERR_BADCHANMASK(channel)                        ":" SERVERNAME " 476 " + (channel) + " :Bad Channel Mask" + "\r\n"
+
+// need more things to add when the user is joined the channel successfully
+#define JOIN_SUCC(nickname, username, client_ip, channel)             ":" + (nickname) + "!~" + (username) + "@" + (client_ip) + " JOIN " + (channel) + "\r\n"
+
+#define KICK_MSG(client, ipaddr, channel, kicked, reason)             ":" + (client) + "!~" + (ipaddr) + " KICK " + (channel) + " " + kicked + " " + reason + "\r\n"
+
+
 #define QUIT_MSG(nickname, username, ipaddr, reason)                  ":"+ (nickname) + "!~" + (username) + "@" + (ipaddr) + " QUIT :Client Quit" + (reason) + "\r\n"
 
+
 // #define ERR_NOSUCHNICK(client1, client2)                ":" SERVERNAME " 401 " + (client1) + " " + (client2) + " :No such nick" + "\r\n"
-// #define ERR_NOSUCHCHANNEL(client, channel)              ":" SERVERNAME " 403 " + (client) + " " + (channel) + " :No such channel" + "\r\n"
-// #define ERR_BADCHANNELKEY(client, channel)              ":" SERVERNAME " 475 " + (client) + " " + (channel) + " :Cannot join channel (+k)" + "\r\n"
-// #define ERR_NOTONCHANNEL(client, channel)               ":" SERVERNAME " 442 " + (client) + " " + (channel) + " :You're not on that channel" + "\r\n"
-// #define ERR_USERNOTINCHANNEL(client, nickname, channel) ":" SERVERNAME " 441 " + (client) + " " + (nickname) + " " + (channel) + " :They aren't on that channel" + "\r\n"
 // #define ERR_CHANOPRIVSNEEDED(client, channel)           ":" SERVERNAME " 482 " + (client) + " " + (channel) + " :You're not channel operator" + "\r\n"
-// #define ERR_USERONCHANNEL(client, nick, channel)        ":" SERVERNAME " 443 " + (client) + " " + (nick) + " " + (channel) + " :is already on channel" + "\r\n"
 // #define ERR_INVITEONLYCHAN(client, channel)             ":" SERVERNAME " 473 " + (client) + " " + (channel) + " :Cannot join channel (+i)" + "\r\n"
-// #define ERR_BADCHANMASK(channel)                        ":" SERVERNAME " 476 " + (channel) + " :Bad Channel Mask" + "\r\n"
 // #define ERR_UNKNOWNMODE(client, modechar)               ":" SERVERNAME " 472 " + (client) + " " + (modechar) + " :is unknown mode char to me" + "\r\n"
 // #define ERR_CHANNELISFULL(client, channel)              ":" SERVERNAME " 471 " + (client) + " " + (channel) + " :Cannot join channel (+l)" + "\r\n"
 // #define ERR_KEYALREADYSET(client, channel)              ":" SERVERNAME " 467 " + (client) + " " + (channel) + " :Channel key already set" + "\r\n"
@@ -104,12 +114,9 @@
 // #define ERR_NOTEXTTOSEND(client)                        ":" SERVERNAME " 412 " + (client) + " :No text to send" + "\r\n"
 
 // #define ERROR_MSG(reason)                                             ":" SERVERNAME " " + (reason) + "\r\n"
-// #define ERR_NOTREGISTERED(client)                                     ":" SERVERNAME " 451 " + (client) + " :You have not registered" + "\r\n"
 // #define RPL_ENDOFWHO(client)                                          ":" SERVERNAME " 315 " + (client) + " :End of /WHO list" + "\r\n"
 // #define RPL_NICK(client, username,ipaddr, newnick)                    ":" + (client) + "!~" + (username) + "@"+ (ipaddr) + " NICK :"+(newnick) + "\r\n"
-// #define KICK_MSG(client, ipaddr, channel, kicked, reason)             ":" + (client) + "!~" + (ipaddr) + " KICK " + (channel) + " " + kicked + " " + reason + "\r\n"
 // #define PRIVMSG(client, username, ipaddr, target, message)            ":" + (client) + "!~" + (username) + "@" + (ipaddr) + " PRIVMSG " + (target) + " :" + (message) + "\r\n"
-// #define JOIN_SUCC(nickname, username, client_ip, channel)             ":" + (nickname) + "!~" + (username) + "@" + (client_ip) + " JOIN " + (channel) + "\r\n"
 // #define MODE_MSG(client, username,ipaddr, channel,added_mode, target) ":" + (client) + "!~" + (username) +"@" + (ipaddr) + " MODE " + (channel) + " " +(added_mode) +  target + "\r\n"
 // #define MODE_MSG_2(client, username,ipaddr, channel,added_mode)       ":" + (client) + "!~" + (username) +"@" + (ipaddr) + " MODE " + (channel) + " " +(added_mode) + "\r\n"
 // #define PART_MSG(nickname, username, ipaddr, channel, reason)         ":" + (nickname) + "!~" + (username) + "@" + ipaddr + " PART " + (channel) + " " + (reason) + "\r\n"
