@@ -40,6 +40,7 @@ class Client
         bool getRegistered(void) const;
         bool getValidPass(void) const ;
         int  getSocket(void) const;
+        sockaddr_in getAddr(void) const;
 
         void refStatus(void);
 
