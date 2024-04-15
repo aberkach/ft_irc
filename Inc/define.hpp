@@ -95,7 +95,7 @@
 #define ERR_BADCHANMASK(channel)                        ":" SERVERNAME " 476 " + (channel) + " :Bad Channel Mask" + "\r\n"
 #define ERR_CHANOPRIVSNEEDED(client, channel)           ":" SERVERNAME " 482 " + (client) + " " + (channel) + " :You're not channel operator" + "\r\n"
 // #define ERR_NOSUCHNICK(client, nickname)                ":" SERVERNAME " 401 " + (client) + " " + (nickname) + " :No such nick" + "\r\n"
-
+// #define ERR_INVALIDKEY (525) : if the operator is trying to set a key that is not valid
 
 // need more things to add when the user is joined the channel successfully
 #define JOIN_SUCC(nickname, username, client_ip, channel)             ":" SERVERNAME " " + (nickname) + " !~ " + (username) + "@" + (client_ip) + " JOIN " + (channel) + "\r\n"

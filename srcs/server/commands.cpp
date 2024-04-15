@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:19:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/15 17:41:50 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/15 18:25:45 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +97,8 @@ bool Server::createChannel(std::string &chnName, std::vector<std::string> &keys,
     server_channels.find(chnName)->second.addOperator(client);
     // add the client to the channel
     server_channels.find(chnName)->second.addUser(client);
+    std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
+    replyTo(client.getSocket(), JOIN_SUCC(client.getNickname(), client.getUsername(), clientHost, chnName));
     return true;
 }
 
