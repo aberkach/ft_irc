@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:19:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/14 14:02:54 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/15 17:41:50 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,12 +55,10 @@ void Server::kickCommand (std::vector<std::string> &fields, Client &client) {
             }
         }
         else
-        {
-            std::cout << "Error: you are not an operator" << std::endl;
-            // here we send an error message to the client
-            // ....
-        }
+            replyTo(client.getSocket(), ERR_CHANOPRIVSNEEDED(client.getNickname(), chnName));
     }
+    else
+        replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));
 }
 
 bool Server::createChannel(std::string &chnName, std::vector<std::string> &keys, Client &client) {
@@ -176,7 +174,7 @@ void Server::processTheJoinArgs(std::vector<std::string> &channels , std::vector
     {
         std::string chnName = channels[i];
         // check if the channel name is valid
-        if ((chnName[0] != '#') || (chnName.find_first_of(" ,\a\b\f\t\v$:+~%") != std::string::npos))
+        if ((chnName[0] != '#') || (chnName.find_first_of(" ,\a\b\f\t\v$:+~%") != std::string::npos) || chnName.size() < 2)
         {
             // here we send an error message to the client to inform him that the channel name is incorrect
             replyTo(client.getSocket(), ERR_BADCHANMASK(chnName));
@@ -192,7 +190,6 @@ void Server::processTheJoinArgs(std::vector<std::string> &channels , std::vector
             // join the channel
             if (!joinChannel(chnName, keys, client, chnIt))
                 continue;
-
         }
     }
 }
@@ -227,7 +224,7 @@ void Server::passCommand(const std::vector<std::string> &fields, Client &user)
 	if (user.getValidPass() == false)
 	{
 		if (fields.empty())
-			replyTo(user.getSocket(), ERR_NEEDMOREPARAMS("Guest", "PASS"));
+			replyTo(user.getSocket(), ERR_NEEDMOREPARAMS(std::string("Guest"), "PASS"));
 		else if (fields[0] == _password)
 			user.setValidPass(true);
 		else
@@ -278,7 +275,7 @@ void Server::userCommand(const std::string& message, const std::vector<std::stri
 					replyTo(user.getSocket(), ERR_USERFORMAT);
 			}
 			else
-				replyTo(user.getSocket(), ERR_NEEDMOREPARAMS("Guest", "USER"));
+				replyTo(user.getSocket(), ERR_NEEDMOREPARAMS(std::string("Guest"), "USER"));
 		}
 		else
 			replyTo(user.getSocket(), ERR_FIRSTCOMMAND);

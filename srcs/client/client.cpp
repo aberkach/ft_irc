@@ -145,7 +145,6 @@ Client::getRealname(void) const
     return _realName;
 };
 
-
 sockaddr_in Client::getAddr(void) const
 {
     return _addr;
