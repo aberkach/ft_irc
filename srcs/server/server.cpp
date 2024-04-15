@@ -161,11 +161,9 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 	std::string command(fields[0]);
 	fields.erase(fields.begin());
 
-	//print fields
-	for (size_t i = 0; i < fields.size(); i++)
-		std::cout << "fields[" << i << "] = " << fields[i] << std::endl;
-
-	if (command == "PASS")
+	if (command.empty())
+		return;
+	else if (command == "PASS")
 		passCommand(fields, user);
 	else if (command == "NICK")
 		nickCommand(fields, user);
@@ -188,6 +186,12 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 	}
 	else if (command == "KICK")
 		kickCommand(fields, user);
+	else if (command == "PONG")
+	{
+		if (!fields.empty())
+			replyTo(user.getSocket(), fields[0]);
+		replyTo(user.getSocket(), ERR_NEEDMOREPARAMS(user.getNickname(), command));
+	}
 	else
 		replyTo(user.getSocket(), ERR_UNKNOWNCOMMAND(user.getNickname(), command));
 }
@@ -219,6 +223,7 @@ Server::handleIncomeData()
 				std::string rec(buffer);
 				// remove the remove all spaces from the message (included \r\n)
 				rec = trimTheSpaces(rec);
+				std::cout << "/* message */ : " << rec << std::endl;
 				// split the message by space
 				std::vector<std::string> fields = splitByDelim(rec, ' ');
 

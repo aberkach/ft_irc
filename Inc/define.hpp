@@ -102,8 +102,8 @@
 
 #define KICK_MSG(client, ipaddr, channel, kicked, reason)             ":" SERVERNAME " " + (client) + " !~ " + (ipaddr) + " KICK " + (channel) + " " + kicked + " " + reason + "\r\n"
 
-
 #define QUIT_MSG(nickname, username, ipaddr, reason)                  ":"+ (nickname) + " !~ " + (username) + "@" + (ipaddr) + " QUIT :Client Quit " + SERVERNAME + (reason) + "\r\n"
+
 
 // #define ERR_INVITEONLYCHAN(client, channel)             ":" SERVERNAME " 473 " + (client) + " " + (channel) + " :Cannot join channel (+i)" + "\r\n"
 // #define RPL_INVITING(client, nick, channel)                           ":" +  SERVERNAME " 341 " + (client) + " invited " + (nick) + " to " + (channel) + " succefully\r\n"
