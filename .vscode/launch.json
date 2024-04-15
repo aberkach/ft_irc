@@ -6,8 +6,8 @@
       "type": "lldb",
       "request": "launch",
       "args": [],
-      "cwd": "/Users/abberkac/Desktop/ccc/srcs/server",
-      "program": "/Users/abberkac/Desktop/ccc/srcs/server/build/Debug/outDebug"
+      "cwd": "/Users/abberkac/Desktop/ft_irc/srcs/Poller",
+      "program": "/Users/abberkac/Desktop/ft_irc/srcs/Poller/build/Debug/outDebug"
     }
   ]
 }

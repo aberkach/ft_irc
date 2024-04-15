@@ -161,6 +161,10 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 	std::string command(fields[0]);
 	fields.erase(fields.begin());
 
+	//print fields
+	for (size_t i = 0; i < fields.size(); i++)
+		std::cout << "fields[" << i << "] = " << fields[i] << std::endl;
+
 	if (command == "PASS")
 		passCommand(fields, user);
 	else if (command == "NICK")
@@ -172,7 +176,11 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 	else if (command == "QUIT")
 	{
 		char *host = inet_ntoa(user._addr.sin_addr);
-		replyTo(user.getSocket(), QUIT_MSG(user.getNickname(), user.getRealname(), host, " <with QUIT command>"));
+
+		if (!fields.empty())
+			replyTo(user.getSocket(), QUIT_MSG(user.getNickname(), user.getRealname(), host, fields[0]));
+		else
+			replyTo(user.getSocket(), QUIT_MSG(user.getNickname(), user.getRealname(), host, " with QUIT command"));
 		std::cout << "Connection closed with: " << user.getNickname() << std::endl;
 		close(user.getSocket());
 		user.setSocket(-1);
@@ -183,6 +191,7 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 	else
 		replyTo(user.getSocket(), ERR_UNKNOWNCOMMAND(user.getNickname(), command));
 }
+
 
 // Handle incoming data from clients :
 void 
@@ -231,7 +240,7 @@ int Server::createServer()
 	_nfds = 1;
 
 	// Start listening for incoming connections
-	std::cout << "server is running" << std::endl;
+	std::cout << "server is running : " << std::endl;
 	while (true) {
 	    // Wait for events on monitored file descriptors
 	    rc = poll(_fds.data(), _nfds, 0);
