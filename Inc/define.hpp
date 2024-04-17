@@ -68,24 +68,25 @@
 #define NOTE7  ":" SERVERNAME " NOTICE Guest :** NICKLEN" CNICKLEN " USERLEN=" CUSERLEN " REALLEN=" CREALLEN " characters\n"\
                "                            if u pass the token, the value will be truncated to fit the server needs\r\n"
 
-#define RPL_WELCOME(nick, user, host)       ":" SERVERNAME " 001 " + (nick) + " :Welcome to the internet relay chat Network, " + (nick) + "[!" + (user) + "@" + (host) + "]\r\n"
-#define RPL_YOURHOST(nick, host, port)      ":" SERVERNAME " 002 " + (nick) + " :Your host is " SERVERNAME "[" + (host) + "/" + (port) + "], running version " VERSION  "\r\n"
-#define RPL_CREATED(nick, datetime)         ":" SERVERNAME " 003 " + (nick) + " :This server was created " + (datetime) + "\r\n"
-#define RPL_MYINFO(nick)                    ":" SERVERNAME " 004 " + (nick) + " " SERVERNAME " " VERSION " " USERMODES " " CHANELMODES " [" CHANELMODESPARAMETER "]\r\n"
-#define RPL_ISUPPORT(nick)                  ":" SERVERNAME " 005 " + (nick) + " " COMMANDS " :are supported by this server\r\n"
+// add header signature in the welcome msg + some info
+#define RPL_WELCOME(nick, user, host)                       ":" SERVERNAME " 001 " + (nick) + " :Welcome to the internet relay chat Network, " + (nick) + "[!" + (user) + "@" + (host) + "]\r\n"
+#define RPL_YOURHOST(nick, host, port)                      ":" SERVERNAME " 002 " + (nick) + " :Your host is " SERVERNAME "[" + (host) + "/" + (port) + "], running version " VERSION  "\r\n"
+#define RPL_CREATED(nick, datetime)                         ":" SERVERNAME " 003 " + (nick) + " :This server was created " + (datetime) + "\r\n"
+#define RPL_MYINFO(nick)                                    ":" SERVERNAME " 004 " + (nick) + " " SERVERNAME " " VERSION " " USERMODES " " CHANELMODES " [" CHANELMODESPARAMETER "]\r\n"
+#define RPL_ISUPPORT(nick)                                  ":" SERVERNAME " 005 " + (nick) + " " COMMANDS " :are supported by this server\r\n"
 
-#define ERR_UNKNOWNCOMMAND(nick, command)   ":" SERVERNAME " 421 " + (nick) + " " + (command) + " :Unknown command\r\n"
-#define ERR_NONICKNAMEGIVEN(nick)           ":" SERVERNAME " 431 " + (nick) + " :No nickname given\r\n"
-#define ERR_ERRONEUSNICKNAME(nick)          ":" SERVERNAME " 432 " + (nick) + " :Erroneus nickname\r\n"
-#define ERR_NICKNAMEINUSE(nick)             ":" SERVERNAME " 433 " + (nick) + " :Nickname is already in use\r\n"
+#define ERR_UNKNOWNCOMMAND(nick, command)                   ":" SERVERNAME " 421 " + (nick) + " " + (command) + " :Unknown command\r\n"
+#define ERR_NONICKNAMEGIVEN(nick)                           ":" SERVERNAME " 431 " + (nick) + " :No nickname given\r\n"
+#define ERR_ERRONEUSNICKNAME(nick)                          ":" SERVERNAME " 432 " + (nick) + " :Erroneus nickname\r\n"
+#define ERR_NICKNAMEINUSE(nick)                             ":" SERVERNAME " 433 " + (nick) + " :Nickname is already in use\r\n"
 
-#define ERR_USERFORMAT                      ":" SERVERNAME " 460 Guest :Use format USER <username> 0 * :<realname>\r\n"
-#define ERR_NEEDMOREPARAMS(nick, command)   ":" SERVERNAME " 461 " + (nick) + " " + (command) + " :Not enough parameters\r\n"
-#define ERR_ALREADYREGISTERED(nick)         ":" SERVERNAME " 462 " + (nick) + " :You may not reregister\r\n"
-#define ERR_PASSWDMISMATCH                  ":" SERVERNAME " 464 Guest :Password incorrect\r\n"
-#define ERR_FIRSTCOMMAND                    ":" SERVERNAME " 465 Guest :Server is expecting 'PASS <password>' first\r\n" // recheck 
+#define ERR_USERFORMAT                                      ":" SERVERNAME " 460 Guest :Use format USER <username> 0 * :<realname>\r\n"
+#define ERR_NEEDMOREPARAMS(nick, command)                   ":" SERVERNAME " 461 " + (nick) + " " + (command) + " :Not enough parameters\r\n"
+#define ERR_ALREADYREGISTERED(nick)                         ":" SERVERNAME " 462 " + (nick) + " :You may not reregister\r\n"
+#define ERR_PASSWDMISMATCH                                  ":" SERVERNAME " 464 Guest :Password incorrect\r\n"
+#define ERR_FIRSTCOMMAND                                    ":" SERVERNAME " 465 Guest :Server is expecting 'PASS <password>' first\r\n" // recheck 
 
-#define ERR_NOTREGISTERED(nick)             ":" SERVERNAME " 451 " + (nick) + " :You have not registered\r\n"
+#define ERR_NOTREGISTERED(nick)                             ":" SERVERNAME " 451 " + (nick) + " :You have not registered\r\n"
 
 #define ERR_NOSUCHCHANNEL(client, channel)                  ":" SERVERNAME " 403 " + (client) + " " + (channel) + " :No such channel\r\n"
 #define ERR_USERNOTINCHANNEL(client, nickname, channel)     ":" SERVERNAME " 441 " + (client) + " " + (nickname) + " " + (channel) + " :They aren't on that channel\r\n"
@@ -106,14 +107,17 @@
 #define ERR_NORECIPIENT(nick, command)                      ":"  SERVERNAME " 411 " + (nick) + " :No recipient given (" + (command) + ")\r\n"
 #define ERR_NOTEXTTOSEND(nick)                              ":"  SERVERNAME " 412 " + (nick) + " :No text to send\r\n"
 
+// #define PONG(client, server)                                          "PONG " + (client) + " :" + (server) + "\r\n"
+// #define PING(server)                                                  "PING " + (server) + "\r\n"
+
 
 // #define PART_MSG(nickname, username, ipaddr, channel, reason)         ":" + (nickname) + "!" + (username) + "@" + ipaddr + " PART " + (channel) + " " + (reason) + "\r\n"
-// #define ERR_CHANOPRIVSNEEDED(client, channel)           ":" SERVERNAME " 482 " + (client) + " " + (channel) + " :You're not channel operator" + "\r\n"
-// #define ERR_INVITEONLYCHAN(client, channel)             ":" SERVERNAME " 473 " + (client) + " " + (channel) + " :Cannot join channel (+i)" + "\r\n"
-// #define ERR_UNKNOWNMODE(client, modechar)               ":" SERVERNAME " 472 " + (client) + " " + (modechar) + " :is unknown mode char to me" + "\r\n"
-// #define ERR_CHANNELISFULL(client, channel)              ":" SERVERNAME " 471 " + (client) + " " + (channel) + " :Cannot join channel (+l)" + "\r\n"
-// #define ERR_KEYALREADYSET(client, channel)              ":" SERVERNAME " 467 " + (client) + " " + (channel) + " :Channel key already set" + "\r\n"
-// #define ERR_ONEOUS(client, wrongnick)                   ":" SERVERNAME " 432 " + (client) + " " + (wrongnick) + " :Erroneous Nickname" + "\r\n"
+// #define ERR_CHANOPRIVSNEEDED(client, channel)                         ":" SERVERNAME " 482 " + (client) + " " + (channel) + " :You're not channel operator" + "\r\n"
+// #define ERR_INVITEONLYCHAN(client, channel)                           ":" SERVERNAME " 473 " + (client) + " " + (channel) + " :Cannot join channel (+i)" + "\r\n"
+// #define ERR_UNKNOWNMODE(client, modechar)                             ":" SERVERNAME " 472 " + (client) + " " + (modechar) + " :is unknown mode char to me" + "\r\n"
+// #define ERR_CHANNELISFULL(client, channel)                            ":" SERVERNAME " 471 " + (client) + " " + (channel) + " :Cannot join channel (+l)" + "\r\n"
+// #define ERR_KEYALREADYSET(client, channel)                            ":" SERVERNAME " 467 " + (client) + " " + (channel) + " :Channel key already set" + "\r\n"
+// #define ERR_ONEOUS(client, wrongnick)                                 ":" SERVERNAME " 432 " + (client) + " " + (wrongnick) + " :Erroneous Nickname" + "\r\n"
 
 // #define ERROR_MSG(reason)                                             ":" SERVERNAME " " + (reason) + "\r\n"
 // #define RPL_ENDOFWHO(client)                                          ":" SERVERNAME " 315 " + (client) + " :End of /WHO list" + "\r\n"
@@ -138,8 +142,6 @@
 // #define RPL_LISTSTART(client)                                         ":" SERVERNAME " 321 " + (client) + " Channel :Users Name" + "\r\n"
 // #define RPL_LISTEND(client)                                           ":" SERVERNAME " 323 " + (client) + " :End of /LIST" + "\r\n"
 // #define ERR_NOORIGIN(client)                                          ":" SERVERNAME " 409 " + (client) + " :No origin specified" + "\r\n"
-// #define PONG(client, server)                                          "PONG " + (client) + " :" + (server) + "\r\n"
-// #define PING(server)                                                  "PING " + (server) + "\r\n"
 
 // #define RPL_WHOREPLY(client, channel, username, hostname, servername, nickname, mode, realname)     ":" SERVERNAME " 352 " + (client) + " " + (channel) + " " + (username) + " " + (hostname) + " " + (servername) + " " + (nickname) + " " + (mode) + " " + (realname) + "\r\n"
 
