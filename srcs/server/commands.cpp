@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:19:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/17 12:13:56 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/17 14:17:55 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,58 @@
 #include "../channel/channel.hpp"
 #include "../client/client.hpp"
 
-// kick command
+// topic command 
 
+void Server::topicCommand (std::vector<std::string> &fields, Client &client) {
+        
+    // if (client.getRegistered() == true) {
+        std::string chnName = fields[0];
+        std::string topic;
+        // if the client wants to change the topic of the channel
+        std::cout << "fields.size() = " << fields.size() << std::endl;
+        if(fields.size() > 1) {
+            topic = fields[1];
+            // check if the client is operator of the channel
+            chnMapIt chnIt = server_channels.find(chnName);
+            if (chnIt == server_channels.end())
+            {
+                std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
+                replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(clientHost, chnName));
+                return;
+            }
+            if (chnIt->second.isOperator(client)) {
+                topic = fields[1];
+                chnIt->second.setTopic(topic);
+                // here we send a message to the channel to inform the clients that the topic has been changed
+                // ....
+            }
+            else
+                replyTo(client.getSocket(), ERR_CHANOPRIVSNEEDED(client.getNickname(), chnName));
+        }
+        // if the client wants to get the topic of the channel
+        else if (fields.size() == 1)
+        {
+            chnMapIt chnIt = server_channels.find(chnName);
+            if (chnIt == server_channels.end())
+            {
+                std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
+                replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(clientHost, chnName));
+                return;
+            }
+            if (chnIt->second.getTopic() != "")
+                replyTo(client.getSocket(), RPL_TOPIC(client.getNickname(), chnName, chnIt->second.getTopic()));
+            else
+                replyTo(client.getSocket(), RPL_NOTOPIC(client.getNickname(), chnName));
+        }
+        else
+            replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "TOPIC"));
+    // }
+    // else
+    //     replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));
+}
+
+
+// kick command
 //TODO: this still on testing
 void Server::kickCommand (std::vector<std::string> &fields, Client &client) {
     if (client.getRegistered()) {

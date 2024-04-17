@@ -58,15 +58,25 @@ std::vector<std::string> splitByDelim(std::string str, char delim)
 	else {
 		for (size_t i = 0; i < str.length(); i++)
     	{
-    	    if (str[i] == ' ' || str[i] == '\t' || str[i] == '\v' || str[i] == '\b' || str[i] == '\r' || str[i] == '\n')
+			// if (str[i] == ':')
+			// {
+			// 	token += str.substr(i);
+			if (str[i] == ' ' || str[i] == '\t' || str[i] == '\v' || str[i] == '\b' || str[i] == '\r' || str[i] == '\n')
     	    {
 				// skip the delim
 				if (token.empty())
 					continue;
-    	        tokens.push_back(token);
-    	        token.clear();
+    	        if (token[0] == ':')
+		        {
+		            token.erase(0, 1);
+		            token += str.substr(i);
+					tokens.push_back(token);
+					continue;
+		        }
+		        tokens.push_back(token);
+		        token.clear();
     	    }
-    	    else
+			else
     	        token += str[i];
     	}
 	}
@@ -193,6 +203,9 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 			replyTo(user.getSocket(), fields[0]);
 		replyTo(user.getSocket(), ERR_NEEDMOREPARAMS(user.getNickname(), command));
 	}
+	else if (command == "TOPIC") {
+		topicCommand(fields, user);
+	}
 	else
 		replyTo(user.getSocket(), ERR_UNKNOWNCOMMAND(user.getNickname(), command));
 }
@@ -224,6 +237,7 @@ Server::handleIncomeData()
 				std::string rec(buffer);
 				// remove the remove all spaces from the message (included \r\n)
 				rec = trimTheSpaces(rec);
+				std::cout << "Message received: " << rec << std::endl;
 				// split the message by space
 				std::vector<std::string> fields = splitByDelim(rec, ' ');
 
@@ -233,6 +247,7 @@ Server::handleIncomeData()
 					commandList(rec ,fields, _clients.find(_fds[i].fd)->second);
 					_clients.find(_fds[i].fd)->second.refStatus();
 				}
+
 			}
 		}
 	}

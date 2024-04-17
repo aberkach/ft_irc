@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/17 12:17:01 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/17 14:00:23 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,11 @@ std::string Channel::getKey() const
 std::string Channel::getTopic() const
 {
     return _topic;
+}
+
+void Channel::setTopic(std::string topic)
+{
+    _topic = topic;
 }
 
 Client &Channel::getUser(std::string &nickName)
