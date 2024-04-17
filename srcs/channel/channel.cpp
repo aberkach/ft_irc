@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/13 12:29:44 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/17 11:21:36 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,8 @@ bool Channel::isClientExist(std::string nickName)
 
 void Channel::addUser(Client &client)
 {
-    _users.insert(std::pair<std::string, Client>(client.getNickname(), client));
+    client.setChannel(_name, *this);
+    _users.insert(std::pair<std::string, Client>('=' + client.getNickname(), client));
 }
 
 void Channel::removeUser(Client &client)
@@ -86,15 +87,14 @@ void Channel::removeUser(Client &client)
 
 void Channel::addOperator(Client &op)
 {
-    _chanOps.push_back(op);
+    _users.insert(std::pair<std::string, Client>('@' + op.getNickname(), op));
+    op.setChannel(_name, *this);
+    _chanOps.push_back(_users['@' + op.getNickname()]);
 }
 
 bool Channel::isOperator(Client &op)
 {
-    for (std::vector<Client>::iterator it = _chanOps.begin(); it != _chanOps.end(); it++)
-    {
-        if (it->getNickname() == op.getNickname())
-            return true;
-    }
+    if (_users.find('@' + op.getNickname()) != _users.end())
+        return true;
     return false;
 }

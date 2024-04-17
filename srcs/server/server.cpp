@@ -223,7 +223,6 @@ Server::handleIncomeData()
 				std::string rec(buffer);
 				// remove the remove all spaces from the message (included \r\n)
 				rec = trimTheSpaces(rec);
-				std::cout << "/* message */ : " << rec << std::endl;
 				// split the message by space
 				std::vector<std::string> fields = splitByDelim(rec, ' ');
 

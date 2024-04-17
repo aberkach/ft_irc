@@ -90,15 +90,18 @@
 #define ERR_NOSUCHCHANNEL(client, channel)              ":" SERVERNAME " 403 " + (client) + " " + (channel) + " :No such channel" + "\r\n"
 #define ERR_USERNOTINCHANNEL(client, nickname, channel) ":" SERVERNAME " 441 " + (client) + " " + (nickname) + " " + (channel) + " :They aren't on that channel" + "\r\n"
 #define ERR_NOTONCHANNEL(client, channel)               ":" SERVERNAME " 442 " + (client) + " " + (channel) + " :You're not on that channel" + "\r\n"
+
 #define ERR_ALREADYINCHANNEL(client, nick, channel)        ":" SERVERNAME " 443 " + (client) + " " + (nick) + " " + (channel) + " :is already on channel" + "\r\n"
 #define ERR_BADCHANNELKEY(client, channel)              ":" SERVERNAME " 475 " + (client) + " "  + " :Cannot join " + (channel) + " (+k)" + "\r\n"
 #define ERR_BADCHANMASK(channel)                        ":" SERVERNAME " 476 " + (channel) + " :Bad Channel Mask" + "\r\n"
 #define ERR_CHANOPRIVSNEEDED(client, channel)           ":" SERVERNAME " 482 " + (client) + " " + (channel) + " :You're not channel operator" + "\r\n"
-// #define ERR_NOSUCHNICK(client, nickname)                ":" SERVERNAME " 401 " + (client) + " " + (nickname) + " :No such nick" + "\r\n"
-// #define ERR_INVALIDKEY (525) : if the operator is trying to set a key that is not valid
+#define ERR_NOSUCHNICK(client, nickname)                ":" SERVERNAME " 401 " + (client) + " " + (nickname) + " :No such nick" + "\r\n"
+// #define ERR_INVALIDKEY (525) : if the operator is trying to set a key that is not valid with mode +k 
 
 // need more things to add when the user is joined the channel successfully
-#define JOIN_SUCC(nickname, username, client_ip, channel)             ":" SERVERNAME " " + (nickname) + " !~ " + (username) + "@" + (client_ip) + " JOIN " + (channel) + "\r\n"
+#define JOIN_SUCC(client, channel)             ":" SERVERNAME " !~ " + (client) + " join successfully " + (channel) + "\r\n"
+#define RPL_NOTOPIC(client, channel)           ":" SERVERNAME " 331 " + (client) + " " + (channel) + " :No topic is set" + "\r\n"
+#define RPL_TOPIC(client, channel, topic)       ":" SERVERNAME " 332 " + (client) + " " + (channel) + " :" + (topic) + "\r\n"
 
 #define KICK_MSG(client, ipaddr, channel, kicked, reason)             ":" SERVERNAME " " + (client) + " !~ " + (ipaddr) + " KICK " + (channel) + " " + kicked + " " + reason + "\r\n"
 
@@ -106,7 +109,7 @@
 
 
 // #define ERR_INVITEONLYCHAN(client, channel)             ":" SERVERNAME " 473 " + (client) + " " + (channel) + " :Cannot join channel (+i)" + "\r\n"
-// #define RPL_INVITING(client, nick, channel)                           ":" +  SERVERNAME " 341 " + (client) + " invited " + (nick) + " to " + (channel) + " succefully\r\n"
+// #define RPL_INVITING(client, nick, channel)                           ":" +  SERVERNAME " 341 " + (client) + " invited " + (nick) + " to " + (channel) + " successfully\r\n"
 
 
 
