@@ -98,3 +98,11 @@ bool Channel::isOperator(Client &op)
     }
     return false;
 }
+
+void replyTo(int socket, std::string buffer); // FORWARD DEC WILL CHANGE LATTER
+
+void Channel::broadCast(std::string msg)
+{
+    for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); ++it)
+        replyTo(it->second.getSocket(), msg);
+}

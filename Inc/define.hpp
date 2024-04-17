@@ -95,19 +95,19 @@
 #define ERR_BADCHANMASK(channel)                            ":" SERVERNAME " 476 " + (channel) + " :Bad Channel Mask\r\n"
 
 // need more things to add when the user is joined the channel successfully
-#define JOIN_SUCC(nickname, username, client_ip, channel)   ":" + (nickname) + "!~" + (username) + "@" + (client_ip) + " JOIN " + (channel) + "\r\n"
-#define KICK_MSG(client, ipaddr, channel, kicked, reason)   ":" + (client) + "!~" + (ipaddr) + " KICK " + (channel) + " " + (kicked) + " " + (reason) + "\r\n"
-#define QUIT_MSG(nickname, username, ipaddr, reason)        ":" + (nickname) + "!~" + (username) + "@" + (ipaddr) + " QUIT :Client Quit" + (reason) + "\r\n"
+#define JOIN_SUCC(nickname, username, client_ip, channel)   ":" + (nickname) + "!" + (username) + "@" + (client_ip) + " JOIN " + (channel) + "\r\n"
+#define KICK_MSG(client, ipaddr, channel, kicked, reason)   ":" + (client) + "!" + (ipaddr) + " KICK " + (channel) + " " + (kicked) + " " + (reason) + "\r\n"
+#define QUIT_MSG(nickname, username, ipaddr, reason)        ":" + (nickname) + "!" + (username) + "@" + (ipaddr) + " QUIT :Client Quit" + (reason) + "\r\n"
 
 // privmsg responses
-#define PRIVMSG(nick, username, host, target, message)      ":" + (nick) + "!~" + (username) + "@" + (host) + " PRIVMSG " + (target) + " :" + (message) + "\r\n"
+#define PRIVMSG(nick, username, host, target, message)      ":" + (nick) + "!" + (username) + "@" + (host) + " PRIVMSG " + (target) + " :" + (message) + "\r\n"
 #define ERR_NOSUCHNICK(nick, target)                        ":"  SERVERNAME " 401 " + (nick) + " " + (target) + " :No such nick/channel\r\n"
 #define ERR_CANNOTSENDTOCHAN(nick)                          ":"  SERVERNAME " 404 " + (nick) + " :Cannot send to nick/channel\r\n"
 #define ERR_NORECIPIENT(nick, command)                      ":"  SERVERNAME " 411 " + (nick) + " :No recipient given (" + (command) + ")\r\n"
 #define ERR_NOTEXTTOSEND(nick)                              ":"  SERVERNAME " 412 " + (nick) + " :No text to send\r\n"
 
 
-// #define PART_MSG(nickname, username, ipaddr, channel, reason)         ":" + (nickname) + "!~" + (username) + "@" + ipaddr + " PART " + (channel) + " " + (reason) + "\r\n"
+// #define PART_MSG(nickname, username, ipaddr, channel, reason)         ":" + (nickname) + "!" + (username) + "@" + ipaddr + " PART " + (channel) + " " + (reason) + "\r\n"
 // #define ERR_CHANOPRIVSNEEDED(client, channel)           ":" SERVERNAME " 482 " + (client) + " " + (channel) + " :You're not channel operator" + "\r\n"
 // #define ERR_INVITEONLYCHAN(client, channel)             ":" SERVERNAME " 473 " + (client) + " " + (channel) + " :Cannot join channel (+i)" + "\r\n"
 // #define ERR_UNKNOWNMODE(client, modechar)               ":" SERVERNAME " 472 " + (client) + " " + (modechar) + " :is unknown mode char to me" + "\r\n"
@@ -117,11 +117,11 @@
 
 // #define ERROR_MSG(reason)                                             ":" SERVERNAME " " + (reason) + "\r\n"
 // #define RPL_ENDOFWHO(client)                                          ":" SERVERNAME " 315 " + (client) + " :End of /WHO list" + "\r\n"
-// #define RPL_NICK(client, username,ipaddr, newnick)                    ":" + (client) + "!~" + (username) + "@"+ (ipaddr) + " NICK :"+(newnick) + "\r\n"
-// #define MODE_MSG(client, username,ipaddr, channel,added_mode, target) ":" + (client) + "!~" + (username) +"@" + (ipaddr) + " MODE " + (channel) + " " +(added_mode) +  target + "\r\n"
-// #define MODE_MSG_2(client, username,ipaddr, channel,added_mode)       ":" + (client) + "!~" + (username) +"@" + (ipaddr) + " MODE " + (channel) + " " +(added_mode) + "\r\n"
-// #define NOTICE(client, username, ipaddr, target, message)             ":" + (client) + "!~" + (username) + "@" + (ipaddr) + " NOTICE " + (target) + " :" + (message) + "\r\n"
-// #define TOPIC_MSG(client, username, ipaddr, channel, topic)           ":" + (client) + "!~" + (username) + "@" + (ipaddr) + " TOPIC " + (channel) + " :" + (topic) + "\r\n"
+// #define RPL_NICK(client, username,ipaddr, newnick)                    ":" + (client) + "!" + (username) + "@"+ (ipaddr) + " NICK :"+(newnick) + "\r\n"
+// #define MODE_MSG(client, username,ipaddr, channel,added_mode, target) ":" + (client) + "!" + (username) +"@" + (ipaddr) + " MODE " + (channel) + " " +(added_mode) +  target + "\r\n"
+// #define MODE_MSG_2(client, username,ipaddr, channel,added_mode)       ":" + (client) + "!" + (username) +"@" + (ipaddr) + " MODE " + (channel) + " " +(added_mode) + "\r\n"
+// #define NOTICE(client, username, ipaddr, target, message)             ":" + (client) + "!" + (username) + "@" + (ipaddr) + " NOTICE " + (target) + " :" + (message) + "\r\n"
+// #define TOPIC_MSG(client, username, ipaddr, channel, topic)           ":" + (client) + "!" + (username) + "@" + (ipaddr) + " TOPIC " + (channel) + " :" + (topic) + "\r\n"
 // #define RPL_NAMREPLY(client, channel, users_list)                     ":" SERVERNAME " 353 " + (client) + " = " + (channel) + " :" + (users_list) + "\r\n"
 // #define RPL_CREATIONTIME(client, channel, creation_time)              ":" SERVERNAME " 329 " + (client) + " " + (channel) + " " + (creation_time) + "\r\n"
 // #define RPL_ENDOFNAMES(client, channel)                               ":" SERVERNAME " 366 " + (client) + " " + (channel) + " :End of /NAMES list" + "\r\n"

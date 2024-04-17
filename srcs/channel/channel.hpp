@@ -18,13 +18,15 @@
 #include <string>
 #include <vector>
 
-class Channel {
+class Channel
+{
   private:
-    std::string						          _name; // name of the channel
-    std::string						          _topic; // topic of the channel
-    std::string						          _key; // password of the channel
-    std::map<std::string, Client>	  _users; // list of users in the channel
-    std::vector<Client>				      _chanOps; // list of operators in the channel
+      std::string						          _name; // name of the channel
+      std::string						          _topic; // topic of the channel
+      std::string						          _key; // password of the channel
+      std::map<std::string, Client>	  _users; // list of users in the channel
+      std::vector<Client>				      _chanOps; // list of operators in the channel
+  
   public:
     Channel();
     Channel(std::string name);
@@ -47,6 +49,8 @@ class Channel {
     bool isClientExist(std::string nickName);
 	  void addOperator(Client &op);
 	  bool isOperator(Client &op);
+
+    void broadCast(std::string msg);
 };
 
 #endif
