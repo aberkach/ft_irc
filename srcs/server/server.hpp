@@ -52,6 +52,7 @@ class Server {
         // operators methods :
 
         void kickCommand(std::vector<std::string> &fields, Client &client);
+        void topicCommand(std::vector<std::string> &fields, Client &client);
 
 };
 
