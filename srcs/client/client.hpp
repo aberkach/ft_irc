@@ -3,8 +3,8 @@
 #include "../../Inc/define.hpp"
 #include <netinet/in.h>
 #include <sys/socket.h>
-
 class Channel;
+
 class Client
 {
     public:
@@ -47,4 +47,4 @@ class Client
 
         ~Client(void);
 };
-#include "../channel/channel.hpp"
+

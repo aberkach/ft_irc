@@ -6,12 +6,13 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/17 11:21:36 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/17 12:17:01 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../channel/channel.hpp"
 #include <string>
+#include "../client/client.hpp"
 
 Channel::Channel() : _name("default"), _topic("default"), _key("default")
 {
@@ -40,6 +41,11 @@ std::string Channel::getKey() const
     return _key;
 }
 
+std::string Channel::getTopic() const
+{
+    return _topic;
+}
+
 Client &Channel::getUser(std::string &nickName)
 {
     return _users[nickName];
@@ -51,6 +57,16 @@ void Channel::getUsers()
     {
         std::cout << it->first << " ";
     }
+}
+
+std::string Channel::getUsersList()
+{
+    std::string usersList;
+    for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); it++)
+    {
+        usersList += it->first + " ";
+    }
+    return usersList;
 }
 
 void Channel::setName(std::string name)
@@ -77,7 +93,7 @@ bool Channel::isClientExist(std::string nickName)
 void Channel::addUser(Client &client)
 {
     client.setChannel(_name, *this);
-    _users.insert(std::pair<std::string, Client>('=' + client.getNickname(), client));
+    _users.insert(std::pair<std::string, Client>(client.getNickname(), client));
 }
 
 void Channel::removeUser(Client &client)

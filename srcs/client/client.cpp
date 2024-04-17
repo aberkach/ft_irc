@@ -1,9 +1,10 @@
 #include "client.hpp"
+#include <arpa/inet.h> // print ip adrss
+#include "../channel/channel.hpp"
 
 #define NICKLEN 10 // maybe warn about these ?
 #define USERLEN 9
 #define REALLEN 32
-#include <arpa/inet.h> // print ip adrss
 
 
 /// TOOLS

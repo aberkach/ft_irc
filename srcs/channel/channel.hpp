@@ -6,17 +6,17 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:32:12 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/17 08:43:17 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/17 12:16:15 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "../../Inc/define.hpp"
-#include "../client/client.hpp"
 #include <string>
 #include <vector>
 
+class Client;
 class Channel {
   private:
     std::string						_name; // name of the channel
@@ -34,16 +34,17 @@ class Channel {
     std::string getTopic() const;
     std::string getKey() const;
     
-	Client &getUser(std::string &nickName);
+	  Client &getUser(std::string &nickName);
     void getUsers();
+    std::string getUsersList();
     
     void setName(std::string name);
     void setTopic(std::string topic);
     void setKey(std::string key);
     
     void addUser(Client &user);
-	void removeUser(Client &user);
+	  void removeUser(Client &user);
     bool isClientExist(std::string nickName);
-	void addOperator(Client &op);
-	bool isOperator(Client &op);
+	  void addOperator(Client &op);
+	  bool isOperator(Client &op);
 };
