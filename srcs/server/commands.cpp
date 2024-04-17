@@ -31,8 +31,8 @@ void Server::kickCommand (std::vector<std::string> &fields, Client &client) {
             usersBeKicked = splitByDelim(nickName, ',');
         else
             usersBeKicked.push_back(nickName);
-        chnMapIt chnIt = server_channels.find(chnName);
-        if (chnIt == server_channels.end())
+        chnMapIt chnIt = _channels.find(chnName);
+        if (chnIt == _channels.end())
         {
             std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
             replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(clientHost, chnName));
@@ -66,7 +66,7 @@ void Server::kickCommand (std::vector<std::string> &fields, Client &client) {
 bool Server::createChannel(std::string &chnName, std::vector<std::string> &keys, Client &client) {
     // check if the channel already exist
     
-    // if (!server_channels.empty() && server_channels.find(chnName) != server_channels.end())
+    // if (!_channels.empty() && _channels.find(chnName) != _channels.end())
     // {
     //     std::cout << "Error: channel already exist" << std::endl;
     //     // here we send an error message to the client
@@ -76,7 +76,7 @@ bool Server::createChannel(std::string &chnName, std::vector<std::string> &keys,
     //     return false;
     // }
     Channel newChannel(chnName);
-    server_channels.insert(std::pair<std::string, Channel>(chnName, newChannel));
+    _channels.insert(std::pair<std::string, Channel>(chnName, newChannel));
     // check if the channel has a key
     if (keys.size() > 0)
     {
@@ -85,26 +85,26 @@ bool Server::createChannel(std::string &chnName, std::vector<std::string> &keys,
         {
             // here we send an error message to the client to inform him that the key is incorrect
             keys.erase(keys.begin());
-            server_channels.erase(chnName);
+            _channels.erase(chnName);
             replyTo(client.getSocket(), ERR_BADCHANNELKEY(client.getNickname(), chnName));
             return false;
         }
         // set the key for the channel
-        server_channels.find(chnName)->second.setKey(keys[0]);
+        _channels.find(chnName)->second.setKey(keys[0]);
         keys.erase(keys.begin());;
     }
     else
-        server_channels.find(chnName)->second.setKey("");
+        _channels.find(chnName)->second.setKey("");
     // make the client an operator of the channel
-    server_channels.find(chnName)->second.addOperator(client);
+    _channels.find(chnName)->second.addOperator(client);
     // add the client to the channel
-    server_channels.find(chnName)->second.addUser(client);
+    _channels.find(chnName)->second.addUser(client);
     return true;
 }
 
 bool Server::joinChannel(std::string &chnName, std::vector<std::string> &keys, Client &client, chnMapIt &chnIt) {
     // if the channel doesn't exist, create a new one
-    if (chnIt == server_channels.end())
+    if (chnIt == _channels.end())
     {
         if (!createChannel(chnName, keys, client))
             return false;
@@ -187,7 +187,7 @@ void Server::processTheJoinArgs(std::vector<std::string> &channels , std::vector
         else
         {
             // check if the channel already exist
-            chnMapIt chnIt = server_channels.find(chnName);
+            chnMapIt chnIt = _channels.find(chnName);
             
             // join the channel
             if (!joinChannel(chnName, keys, client, chnIt))
@@ -227,7 +227,7 @@ void Server::passCommand(const std::vector<std::string> &fields, Client &user)
 	if (user.getValidPass() == false)
 	{
 		if (fields.empty())
-			replyTo(user.getSocket(), ERR_NEEDMOREPARAMS("Guest", "PASS"));
+			replyTo(user.getSocket(), ERR_NEEDMOREPARAMS(std::string("Guest"), "PASS"));
 		else if (fields[0] == _password)
 			user.setValidPass(true);
 		else
@@ -273,7 +273,7 @@ void Server::userCommand(const std::string& message, const std::vector<std::stri
 		{
 			if (fields.size() > 3) // real name may contain spaces
 			{
-				size_t p;// refigure for the :
+				size_t p;// refigure for the : 
 				if (( p = message.find_first_of(":")) == std::string::npos || fields[1] != "0" || fields[2] != "*" || !user.setUsername(fields[0]) || !user.setRealname(message.substr(p + 1)))
 					replyTo(user.getSocket(), ERR_USERFORMAT);
 			}
@@ -292,37 +292,64 @@ void Server::privmsgCommand(const std::string& message, std::vector<std::string>
 	if (user.getRegistered())
     {
     	if (fields.empty())
-        {
 			replyTo(user.getSocket(), ERR_NORECIPIENT(user.getNickname(), "PRIVMSG"));
-            return;
+        else if (fields.size() >= 2)
+        {
+            if (fields[0] == "$")
+            {
+                for (std::map<int, Client>::const_iterator it = _clients.begin(); it != _clients.end(); ++it)
+                {
+                    if (fields[1][0] == ':')
+                    {
+                        std::string msg = message.substr(message.find_first_of(":") + 1);
+                        if (msg.empty())
+                            return (replyTo(user.getSocket(), ERR_NOTEXTTOSEND(user.getNickname())));
+                        replyTo(it->second.getSocket(), PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(_addr.sin_addr), it->second.getNickname(), msg));
+                    }
+                    else
+                        replyTo(it->second.getSocket(), PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(_addr.sin_addr), it->second.getNickname(), fields[1]));
+                    return;
+                }
+            }
+            else if (fields[0][0] == '#')
+            {
+                std::string channel = fields[0].substr(1);
+                if (channel.empty())
+                    return (replyTo(user.getSocket(), ERR_CANNOTSENDTOCHAN(user.getNickname())));
+                std::map<std::string, Channel>::const_iterator it = _channels.find(channel);
+                if (it != _channels.end())
+                {
+                    it->second.
+                    // return;
+                    // broad cast to all users in the channel
+                }
+                else
+                    replyTo(user.getSocket(), ERR_NOSUCHNICK(user.getNickname(), fields[0]));
+            }
+            else
+            {
+                for (std::map<int, Client>::const_iterator it = _clients.begin() ; it != _clients.end(); ++it)
+                {
+                    if (stringUpper(it->second.getNickname()) == stringUpper(fields[0]))
+                    {
+                        if (fields[1][0] == ':')
+                        {
+                            std::string msg = message.substr(message.find_first_of(":") + 1);
+                            if (msg.empty())
+                                return (replyTo(user.getSocket(), ERR_NOTEXTTOSEND(user.getNickname())));
+                            replyTo(it->second.getSocket(), PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(_addr.sin_addr), it->second.getNickname(), msg));
+                        }
+                        else
+                            replyTo(it->second.getSocket(), PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(_addr.sin_addr), it->second.getNickname(), fields[1]));
+                        return;
+                    }
+                }
+                replyTo(user.getSocket(), ERR_NOSUCHNICK(user.getNickname(), fields[0]));
+            }
         }
-        // check if its a channel target or client target and how many to rply with error ERR_TOOMANYTARGETS
-
-        // get the msg that starts with :  if non ERR_NOTEXTTOSEND
-
-        // it it dosnt exist reply with ERR_NOSUCHNICK 
-            // for channel it might have modes priv for that error ERR_CANNOTSENDTOCHAN
-
-		std::map<int, Client>::const_iterator it;
-
-		for (it = _clients.begin() ; it != _clients.end(); ++it)
-		{
-			if (it->second.getNickname() == fields[0]) // dosnt get free when client leaves !! // nicknames, channel names casemapping sensitivity !!!
-			{
-				//send to client the msg...
-
-			}
-		}
-   
-
+        else
+			replyTo(user.getSocket(), ERR_NOTEXTTOSEND(user.getNickname()));
     }
     else
         replyTo(user.getSocket(), ERR_NOTREGISTERED(user.getNickname()));
 }
-
-// ERR_CANNOTSENDTOCHAN (404)
-// ERR_TOOMANYTARGETS (407)
-
-// ERR_NOTOPLEVEL (413)
-// ERR_WILDTOPLEVEL (414)
-// RPL_AWAY (301)

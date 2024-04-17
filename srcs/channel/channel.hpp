@@ -20,11 +20,11 @@
 
 class Channel {
   private:
-    std::string						_name; // name of the channel
-    std::string						_topic; // topic of the channel
-    std::string						_key; // password of the channel
-    std::map<std::string, Client>	_users; // list of users in the channel
-    std::vector<Client>				_chanOps; // list of operators in the channel
+    std::string						          _name; // name of the channel
+    std::string						          _topic; // topic of the channel
+    std::string						          _key; // password of the channel
+    std::map<std::string, Client>	  _users; // list of users in the channel
+    std::vector<Client>				      _chanOps; // list of operators in the channel
   public:
     Channel();
     Channel(std::string name);
@@ -35,7 +35,7 @@ class Channel {
     std::string getTopic() const;
     std::string getKey() const;
     
-	Client &getUser(std::string &nickName);
+	  Client &getUser(std::string &nickName);
     void getUsers();
     
     void setName(std::string name);
@@ -43,10 +43,10 @@ class Channel {
     void setKey(std::string key);
     
     void addUser(Client &user);
-	void removeUser(Client &user);
+	  void removeUser(Client &user);
     bool isClientExist(std::string nickName);
-	void addOperator(Client &op);
-	bool isOperator(Client &op);
+	  void addOperator(Client &op);
+	  bool isOperator(Client &op);
 };
 
 #endif

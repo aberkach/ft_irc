@@ -14,14 +14,14 @@ typedef std::map<std::string, Channel>::iterator chnMapIt;
 
 class Server {
   private:
-        uint16_t	              _port;
-        std::string             _password;
-        int                     _listen_sd;
-        struct sockaddr_in      _addr;
-        size_t                  _nfds;
-        std::vector<pollfd>    	_fds;
-        std::map<int, Client>   _clients;
-        std::map<std::string, Channel> server_channels; // list of channels in the server
+        uint16_t	                      _port;
+        std::string                     _password;
+        int                             _listen_sd;
+        struct sockaddr_in              _addr;
+        size_t                          _nfds;
+        std::vector<pollfd>    	        _fds;
+        std::map<int, Client>           _clients;
+        std::map<std::string, Channel>  _channels; // list of channels in the server
 
   public:
         Server(void);
