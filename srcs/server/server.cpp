@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <arpa/inet.h> // print ip adrss
 #include <iostream>
+#include <sys/poll.h>
 #include "../client/client.hpp"
 #include "../channel/channel.hpp"
 
@@ -210,42 +211,34 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 
 // Handle incoming data from clients :
 void 
-Server::handleIncomeData() 
+Server::handleIncomeData(int i) 
 {
-	char buffer[1024] = {0} ;
+	char buffer[1024] = {0};
 	int rc;
 
-	for (size_t i = 1; i < _nfds; i++) 
-	{
-		if (_fds[i].revents & POLLIN) {
-			rc = recv(_fds[i].fd, buffer, sizeof(buffer), 0);
-			if (rc < 0)
-				Err("recv() failed", 0);
-			else if (rc == 0) {
-				std::cout << "Connection closed" << std::endl;
-				// Remove closed client from fds array and clientsFds map
-				_clients.erase(_fds[i].fd);
-				close(_fds[i].fd);
-				_fds[i].fd = -1;
-			} 
-			else {
-				// here we handle the message
-				buffer[rc] = '\0';
-				std::string rec(buffer);
-				// remove the remove all spaces from the message (included \r\n)
-				rec = trimTheSpaces(rec);
-				std::cout << "Message received: " << rec << std::endl;
-				// split the message by space
-				std::vector<std::string> fields = splitByDelim(rec, ' ');
-
-				if (!fields.empty())
-				{
-					fields[0] = stringUpper(fields[0]);
-					commandList(rec ,fields, _clients.find(_fds[i].fd)->second);
-					_clients.find(_fds[i].fd)->second.refStatus();
-				}
-
-			}
+	rc = recv(_fds[i].fd, buffer, sizeof(buffer), 0);
+	if (rc < 0)
+		Err("recv() failed", 0);
+	else if (rc == 0) {
+		std::cout << "Connection closed" << std::endl;
+		// Remove closed client from fds array and clientsFds map
+		_clients.erase(_fds[i].fd);
+		close(_fds[i].fd);
+		_fds[i].fd = -1;
+	}
+	else {
+		// here we handle the message
+		buffer[rc] = '\0';
+		std::string rec(buffer);
+		// remove the remove all spaces from the message (included \r\n)
+		rec = trimTheSpaces(rec);
+		// split the message by space
+		std::vector<std::string> fields = splitByDelim(rec, ' ');
+		if (!fields.empty())
+		{
+			fields[0] = stringUpper(fields[0]);
+			commandList(rec ,fields, _clients.find(_fds[i].fd)->second);
+			_clients.find(_fds[i].fd)->second.refStatus();
 		}
 	}
 }
@@ -263,13 +256,22 @@ int Server::createServer()
 	    rc = poll(_fds.data(), _nfds, 0);
 
 	    // If poll failed or timeout occurred, continue to the next iteration
-	    if (rc <= 0)
+	    if (rc == 0)
 	        continue;
-	    // Check for incoming connection on the server socket
-		handlIncomeConnections();
-
-	    // Iterate through fds array to check for messages from clients
-	    handleIncomeData();
+		if (rc < 0) {
+	        perror("  poll() failed");
+	        continue;
+	    }
+		for (size_t i = 0; i < _nfds; i++) {
+			if (_fds[i].revents & POLLIN) {
+	    		// Check for incoming connection on the server socke
+				if (_fds[i].fd == _listen_sd)
+					handlIncomeConnections();
+				else
+				    // Iterate through fds array to check for messages from clients
+					handleIncomeData(i);
+			}
+	    }
 	
 	    // Compact the fds array to remove closed client sockets
 	    current_size = 0;

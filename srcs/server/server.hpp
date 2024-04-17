@@ -32,7 +32,7 @@ class Server {
 
         int   createServer();
         void  handlIncomeConnections();
-        void  handleIncomeData();
+        void  handleIncomeData(int i);
 
         void commandList(const std::string& message, std::vector<std::string> &fields, Client &cling);
 
@@ -40,7 +40,7 @@ class Server {
 
         ~Server();
 
-      private: // these will be stand alone functions undifined in the class
+      private:
         void  passCommand(const std::vector<std::string> &fields, Client &user);
         void  nickCommand(const std::vector<std::string> &fields, Client &user);
         void  userCommand(const std::string& message, const std::vector<std::string> &fields, Client &user);
