@@ -58,9 +58,6 @@ std::vector<std::string> splitByDelim(std::string str, char delim)
 	else {
 		for (size_t i = 0; i < str.length(); i++)
     	{
-			// if (str[i] == ':')
-			// {
-			// 	token += str.substr(i);
 			if (str[i] == ' ' || str[i] == '\t' || str[i] == '\v' || str[i] == '\b' || str[i] == '\r' || str[i] == '\n')
     	    {
 				// skip the delim

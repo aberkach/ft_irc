@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:19:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/17 14:17:55 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/17 14:47:49 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,6 @@ void Server::topicCommand (std::vector<std::string> &fields, Client &client) {
         std::string chnName = fields[0];
         std::string topic;
         // if the client wants to change the topic of the channel
-        std::cout << "fields.size() = " << fields.size() << std::endl;
         if(fields.size() > 1) {
             topic = fields[1];
             // check if the client is operator of the channel
