@@ -110,7 +110,7 @@
 
 #define RPL_NAMREPLY(client, channel, users_list)                     ":" SERVERNAME " 353 " + (client) + " = " + (channel) + " :" + (users_list) + "\r\n"
 #define RPL_ENDOFNAMES(client, channel)                               ":" SERVERNAME " 366 " + (client) + " " + (channel) + " :End of /NAMES list" + "\r\n"
-
+#define INVITE_MSG(client, ipaddr, channel, invited)                  ":" SERVERNAME " " + (client) + " !~ " + (ipaddr) + " INVITE " + (channel) + " " + invited + "\r\n"
 
 // #define ERR_INVITEONLYCHAN(client, channel)             ":" SERVERNAME " 473 " + (client) + " " + (channel) + " :Cannot join channel (+i)" + "\r\n"
 // #define RPL_INVITING(client, nick, channel)                           ":" +  SERVERNAME " 341 " + (client) + " invited " + (nick) + " to " + (channel) + " successfully\r\n"
