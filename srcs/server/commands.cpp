@@ -316,7 +316,7 @@ void Server::privmsgCommand(const std::string& message, std::vector<std::string>
                 std::string channel = fields[0].substr(1);
                 if (channel.empty())
                     return (replyTo(user.getSocket(), ERR_CANNOTSENDTOCHAN(user.getNickname())));
-                std::map<std::string, Channel>::const_iterator it = _channels.find(channel);
+                std::map<std::string, Channel>::iterator it = _channels.find(channel);
                 if (it != _channels.end())
                 {
                     if (fields[1][0] == ':')
@@ -329,10 +329,6 @@ void Server::privmsgCommand(const std::string& message, std::vector<std::string>
                     else
                         it->second.broadCast(PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(_addr.sin_addr), fields[0], fields[1])); // minor detail for upper method here
                     return;
-        
-                
-                    // return;
-                    // broad cast to all users in the channel
                 }
                 else
                     replyTo(user.getSocket(), ERR_NOSUCHNICK(user.getNickname(), fields[0]));

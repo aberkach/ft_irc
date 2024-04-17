@@ -13,6 +13,7 @@ HEADER := ./srcs/server/server.hpp	./srcs/server/client.hpp	./srcs/tools/health.
 FILE := ./srcs/client/client.cpp	./srcs/server/server.cpp 		./srcs/tools/health.cpp		./srcs/Poller/Poller.cpp \
 		./srcs/channel/channel.cpp	./srcs/server/commands.cpp	\
 		./srcs/main.cpp
+
 OBJ := $(FILE:.cpp=.o)
 
 M = MAKE_PUSH
