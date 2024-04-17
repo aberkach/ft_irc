@@ -53,6 +53,7 @@ class Server {
 
         void kickCommand(std::vector<std::string> &fields, Client &client);
         void topicCommand(std::vector<std::string> &fields, Client &client);
+        void inviteCommand(std::vector<std::string> &fields, Client &client);
 
 };
 

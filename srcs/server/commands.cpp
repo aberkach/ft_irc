@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:19:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/17 14:47:49 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/17 20:13:01 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,40 @@
 #include <vector>
 #include "../channel/channel.hpp"
 #include "../client/client.hpp"
+
+
+// invite command
+// still on testing
+void Server::inviteCommand(std::vector<std::string> &fields, Client &client) {
+    if (fields.size() < 2) {
+        replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "INVITE"));
+        return;
+    }
+    if (client.getRegistered()) {
+        std::string invitedUser = fields[0];
+        std::string chnName = fields[1];
+        chnMapIt chnIt = server_channels.find(chnName);
+        if (chnIt == server_channels.end())
+        {
+            std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
+            replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(clientHost, chnName));
+            return;
+        }
+        if (chnIt->second.isOperator(client)) {
+            if (chnIt->second.isClientExist(invitedUser))
+            {
+                // here we send a message to the client that has been invited
+                std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
+                std::string inviteMessage = INVITE_MSG(client.getNickname(), clientHost, invitedUser, chnName);
+                replyTo(chnIt->second.getUser(invitedUser).getSocket(), inviteMessage);
+            }
+            else
+                replyTo(client.getSocket(), ERR_USERNOTINCHANNEL(client.getNickname(), invitedUser, chnName));
+        }
+        else
+            replyTo(client.getSocket(), ERR_CHANOPRIVSNEEDED(client.getNickname(), chnName));
+    }
+}
 
 // topic command 
 
