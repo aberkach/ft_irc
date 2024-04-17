@@ -273,12 +273,12 @@ void Server::userCommand(const std::string& message, const std::vector<std::stri
 		{
 			if (fields.size() > 3) // real name may contain spaces
 			{
-				size_t p;
+				size_t p;// refigure for the :
 				if (( p = message.find_first_of(":")) == std::string::npos || fields[1] != "0" || fields[2] != "*" || !user.setUsername(fields[0]) || !user.setRealname(message.substr(p + 1)))
 					replyTo(user.getSocket(), ERR_USERFORMAT);
 			}
 			else
-				replyTo(user.getSocket(), ERR_NEEDMOREPARAMS("Guest", "USER"));
+				replyTo(user.getSocket(), ERR_NEEDMOREPARAMS(std::string("Guest"), "USER"));
 		}
 		else
 			replyTo(user.getSocket(), ERR_FIRSTCOMMAND);
@@ -286,3 +286,43 @@ void Server::userCommand(const std::string& message, const std::vector<std::stri
 	else
 		replyTo(user.getSocket(), ERR_ALREADYREGISTERED(user.getNickname()));
 }
+
+void Server::privmsgCommand(const std::string& message, std::vector<std::string> &fields, Client &user)
+{
+	if (user.getRegistered())
+    {
+    	if (fields.empty())
+        {
+			replyTo(user.getSocket(), ERR_NORECIPIENT(user.getNickname(), "PRIVMSG"));
+            return;
+        }
+        // check if its a channel target or client target and how many to rply with error ERR_TOOMANYTARGETS
+
+        // get the msg that starts with :  if non ERR_NOTEXTTOSEND
+
+        // it it dosnt exist reply with ERR_NOSUCHNICK 
+            // for channel it might have modes priv for that error ERR_CANNOTSENDTOCHAN
+
+		std::map<int, Client>::const_iterator it;
+
+		for (it = _clients.begin() ; it != _clients.end(); ++it)
+		{
+			if (it->second.getNickname() == fields[0]) // dosnt get free when client leaves !! // nicknames, channel names casemapping sensitivity !!!
+			{
+				//send to client the msg...
+
+			}
+		}
+   
+
+    }
+    else
+        replyTo(user.getSocket(), ERR_NOTREGISTERED(user.getNickname()));
+}
+
+// ERR_CANNOTSENDTOCHAN (404)
+// ERR_TOOMANYTARGETS (407)
+
+// ERR_NOTOPLEVEL (413)
+// ERR_WILDTOPLEVEL (414)
+// RPL_AWAY (301)

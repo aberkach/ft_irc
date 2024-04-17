@@ -35,6 +35,7 @@ class Server {
         void  handleIncomeData();
 
         void commandList(const std::string& message, std::vector<std::string> &fields, Client &cling);
+        // find client 
 
         // void updateFileDescrior(int *ng);
 
@@ -48,6 +49,9 @@ class Server {
         bool  createChannel(std::string &chnName, std::vector<std::string> &keys, Client &client);
         void  processTheJoinArgs(std::vector<std::string> &channels , std::vector<std::string> &keys, Client &client);
         bool  joinChannel(std::string &chnName, std::vector<std::string> &keys, Client &client, chnMapIt &);
+        bool  privmsgChannel(std::string &chnName, std::vector<std::string> &keys, Client &client, chnMapIt &);
+        
+        void  privmsgCommand(const std::string& message, std::vector<std::string> &fields, Client &user);
 
         // operators methods :
 

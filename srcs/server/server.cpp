@@ -162,12 +162,18 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 	std::string command(fields[0]);
 	fields.erase(fields.begin());
 
-	if (command == "PASS")
+	// grap the :answer here 
+
+	if (command == "")
+		return;
+	else if (command == "PASS")
 		passCommand(fields, user);
 	else if (command == "NICK")
 		nickCommand(fields, user);
 	else if (command == "USER")
 		userCommand(message, fields, user);
+	else if (command == "PRIVMSG")
+		privmsgCommand(message, fields, user);
 	else if (command == "JOIN")
 		joinCommand(fields, user);
 	else if (command == "QUIT")
