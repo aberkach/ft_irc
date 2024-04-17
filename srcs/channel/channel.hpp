@@ -6,12 +6,11 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:32:12 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/13 12:29:41 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/17 08:43:17 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CHANNEL_HPP__
-#define CHANNEL_HPP__
+#pragma once
 
 #include "../../Inc/define.hpp"
 #include "../client/client.hpp"
@@ -48,5 +47,3 @@ class Channel {
 	void addOperator(Client &op);
 	bool isOperator(Client &op);
 };
-
-#endif

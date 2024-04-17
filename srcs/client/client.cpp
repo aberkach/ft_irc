@@ -105,6 +105,13 @@ Client::setRealname(const std::string& realName)
      return (true);
 };
 
+// set channel to the client 
+void
+Client::setChannel(std::string &chnName, Channel &channel)
+{
+    joined_channels[chnName] = channel;
+};
+
 /// @brief
 /// #### getters ####
 
