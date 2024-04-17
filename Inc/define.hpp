@@ -108,6 +108,10 @@
 #define QUIT_MSG(nickname, username, ipaddr, reason)                  ":"+ (nickname) + " !~ " + (username) + "@" + (ipaddr) + " QUIT :Client Quit " + SERVERNAME + (reason) + "\r\n"
 
 
+#define RPL_NAMREPLY(client, channel, users_list)                     ":" SERVERNAME " 353 " + (client) + " = " + (channel) + " :" + (users_list) + "\r\n"
+#define RPL_ENDOFNAMES(client, channel)                               ":" SERVERNAME " 366 " + (client) + " " + (channel) + " :End of /NAMES list" + "\r\n"
+
+
 // #define ERR_INVITEONLYCHAN(client, channel)             ":" SERVERNAME " 473 " + (client) + " " + (channel) + " :Cannot join channel (+i)" + "\r\n"
 // #define RPL_INVITING(client, nick, channel)                           ":" +  SERVERNAME " 341 " + (client) + " invited " + (nick) + " to " + (channel) + " successfully\r\n"
 
@@ -131,9 +135,7 @@
 // #define PART_MSG(nickname, username, ipaddr, channel, reason)         ":" + (nickname) + "!~" + (username) + "@" + ipaddr + " PART " + (channel) + " " + (reason) + "\r\n"
 // #define NOTICE(client, username, ipaddr, target, message)             ":" + (client) + "!~" + (username) + "@" + (ipaddr) + " NOTICE " + (target) + " :" + (message) + "\r\n"
 // #define TOPIC_MSG(client, username, ipaddr, channel, topic)           ":" + (client) + "!~" + (username) + "@" + (ipaddr) + " TOPIC " + (channel) + " :" + (topic) + "\r\n"
-// #define RPL_NAMREPLY(client, channel, users_list)                     ":" SERVERNAME " 353 " + (client) + " = " + (channel) + " :" + (users_list) + "\r\n"
 // #define RPL_CREATIONTIME(client, channel, creation_time)              ":" SERVERNAME " 329 " + (client) + " " + (channel) + " " + (creation_time) + "\r\n"
-// #define RPL_ENDOFNAMES(client, channel)                               ":" SERVERNAME " 366 " + (client) + " " + (channel) + " :End of /NAMES list" + "\r\n"
 // #define RPL_ENDOFINVITELIST(client)                                   ":" SERVERNAME " 337 " + " :End of /INVITE list" + "\r\n"
 // #define RPL_CHANNELMODEIS(client, channel, modestring, modargument)   ":" SERVERNAME " 324 " + (client) + " "+ (channel) + " " +(modestring) + " " + (modargument) + "\r\n"
 // #define RPL_TOPIC(client, channel, topic)                             ":" SERVERNAME " 332 " + (client) + " " + (channel) +  " :" + (topic) + "\r\n"

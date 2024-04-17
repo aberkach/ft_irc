@@ -4,7 +4,8 @@
 #include <cstdlib>
 #include <arpa/inet.h> // print ip adrss
 #include <iostream>
-
+#include "../client/client.hpp"
+#include "../channel/channel.hpp"
 
 void Err(std::string msg, int exitFalg)
 {
