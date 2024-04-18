@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/17 14:00:23 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/18 17:02:12 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,21 +56,24 @@ Client &Channel::getUser(std::string &nickName)
     return _users[nickName];
 }
 
-void Channel::getUsers()
+std::map<std::string, Client> &Channel::getUsers()
 {
-    for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); it++)
-    {
-        std::cout << it->first << " ";
-    }
+    return _users;
 }
 
-std::string Channel::getUsersList()
+std::string Channel::getChannelUsersInString()
 {
-    std::string usersList;
+    std::string users;
     for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); it++)
-    {
-        usersList += it->first + " ";
-    }
+        users += it->first + " ";
+    return users;
+}
+
+std::vector<std::string> Channel::getUsersList()
+{
+    std::vector<std::string> usersList;
+    for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); it++)
+        usersList.push_back(it->first);
     return usersList;
 }
 
@@ -101,8 +104,9 @@ void Channel::addUser(Client &client)
     _users.insert(std::pair<std::string, Client>(client.getNickname(), client));
 }
 
-void Channel::removeUser(Client &client)
+void Channel::removeUser(Client &client, std::string &channelName)
 {
+    client.removeChannel(channelName);
     _users.erase(client.getNickname());
 }
 

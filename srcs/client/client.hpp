@@ -42,6 +42,10 @@ class Client
         bool getValidPass(void) const ;
         int  getSocket(void) const;
         sockaddr_in getAddr(void) const;
+        std::map<std::string, Channel>::iterator getChannel(std::string &chnName);
+        std::map<std::string, Channel> getChannels(void);
+
+        void removeChannel(std::string &chnName);
 
         void refStatus(void);
 
