@@ -75,6 +75,7 @@
 #define RPL_MYINFO(nick)                                    ":" SERVERNAME " 004 " + (nick) + " " SERVERNAME " " VERSION " " USERMODES " " CHANELMODES " [" CHANELMODESPARAMETER "]\r\n"
 #define RPL_ISUPPORT(nick)                                  ":" SERVERNAME " 005 " + (nick) + " " COMMANDS " :are supported by this server\r\n"
 
+#define CHANGENICK(nick, username, host, message)   ":" + (nick) + "!" + (username) + "@" + (host) + " NICK :" + (message) + "\r\n"
 #define ERR_UNKNOWNCOMMAND(nick, command)                   ":" SERVERNAME " 421 " + (nick) + " " + (command) + " :Unknown command\r\n"
 #define ERR_NONICKNAMEGIVEN(nick)                           ":" SERVERNAME " 431 " + (nick) + " :No nickname given\r\n"
 #define ERR_ERRONEUSNICKNAME(nick)                          ":" SERVERNAME " 432 " + (nick) + " :Erroneus nickname\r\n"

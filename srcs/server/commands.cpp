@@ -258,8 +258,11 @@ void Server::nickCommand(const std::vector<std::string> &fields, Client &user) /
 			}
 		}
 		// add a condition for the msg in case he is registerd and changed his name to smthing else !!!
+        std::string oldNick = user.getNickname();
 		if (user.setNickname(fields[0]) == false)
-			replyTo(user.getSocket(), ERR_ERRONEUSNICKNAME(fields[0]));
+			return (replyTo(user.getSocket(), ERR_ERRONEUSNICKNAME(fields[0])));
+        if (user.getRegistered())
+            replyTo(user.getSocket(), CHANGENICK(oldNick, user.getUsername(), inet_ntoa(_addr.sin_addr), fields[0]));
 	}
 	else
 		replyTo(user.getSocket(), ERR_FIRSTCOMMAND);
@@ -316,7 +319,7 @@ void Server::privmsgCommand(const std::string& message, std::vector<std::string>
                 std::string channel = fields[0].substr(1);
                 if (channel.empty())
                     return (replyTo(user.getSocket(), ERR_CANNOTSENDTOCHAN(user.getNickname())));
-                std::map<std::string, Channel>::iterator it = _channels.find(channel);
+                std::map<std::string, Channel>::iterator it = _channels.find(channel); // need to furder test it
                 if (it != _channels.end())
                 {
                     if (fields[1][0] == ':')
