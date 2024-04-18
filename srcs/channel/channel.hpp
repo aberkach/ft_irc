@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:32:12 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/17 12:16:15 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/18 17:02:10 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,15 +35,16 @@ class Channel {
     std::string getKey() const;
     
 	  Client &getUser(std::string &nickName);
-    void getUsers();
-    std::string getUsersList();
+    std::map<std::string, Client> &getUsers();
+    std::string getChannelUsersInString();
+    std::vector<std::string> getUsersList();
     
     void setName(std::string name);
     void setTopic(std::string topic);
     void setKey(std::string key);
     
     void addUser(Client &user);
-	  void removeUser(Client &user);
+	  void removeUser(Client &client, std::string &channelName);
     bool isClientExist(std::string nickName);
 	  void addOperator(Client &op);
 	  bool isOperator(Client &op);

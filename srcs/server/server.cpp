@@ -245,8 +245,8 @@ Server::handleIncomeData(int i)
 
 int Server::createServer() 
 {
-	int    current_size;
-	int rc;
+	int		current_size;
+	int		rc;
 	_nfds = 1;
 
 	// Start listening for incoming connections
