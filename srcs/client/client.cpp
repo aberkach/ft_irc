@@ -107,11 +107,11 @@ Client::setRealname(const std::string& realName)
 };
 
 // set channel to the client 
-void
-Client::setChannel(std::string &chnName, Channel &channel)
-{
-    joined_channels.insert(std::pair<std::string, Channel>(chnName, channel));
-};
+// void
+// Client::setChannel(std::string &chnName, Channel &channel)
+// {
+//     joined_channels.insert(std::pair<std::string, Channel>(chnName, channel));
+// };
 
 /// @brief
 /// #### getters ####
@@ -159,24 +159,24 @@ sockaddr_in Client::getAddr(void) const
 };
 
 
-std::map<std::string, Channel>::iterator Client::getChannel(std::string &chnName)
-{
-    return joined_channels.find(chnName);
-};
+// std::map<std::string, Channel>::iterator Client::getChannel(std::string &chnName)
+// {
+//     return joined_channels.find(chnName);
+// };
 
-std::map<std::string, Channel> Client::getChannels(void)
-{
-    return joined_channels;
-};
+// std::map<std::string, Channel> Client::getChannels(void)
+// {
+//     return joined_channels;
+// };
 
 /// status ref
 
 
-void
-Client::removeChannel(std::string &chnName)
-{
-    joined_channels.erase(chnName);
-};
+// void
+// Client::removeChannel(std::string &chnName)
+// {
+//     joined_channels.erase(chnName);
+// };
 
 void 
 Client::refStatus(void)

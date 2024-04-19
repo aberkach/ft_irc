@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:32:12 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/18 17:02:10 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/19 16:16:56 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ class Channel {
   public:
     Channel();
     Channel(std::string name);
-    Channel(const Channel &src);
+    // Channel(const Channel &src);
     ~Channel();
 
     std::string getName() const;
@@ -36,7 +36,7 @@ class Channel {
     
 	  Client &getUser(std::string &nickName);
     std::map<std::string, Client> &getUsers();
-    std::string getChannelUsersInString();
+    std::string &getChannelUsersInString();
     std::vector<std::string> getUsersList();
     
     void setName(std::string name);
