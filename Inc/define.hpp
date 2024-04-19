@@ -99,7 +99,8 @@
 // #define ERR_INVALIDKEY (525) : if the operator is trying to set a key that is not valid with mode +k 
 
 // need more things to add when the user is joined the channel successfully
-#define JOIN_SUCC(client, channel)             ":" SERVERNAME " !~ " + (client) + " join successfully " + (channel) + "\r\n"
+#define RPL_JOIN(nick, username, channelname, ipaddress) ":" + nick + "!~" + username + "@" + ipaddress + " JOIN " + channelname + "\r\n"
+// #define JOIN_SUCC(client, channel)             ":" SERVERNAME " !~ " + (client) + " join successfully " + (channel) + "\r\n"
 #define RPL_NOTOPIC(client, channel)           ":" SERVERNAME " 331 " + (client) + " " + (channel) + " :No topic is set" + "\r\n"
 #define RPL_TOPIC(client, channel, topic)       ":" SERVERNAME " 332 " + (client) + " " + (channel) + " :" + (topic) + "\r\n"
 
@@ -107,8 +108,8 @@
 
 #define QUIT_MSG(nickname, username, ipaddr, reason)                  ":"+ (nickname) + " !~ " + (username) + "@" + (ipaddr) + " QUIT :Client Quit " + SERVERNAME + (reason) + "\r\n"
 
-
-#define RPL_NAMREPLY(client, channel, users_list)                     ":" SERVERNAME " 353 " + (client) + " = " + (channel) + " :" + (users_list) + "\r\n"
+#define RPL_NAMREPLY(clients, channelname, nick) ":" SERVERNAME " 353 " + nick + " = " + channelname + " :" + clients + "\r\n"
+// #define RPL_NAMREPLY(client, channel, users_list)                     ":" SERVERNAME " 353 " + (client) + " = " + (channel) + " :" + (users_list) + "\r\n"
 #define RPL_ENDOFNAMES(client, channel)                               ":" SERVERNAME " 366 " + (client) + " " + (channel) + " :End of /NAMES list" + "\r\n"
 #define INVITE_MSG(client, ipaddr, channel, invited)                  ":" SERVERNAME " " + (client) + " !~ " + (ipaddr) + " INVITE " + (channel) + " " + invited + "\r\n"
 

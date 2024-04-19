@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:19:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/19 17:33:26 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/19 22:34:59 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,6 +153,15 @@ void Server::kickCommand (std::vector<std::string> &fields, Client &client) {
     }
     else
         replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));
+    // print the users in the channel
+    for (chnMapIt it = server_channels.begin(); it != server_channels.end(); it++)
+    {
+        std::cout << "channel: " << it->first << std::endl;
+        std::map<std::string, Client> users = it->second.getUsers();
+        for (std::map<std::string, Client>::iterator it2 = users.begin(); it2 != users.end(); it2++)
+            std::cout << "user: " << it2->first << std::endl;
+        std::cout << "----------------" << std::endl;
+    }
 }
 
 
@@ -177,16 +186,6 @@ bool Server::joinChannel(std::string &chnName, std::vector<std::string> &keys, C
                     // add the client to the channel
                     chnIt->second.addUser(client);
                     keys.erase(keys.begin());
-                    // here we send a message to the client to inform him that he joined the channel
-                    std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
-                    replyTo(client.getSocket(), JOIN_SUCC(client.getNickname(), chnName));
-                    if (chnIt->second.getTopic() != "")
-                        replyTo(client.getSocket(), RPL_TOPIC(client.getNickname(), chnName, chnIt->second.getTopic()));
-                    else
-                        replyTo(client.getSocket(), RPL_NOTOPIC(client.getNickname(), chnName));
-                    std::string usersList = chnIt->second.getChannelUsersInString();
-                    replyTo(client.getSocket(), RPL_NAMREPLY(client.getNickname(), chnName, usersList));
-                    replyTo(client.getSocket(), RPL_ENDOFNAMES(client.getNickname(), chnName));
                 }
                 // if the key is incorrect
                 else
@@ -202,19 +201,7 @@ bool Server::joinChannel(std::string &chnName, std::vector<std::string> &keys, C
             {
                 // if the channel has no key, add the client to the channel
                 if (chnIt->second.getKey() == "")
-                {
                     chnIt->second.addUser(client);
-                    // here we send a message to the client to inform him that he joined the channel
-                    std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
-                    replyTo(client.getSocket(), JOIN_SUCC(client.getNickname(), chnName));
-                    if (chnIt->second.getTopic() != "")
-                        replyTo(client.getSocket(), RPL_TOPIC(client.getNickname(), chnName, chnIt->second.getTopic()));
-                    else
-                        replyTo(client.getSocket(), RPL_NOTOPIC(client.getNickname(), chnName));
-                    std::string usersList = chnIt->second.getChannelUsersInString();
-                    replyTo(client.getSocket(), RPL_NAMREPLY(client.getNickname(), chnName, usersList));
-                    replyTo(client.getSocket(), RPL_ENDOFNAMES(client.getNickname(), chnName));
-                }
                 else
                 {
                     // here we send an error message to the client to inform him that the channel has a key
@@ -222,6 +209,14 @@ bool Server::joinChannel(std::string &chnName, std::vector<std::string> &keys, C
                     return false;
                 }
             }
+        }
+        std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
+        std::string usersList = chnIt->second.getChannelUsersInString();
+        for (std::map<std::string, Client>::iterator it = chnIt->second.getUsers().begin(); it != chnIt->second.getUsers().end(); it++)
+        {
+            replyTo(it->second.getSocket(), RPL_JOIN(chnIt->second.getUserName(it->first), client.getRealname(), chnName, clientHost));
+            replyTo(it->second.getSocket(), RPL_NAMREPLY(usersList, chnName, chnIt->second.getUserName(it->first)));
+            replyTo(it->second.getSocket(), RPL_ENDOFNAMES(chnIt->second.getUserName(it->first), chnName));
         }
     }
     return true;
@@ -277,14 +272,16 @@ void Server::processTheJoinArgs(std::vector<std::string> &channels , std::vector
                 if (!createChannel(chnName, keys, client))
                     continue;
                 // here we send a message to the client to inform him that he joined the channel
-                replyTo(client.getSocket(), JOIN_SUCC(client.getNickname(), chnName));
-                if (server_channels.find(chnName)->second.getTopic() != "")
-                    replyTo(client.getSocket(), RPL_TOPIC(client.getNickname(), chnName, server_channels.find(chnName)->second.getTopic()));
-                else
-                    replyTo(client.getSocket(), RPL_NOTOPIC(client.getNickname(), chnName));
+                std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
+                chnIt = server_channels.find(chnName);
+                
                 std::string usersList = server_channels.find(chnName)->second.getChannelUsersInString();
-                replyTo(client.getSocket(), RPL_NAMREPLY(client.getNickname(), chnName, usersList));
-                replyTo(client.getSocket(), RPL_ENDOFNAMES(client.getNickname(), chnName));
+                for (std::map<std::string, Client>::iterator it = chnIt->second.getUsers().begin(); it != chnIt->second.getUsers().end(); it++)
+                {
+                    replyTo(it->second.getSocket(), RPL_JOIN(chnIt->second.getUserName(it->first), client.getRealname(), chnName, clientHost));
+                    replyTo(client.getSocket(), RPL_NAMREPLY(usersList, chnName, chnIt->second.getUserName(it->first)));
+                    replyTo(client.getSocket(), RPL_ENDOFNAMES(chnIt->second.getUserName(it->first), chnName));
+                }
             }
 
             // join the channel
