@@ -104,7 +104,8 @@
 #define RPL_NOTOPIC(client, channel)           ":" SERVERNAME " 331 " + (client) + " " + (channel) + " :No topic is set" + "\r\n"
 #define RPL_TOPIC(client, channel, topic)       ":" SERVERNAME " 332 " + (client) + " " + (channel) + " :" + (topic) + "\r\n"
 
-#define KICK_MSG(client, channel, reason)             ":" SERVERNAME " !~ " + (client) + " KICKED FROM " + (channel) + " :" + reason + "\r\n"
+#define RPL_KICK(kicker, username, host, channel, targetuser, reason) ":" + kicker + "!" + username + "@" + host + " KICK " + channel + " " + targetuser + " :" + reason + "\r\n"
+// #define KICK_MSG(client, channel, reason)             ":" SERVERNAME " !~ " + (client) + " KICKED FROM " + (channel) + " :" + reason + "\r\n"
 
 #define QUIT_MSG(nickname, username, ipaddr, reason)                  ":"+ (nickname) + " !~ " + (username) + "@" + (ipaddr) + " QUIT :Client Quit " + SERVERNAME + (reason) + "\r\n"
 

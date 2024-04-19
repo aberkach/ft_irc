@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:19:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/19 22:34:59 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/19 23:43:26 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,20 +129,16 @@ void Server::kickCommand (std::vector<std::string> &fields, Client &client) {
             if (joinedChnIt->second.isClientExist(usersBeKicked))
             {
                 // send a message to the client that has been kicked
-                std::string reason = fields.size() > 2 ? fields[2] : "You've been kicked from the channel";
-                std::string KickErrMessage = KICK_MSG(usersBeKicked, chnName, reason);
-                replyTo(joinedChnIt->second.getUser(usersBeKicked).getSocket(), KickErrMessage);
+                std::string reason = "You've been kicked from the channel";
+                std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
+                std::string KickErrMessage = RPL_KICK(client.getNickname(), client.getRealname(), clientHost, chnName, usersBeKicked, reason);
+                
+                for (std::map<std::string, Client>::iterator it = joinedChnIt->second.getUsers().begin(); it != joinedChnIt->second.getUsers().end(); it++)
+                {
+                    replyTo(it->second.getSocket(), KickErrMessage);
+                }
                 joinedChnIt->second.removeUser(joinedChnIt->second.getUser(usersBeKicked), chnName);
                 
-                std::cout << usersBeKicked << " kicked" << std::endl;
-                // here we send a message to the channel to inform the clients that a client has been kicked
-                // .... 
-                std::vector<std::string> usersList = joinedChnIt->second.getUsersList();
-                for (size_t i = 0; i < usersList.size(); i++)
-                {
-                    if (usersList[i] != usersBeKicked)
-                        replyTo(joinedChnIt->second.getUser(usersList[i]).getSocket(), KICK_MSG(usersBeKicked, chnName, reason));
-                }
             }
             // if the client is not in the channel, send an error message to the client
             else
@@ -153,15 +149,6 @@ void Server::kickCommand (std::vector<std::string> &fields, Client &client) {
     }
     else
         replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));
-    // print the users in the channel
-    for (chnMapIt it = server_channels.begin(); it != server_channels.end(); it++)
-    {
-        std::cout << "channel: " << it->first << std::endl;
-        std::map<std::string, Client> users = it->second.getUsers();
-        for (std::map<std::string, Client>::iterator it2 = users.begin(); it2 != users.end(); it2++)
-            std::cout << "user: " << it2->first << std::endl;
-        std::cout << "----------------" << std::endl;
-    }
 }
 
 
@@ -212,6 +199,7 @@ bool Server::joinChannel(std::string &chnName, std::vector<std::string> &keys, C
         }
         std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
         std::string usersList = chnIt->second.getChannelUsersInString();
+        replyTo(client.getSocket(), RPL_TOPIC(chnIt->second.getUserName(client.getNickname()), chnName, chnIt->second.getTopic()));
         for (std::map<std::string, Client>::iterator it = chnIt->second.getUsers().begin(); it != chnIt->second.getUsers().end(); it++)
         {
             replyTo(it->second.getSocket(), RPL_JOIN(chnIt->second.getUserName(it->first), client.getRealname(), chnName, clientHost));
@@ -276,6 +264,7 @@ void Server::processTheJoinArgs(std::vector<std::string> &channels , std::vector
                 chnIt = server_channels.find(chnName);
                 
                 std::string usersList = server_channels.find(chnName)->second.getChannelUsersInString();
+                replyTo(client.getSocket(), RPL_TOPIC(chnIt->second.getUserName(client.getNickname()), chnName, chnIt->second.getTopic()));
                 for (std::map<std::string, Client>::iterator it = chnIt->second.getUsers().begin(); it != chnIt->second.getUsers().end(); it++)
                 {
                     replyTo(it->second.getSocket(), RPL_JOIN(chnIt->second.getUserName(it->first), client.getRealname(), chnName, clientHost));
