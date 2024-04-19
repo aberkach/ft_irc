@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/19 17:18:33 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/19 19:20:21 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,18 @@ Client &Channel::getUser(std::string &nickName)
 std::map<std::string, Client> &Channel::getUsers()
 {
     return _users;
+}
+
+std::string Channel::getUserName(std::string clientName) const
+{
+    for (std::map<std::string, Client>::const_iterator it = _users.begin(); it != _users.end(); it++)
+    {
+        if (it->first == clientName)
+            return it->second.getNickname();
+        else if (it->first == '@' + clientName)
+            return '@' + it->second.getNickname();
+    }
+    return "User not found";
 }
 
 std::string &Channel::getChannelUsersInString()
