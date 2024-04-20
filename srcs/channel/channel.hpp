@@ -6,51 +6,51 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:32:12 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/13 12:29:41 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/19 19:11:31 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CHANNEL_HPP__
-#define CHANNEL_HPP__
+#pragma once
 
 #include "../../Inc/define.hpp"
-#include "../client/client.hpp"
 #include <string>
 #include <vector>
 
-class Channel
+class Client;
+class Channel 
 {
   private:
-      std::string						          _name; // name of the channel
-      std::string						          _topic; // topic of the channel
-      std::string						          _key; // password of the channel
-      std::map<std::string, Client>	  _users; // list of users in the channel
-      std::vector<Client>				      _chanOps; // list of operators in the channel
+      std::string	                  _name; // name of the channel
+      std::string	                  _topic; // topic of the channel
+      std::string	                  _key; // password of the channel
+      std::map<std::string, Client>   _users; // list of users in the channel
+      std::vector<Client>             _chanOps; // list of operators in the channel
   
   public:
     Channel();
     Channel(std::string name);
-    Channel(const Channel &src);
+    // Channel(const Channel &src);
     ~Channel();
 
     std::string getName() const;
     std::string getTopic() const;
     std::string getKey() const;
-    
-	  Client &getUser(std::string &nickName);
-    void getUsers();
-    
+
+	Client &getUser(std::string &nickName);
+    std::string getUserName(std::string clientName) const;
+    std::map<std::string, Client> &getUsers();
+    std::string &getChannelUsersInString();
+    std::vector<std::string> getUsersList();
+
     void setName(std::string name);
     void setTopic(std::string topic);
     void setKey(std::string key);
-    
+
     void addUser(Client &user);
-	  void removeUser(Client &user);
+	void removeUser(Client &client, std::string &channelName);
     bool isClientExist(std::string nickName);
-	  void addOperator(Client &op);
-	  bool isOperator(Client &op);
+	void addOperator(Client &op);
+	bool isOperator(Client &op);
 
     void broadCast(std::string msg);
 };
-
-#endif

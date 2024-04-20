@@ -4,8 +4,9 @@
 #include <cstdlib>
 #include <arpa/inet.h> // print ip adrss
 #include <iostream>
-
-#include <arpa/inet.h> // print ip adrss
+#include <sys/poll.h>
+#include "../client/client.hpp"
+#include "../channel/channel.hpp"
 
 void Err(std::string msg, int exitFalg)
 {
@@ -58,15 +59,22 @@ std::vector<std::string> splitByDelim(std::string str, char delim)
 	else {
 		for (size_t i = 0; i < str.length(); i++)
     	{
-    	    if (str[i] == ' ' || str[i] == '\t' || str[i] == '\v' || str[i] == '\b' || str[i] == '\r' || str[i] == '\n')
+			if (str[i] == ' ' || str[i] == '\t' || str[i] == '\v' || str[i] == '\b' || str[i] == '\r' || str[i] == '\n')
     	    {
 				// skip the delim
 				if (token.empty())
 					continue;
-    	        tokens.push_back(token);
-    	        token.clear();
+    	        if (token[0] == ':')
+		        {
+		            token.erase(0, 1);
+		            token += str.substr(i);
+					tokens.push_back(token);
+					continue;
+		        }
+		        tokens.push_back(token);
+		        token.clear();
     	    }
-    	    else
+			else
     	        token += str[i];
     	}
 	}
@@ -162,9 +170,7 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 	std::string command(fields[0]);
 	fields.erase(fields.begin());
 
-	// grap the :answer here 
-
-	if (command == "")
+	if (command.empty())
 		return;
 	else if (command == "PASS")
 		passCommand(fields, user);
@@ -179,7 +185,11 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 	else if (command == "QUIT")
 	{
 		char *host = inet_ntoa(user._addr.sin_addr);
-		replyTo(user.getSocket(), QUIT_MSG(user.getNickname(), user.getRealname(), host, " <with QUIT command>"));
+
+		if (!fields.empty())
+			replyTo(user.getSocket(), QUIT_MSG(user.getNickname(), user.getRealname(), host, fields[0]));
+		else
+			replyTo(user.getSocket(), QUIT_MSG(user.getNickname(), user.getRealname(), host, " with QUIT command"));
 		std::cout << "Connection closed with: " << user.getNickname() << std::endl;
 		close(user.getSocket());
 		user.setSocket(-1);
@@ -187,70 +197,83 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 	}
 	else if (command == "KICK")
 		kickCommand(fields, user);
+	else if (command == "PONG")
+	{
+		if (!fields.empty())
+			replyTo(user.getSocket(), fields[0]);
+		replyTo(user.getSocket(), ERR_NEEDMOREPARAMS(user.getNickname(), command));
+	}
+	else if (command == "TOPIC") {
+		topicCommand(fields, user);
+	}
 	else
 		replyTo(user.getSocket(), ERR_UNKNOWNCOMMAND(user.getNickname(), command));
 }
 
+
 // Handle incoming data from clients :
 void 
-Server::handleIncomeData() 
+Server::handleIncomeData(int i) 
 {
-	char buffer[1024] = {0} ;
+	char buffer[1024] = {0};
 	int rc;
 
-	for (size_t i = 1; i < _nfds; i++) 
-	{
-		if (_fds[i].revents & POLLIN) {
-			rc = recv(_fds[i].fd, buffer, sizeof(buffer), 0);
-			if (rc < 0)
-				Err("recv() failed", 0);
-			else if (rc == 0) {
-				std::cout << "Connection closed" << std::endl;
-				// Remove closed client from fds array and clientsFds map
-				_clients.erase(_fds[i].fd);
-				close(_fds[i].fd);
-				_fds[i].fd = -1;
-			} 
-			else {
-				// here we handle the message
-				buffer[rc] = '\0';
-				std::string rec(buffer);
-				// remove the remove all spaces from the message (included \r\n)
-				rec = trimTheSpaces(rec);
-				// split the message by space
-				std::vector<std::string> fields = splitByDelim(rec, ' ');
-
-				if (!fields.empty())
-				{
-					fields[0] = stringUpper(fields[0]);
-					commandList(rec ,fields, _clients.find(_fds[i].fd)->second);
-					_clients.find(_fds[i].fd)->second.refStatus();
-				}
-			}
+	rc = recv(_fds[i].fd, buffer, sizeof(buffer), 0);
+	if (rc < 0)
+		Err("recv() failed", 0);
+	else if (rc == 0) {
+		std::cout << "Connection closed" << std::endl;
+		// Remove closed client from fds array and clientsFds map
+		_clients.erase(_fds[i].fd);
+		close(_fds[i].fd);
+		_fds[i].fd = -1;
+	}
+	else {
+		// here we handle the message
+		buffer[rc] = '\0';
+		std::string rec(buffer);
+		// remove the remove all spaces from the message (included \r\n)
+		rec = trimTheSpaces(rec);
+		// split the message by space
+		std::vector<std::string> fields = splitByDelim(rec, ' ');
+		if (!fields.empty())
+		{
+			fields[0] = stringUpper(fields[0]);
+			commandList(rec ,fields, _clients.find(_fds[i].fd)->second);
+			_clients.find(_fds[i].fd)->second.refStatus();
 		}
 	}
 }
 
 int Server::createServer() 
 {
-	int    current_size;
-	int rc;
+	int		current_size;
+	int		rc;
 	_nfds = 1;
 
 	// Start listening for incoming connections
-	std::cout << "server is running" << std::endl;
+	std::cout << "server is running : " << std::endl;
 	while (true) {
 	    // Wait for events on monitored file descriptors
 	    rc = poll(_fds.data(), _nfds, 0);
 
 	    // If poll failed or timeout occurred, continue to the next iteration
-	    if (rc <= 0)
+	    if (rc == 0)
 	        continue;
-	    // Check for incoming connection on the server socket
-		handlIncomeConnections();
-
-	    // Iterate through fds array to check for messages from clients
-	    handleIncomeData();
+		if (rc < 0) {
+	        perror("  poll() failed");
+	        continue;
+	    }
+		for (size_t i = 0; i < _nfds; i++) {
+			if (_fds[i].revents & POLLIN) {
+	    		// Check for incoming connection on the server socke
+				if (_fds[i].fd == _listen_sd)
+					handlIncomeConnections();
+				else
+				    // Iterate through fds array to check for messages from clients
+					handleIncomeData(i);
+			}
+	    }
 	
 	    // Compact the fds array to remove closed client sockets
 	    current_size = 0;

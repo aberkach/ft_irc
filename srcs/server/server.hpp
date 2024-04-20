@@ -32,7 +32,7 @@ class Server {
 
         int   createServer();
         void  handlIncomeConnections();
-        void  handleIncomeData();
+        void  handleIncomeData(int i);
 
         void commandList(const std::string& message, std::vector<std::string> &fields, Client &cling);
         // find client 
@@ -41,7 +41,7 @@ class Server {
 
         ~Server();
 
-      private: // these will be stand alone functions undifined in the class
+      private:
         void  passCommand(const std::vector<std::string> &fields, Client &user);
         void  nickCommand(const std::vector<std::string> &fields, Client &user);
         void  userCommand(const std::string& message, const std::vector<std::string> &fields, Client &user);
@@ -56,6 +56,8 @@ class Server {
         // operators methods :
 
         void kickCommand(std::vector<std::string> &fields, Client &client);
+        void topicCommand(std::vector<std::string> &fields, Client &client);
+        void inviteCommand(std::vector<std::string> &fields, Client &client);
 
 };
 

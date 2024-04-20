@@ -1,9 +1,10 @@
 #include "client.hpp"
+#include <arpa/inet.h> // print ip adrss
+#include "../channel/channel.hpp"
 
 #define NICKLEN 10 // maybe warn about these ?
 #define USERLEN 9
 #define REALLEN 32
-#include <arpa/inet.h> // print ip adrss
 
 
 /// TOOLS
@@ -105,6 +106,13 @@ Client::setRealname(const std::string& realName)
      return (true);
 };
 
+// set channel to the client 
+// void
+// Client::setChannel(std::string &chnName, Channel &channel)
+// {
+//     joined_channels.insert(std::pair<std::string, Channel>(chnName, channel));
+// };
+
 /// @brief
 /// #### getters ####
 
@@ -145,14 +153,30 @@ Client::getRealname(void) const
     return _realName;
 };
 
-
 sockaddr_in Client::getAddr(void) const
 {
     return _addr;
 };
 
 
+// std::map<std::string, Channel>::iterator Client::getChannel(std::string &chnName)
+// {
+//     return joined_channels.find(chnName);
+// };
+
+// std::map<std::string, Channel> Client::getChannels(void)
+// {
+//     return joined_channels;
+// };
+
 /// status ref
+
+
+// void
+// Client::removeChannel(std::string &chnName)
+// {
+//     joined_channels.erase(chnName);
+// };
 
 void 
 Client::refStatus(void)
