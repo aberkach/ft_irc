@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:19:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/19 23:43:26 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/20 20:10:42 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,13 +198,19 @@ bool Server::joinChannel(std::string &chnName, std::vector<std::string> &keys, C
             }
         }
         std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
-        std::string usersList = chnIt->second.getChannelUsersInString();
-        replyTo(client.getSocket(), RPL_TOPIC(chnIt->second.getUserName(client.getNickname()), chnName, chnIt->second.getTopic()));
+        // replyTo(client.getSocket(), RPL_TOPIC(chnIt->second.getUserName(client.getNickname()), chnName, chnIt->second.getTopic()));
+        
+        // replyTo(client.getSocket(), RPL_TOPIC(chnIt->second.getUserName(client.getNickname()), chnName, chnIt->second.getTopic()));
         for (std::map<std::string, Client>::iterator it = chnIt->second.getUsers().begin(); it != chnIt->second.getUsers().end(); it++)
         {
-            replyTo(it->second.getSocket(), RPL_JOIN(chnIt->second.getUserName(it->first), client.getRealname(), chnName, clientHost));
-            replyTo(it->second.getSocket(), RPL_NAMREPLY(usersList, chnName, chnIt->second.getUserName(it->first)));
-            replyTo(it->second.getSocket(), RPL_ENDOFNAMES(chnIt->second.getUserName(it->first), chnName));
+            std::string usersList = chnIt->second.getChannelUsersInString();
+            replyTo(it->second.getSocket(), RPL_JOIN(chnIt->second.getUserName(client.getNickname()), client.getRealname(), chnName, clientHost));
+            if (it->first == client.getNickname())
+            {
+                // replyTo(client.getSocket(), RPL_TOPIC(chnIt->second.getUserName(client.getNickname()), chnName, chnIt->second.getTopic()));
+                replyTo(client.getSocket(), RPL_NAMREPLY(usersList, chnName, chnIt->second.getUserName(client.getNickname())));
+                replyTo(client.getSocket(), RPL_ENDOFNAMES(chnIt->second.getUserName(client.getNickname()), chnName));
+            }
         }
     }
     return true;
@@ -263,11 +269,11 @@ void Server::processTheJoinArgs(std::vector<std::string> &channels , std::vector
                 std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
                 chnIt = server_channels.find(chnName);
                 
-                std::string usersList = server_channels.find(chnName)->second.getChannelUsersInString();
-                replyTo(client.getSocket(), RPL_TOPIC(chnIt->second.getUserName(client.getNickname()), chnName, chnIt->second.getTopic()));
+                // replyTo(client.getSocket(), RPL_TOPIC(chnIt->second.getUserName(client.getNickname()), chnName, chnIt->second.getTopic()));
                 for (std::map<std::string, Client>::iterator it = chnIt->second.getUsers().begin(); it != chnIt->second.getUsers().end(); it++)
                 {
-                    replyTo(it->second.getSocket(), RPL_JOIN(chnIt->second.getUserName(it->first), client.getRealname(), chnName, clientHost));
+                    std::string usersList = server_channels.find(chnName)->second.getChannelUsersInString();
+                    replyTo(it->second.getSocket(), RPL_JOIN(client.getNickname(), client.getRealname(), chnName, clientHost));
                     replyTo(client.getSocket(), RPL_NAMREPLY(usersList, chnName, chnIt->second.getUserName(it->first)));
                     replyTo(client.getSocket(), RPL_ENDOFNAMES(chnIt->second.getUserName(it->first), chnName));
                 }
