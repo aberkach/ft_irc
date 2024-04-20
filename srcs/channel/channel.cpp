@@ -148,8 +148,11 @@ bool Channel::isOperator(Client &op)
 
 void replyTo(int socket, std::string buffer); // FORWARD DEC WILL CHANGE LATTER
 
-void Channel::broadCast(std::string msg)
+void Channel::broadCast(std::string msg, int excludedFd)
 {
     for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); ++it)
-        replyTo(it->second.getSocket(), msg);
+    {
+        if (it->second.getSocket() != excludedFd)
+            replyTo(it->second.getSocket(), msg);
+    }
 }

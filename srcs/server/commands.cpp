@@ -392,26 +392,18 @@ void Server::privmsgCommand(const std::string& message, std::vector<std::string>
         {
             if (fields[0] == "$")
             {
+                std::string msg = (fields[1][0] == ':') ? message.substr(message.find_first_of(":") + 1) : fields[1];
+                if (msg.empty())
+                    return (replyTo(user.getSocket(), ERR_NOTEXTTOSEND(user.getNickname())));
+
                 for (std::map<int, Client>::const_iterator it = _clients.begin(); it != _clients.end(); ++it)
-                {
-                    if (fields[1][0] == ':')
-                    {
-                        std::string msg = message.substr(message.find_first_of(":") + 1);
-                        if (msg.empty())
-                            return (replyTo(user.getSocket(), ERR_NOTEXTTOSEND(user.getNickname())));
-                        replyTo(it->second.getSocket(), PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(_addr.sin_addr), it->second.getNickname(), msg));
-                    }
-                    else
-                        replyTo(it->second.getSocket(), PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(_addr.sin_addr), it->second.getNickname(), fields[1]));
-                    return;
-                }
+                    replyTo(it->second.getSocket(), PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), it->second.getNickname(), msg));
             }
             else if (fields[0][0] == '#')
             {
-                std::string channel = fields[0].substr(1);
-                if (channel.empty())
-                    return (replyTo(user.getSocket(), ERR_CANNOTSENDTOCHAN(user.getNickname())));
-                std::map<std::string, Channel>::iterator it = _channels.find(channel); // need to furder test it
+
+
+                std::map<std::string, Channel>::iterator it = _channels.find(fields[0]);
                 if (it != _channels.end())
                 {
                     if (fields[1][0] == ':')
@@ -419,11 +411,10 @@ void Server::privmsgCommand(const std::string& message, std::vector<std::string>
                         std::string msg = message.substr(message.find_first_of(":") + 1);
                         if (msg.empty())
                             return (replyTo(user.getSocket(), ERR_NOTEXTTOSEND(user.getNickname())));
-                        it->second.broadCast(PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(_addr.sin_addr), fields[0], msg)); // minor detail for upper method here
+                        it->second.broadCast(PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), fields[0], msg), user.getSocket());
                     }
                     else
-                        it->second.broadCast(PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(_addr.sin_addr), fields[0], fields[1])); // minor detail for upper method here
-                    return;
+                        it->second.broadCast(PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), fields[0], fields[1]), user.getSocket());
                 }
                 else
                     replyTo(user.getSocket(), ERR_NOSUCHNICK(user.getNickname(), fields[0]));
@@ -439,10 +430,10 @@ void Server::privmsgCommand(const std::string& message, std::vector<std::string>
                             std::string msg = message.substr(message.find_first_of(":") + 1);
                             if (msg.empty())
                                 return (replyTo(user.getSocket(), ERR_NOTEXTTOSEND(user.getNickname())));
-                            replyTo(it->second.getSocket(), PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(_addr.sin_addr), it->second.getNickname(), msg));
+                            replyTo(it->second.getSocket(), PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), it->second.getNickname(), msg));
                         }
                         else
-                            replyTo(it->second.getSocket(), PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(_addr.sin_addr), it->second.getNickname(), fields[1]));
+                            replyTo(it->second.getSocket(), PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), it->second.getNickname(), fields[1]));
                         return;
                     }
                 }

@@ -1,0 +1,5 @@
+nc localhost 6667
+PASS helloHELLOhello
+nick zebZ
+user dsads 0 * :dasdsadas
+

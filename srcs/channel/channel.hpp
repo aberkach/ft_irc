@@ -52,5 +52,5 @@ class Channel
 	void addOperator(Client &op);
 	bool isOperator(Client &op);
 
-    void broadCast(std::string msg);
+    void broadCast(std::string msg, int excludedFd);
 };
