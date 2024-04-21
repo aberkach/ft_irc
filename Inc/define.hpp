@@ -114,16 +114,17 @@
 // #define ERR_INVALIDKEY (525) : if the operator is trying to set a key that is not valid with mode +k 
 #define ERR_CHANOPRIVSNEEDED(client, channel)                           ":" SERVERNAME " 482 " + (client) + " " + (channel) + " :You're not channel operator\r\n"
 // need more things to add when the user is joined the channel successfully
-#define RPL_JOIN(nick, username, channelname, ipaddress)                ":" + (nick) + "!~" + (username) + "@" + (ipaddress) + " JOIN " + (channelname) + "\r\n"
+#define RPL_JOIN(nick, username, channelname, ipaddress)                ":" + (nick) + "!" + (username) + "@" + (ipaddress) + " JOIN " + (channelname) + "\r\n"
 #define RPL_NOTOPIC(client, channel)                                    ":" SERVERNAME " 331 " + (client) + " " + (channel) + " :No topic is set\r\n"
 #define RPL_TOPIC(client, channel, topic)                               ":" SERVERNAME " 332 " + (client) + " " + (channel) + " :" + (topic) + "\r\n"
 #define RPL_KICK(kicker, username, host, channel, targetuser, reason)   ":" + (kicker) + "!" + (username) + "@" + (host) + " KICK " + (channel) + " " + (targetuser) + " :" + (reason) + "\r\n"
 
 #define RPL_NAMREPLY(clients, channelname, nick)                        ":" SERVERNAME " 353 " + (nick) + " = " + (channelname) + " :" + (clients) + "\r\n"
 #define RPL_ENDOFNAMES(client, channel)                                 ":" SERVERNAME " 366 " + (client) + " " + (channel) + " :End of /NAMES list" + "\r\n"
-#define INVITE_MSG(client, ipaddr, channel, invited)                    ":" SERVERNAME " " + (client) + " !~ " + (ipaddr) + " INVITE " + (channel) + " " + (invited) + "\r\n"
 
 
+#define RPL_INVITING(inviting, invited, channel)                        ":" SERVERNAME " 341 " + inviting + " " + invited + " " + channel + " :Inviting " + invited + " to " + channel + "\r\n"
+#define RPL_INVITED(nick, username, clienthostname, invited, channel) ":" + nick + "!" + username + "@" + clienthostname + " INVITE " + invited + " :" + channel + "\r\n"
 // #define ERR_NORECIPENT(client, command)                              ":" SERVERNAME " 411 " + (client) + " :No recipient given " + (command) + "\r\n"
 
 // #define RPL_CREATIONTIME(client, channel, creation_time)             ":" SERVERNAME " 329 " + (client) + " " + (channel) + " " + (creation_time) + "\r\n"

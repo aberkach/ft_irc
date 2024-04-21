@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:32:12 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/21 14:53:24 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/21 23:27:01 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ class Channel
       std::string	                  _key; // password of the channel
       std::map<std::string, Client>   _users; // list of users in the channel
       std::vector<Client>             _chanOps; // list of operators in the channel
+      std::vector<Client>             _chanInvites; // list of invited users in the channel
   
   public:
     Channel();
@@ -37,7 +38,7 @@ class Channel
     std::string getKey() const;
 
 	Client &getUser(std::string &nickName);
-    std::string getUserName(std::string clientName) const;
+    std::string getUserName(std::string clientName);
     std::map<std::string, Client> &getUsers();
     std::string &getChannelUsersInString();
     std::vector<std::string> getUsersList();
@@ -51,6 +52,10 @@ class Channel
     bool isClientExist(std::string nickName);
 	void addOperator(Client &op);
 	bool isOperator(Client &op);
+
+    void addInvite(Client &invited);
+    bool isInvited(Client &invited);
+    void removeInvite(Client &invited);
 
     void broadCast(std::string msg, int excludedFd);
 };

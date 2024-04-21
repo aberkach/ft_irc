@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/21 19:10:48 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/21 23:27:10 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ std::map<std::string, Client> &Channel::getUsers()
     return _users;
 }
 
-std::string Channel::getUserName(std::string clientName) const
+std::string Channel::getUserName(std::string clientName)    
 {
     for (std::map<std::string, Client>::const_iterator it = _users.begin(); it != _users.end(); it++)
     {
@@ -159,6 +159,34 @@ bool Channel::isOperator(Client &op)
             return true;
     }
     return false;
+}
+
+
+void Channel::addInvite(Client &invited)
+{
+    _chanInvites.insert(_chanInvites.begin(), Client(invited));
+}
+
+bool Channel::isInvited(Client &invited)
+{
+    for (std::vector<Client>::iterator it = _chanInvites.begin(); it != _chanInvites.end(); it++)
+    {
+        if (it->getNickname() == invited.getNickname())
+            return true;
+    }
+    return false;
+}
+
+void Channel::removeInvite(Client &invited)
+{
+    for (std::vector<Client>::iterator it = _chanInvites.begin(); it != _chanInvites.end(); it++)
+    {
+        if (it->getNickname() == invited.getNickname())
+        {
+            _chanInvites.erase(it);
+            break;
+        }
+    }
 }
 
 void replyTo(int socket, std::string buffer); // FORWARD DEC WILL CHANGE LATTER

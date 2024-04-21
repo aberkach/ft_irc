@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 14:49:52 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/21 14:50:56 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/21 23:03:32 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,6 +219,8 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 	else if (command == "TOPIC") {
 		topicCommand(fields, user);
 	}
+	else if (command == "INVITE")
+		inviteCommand(fields, user);
 	else
 		replyTo(user.getSocket(), ERR_UNKNOWNCOMMAND(user.getNickname(), command));
 }
