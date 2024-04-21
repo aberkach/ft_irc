@@ -330,7 +330,7 @@ void Server::passCommand(const std::vector<std::string> &fields, Client &user)
 }
 
 
-void Server::nickCommand(const std::vector<std::string> &fields, Client &user)
+void Server::nickCommand(const std::vector<std::string> &fields, Client &user) // relook
 {
 	if (user.getValidPass() == true)
 	{
