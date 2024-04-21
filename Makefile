@@ -11,7 +11,7 @@ HEADER := ./srcs/server/server.hpp	./srcs/server/client.hpp	./srcs/tools/health.
 		  ./srcs/channel/channel.hpp
 
 FILE := ./srcs/client/client.cpp	./srcs/server/server.cpp 		./srcs/tools/health.cpp		./srcs/Poller/Poller.cpp \
-		./srcs/channel/channel.cpp	./srcs/server/commands.cpp	\
+		./srcs/channel/channel.cpp	./srcs/server/commands.cpp		./srcs/server/operatorCommands.cpp \
 		./srcs/main.cpp
 OBJ := $(FILE:.cpp=.o)
 
