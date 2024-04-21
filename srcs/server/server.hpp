@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   server.hpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/21 14:50:26 by abberkac          #+#    #+#             */
+/*   Updated: 2024/04/21 14:50:32 by abberkac         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef SERVER_HPP__
 #define SERVER_HPP__
 
@@ -14,14 +26,14 @@ typedef std::map<std::string, Channel>::iterator chnMapIt;
 
 class Server {
   private:
-        uint16_t	              _port;
-        std::string             _password;
-        int                     _listen_sd;
-        struct sockaddr_in      _addr;
-        size_t                  _nfds;
-        std::vector<pollfd>    	_fds;
-        std::map<int, Client>   _clients;
-        std::map<std::string, Channel> server_channels; // list of channels in the server
+        uint16_t	                      _port;
+        std::string                     _password;
+        int                             _listen_sd;
+        struct sockaddr_in              _addr;
+        size_t                          _nfds;
+        std::vector<pollfd>    	        _fds;
+        std::map<int, Client>           _clients;
+        std::map<std::string, Channel>  _channels; // list of channels in the server
 
   public:
         Server(void);
@@ -35,6 +47,7 @@ class Server {
         void  handleIncomeData(int i);
 
         void commandList(const std::string& message, std::vector<std::string> &fields, Client &cling);
+        // find client 
 
         // void updateFileDescrior(int *ng);
 
@@ -48,6 +61,9 @@ class Server {
         bool  createChannel(std::string &chnName, std::vector<std::string> &keys, Client &client);
         void  processTheJoinArgs(std::vector<std::string> &channels , std::vector<std::string> &keys, Client &client);
         bool  joinChannel(std::string &chnName, std::vector<std::string> &keys, Client &client, chnMapIt &);
+        bool  privmsgChannel(std::string &chnName, std::vector<std::string> &keys, Client &client, chnMapIt &);
+        
+        void  privmsgCommand(const std::string& message, std::vector<std::string> &fields, Client &user);
 
         // operators methods :
 
