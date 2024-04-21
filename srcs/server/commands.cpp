@@ -373,7 +373,6 @@ void Server::userCommand(const std::string& message, const std::vector<std::stri
                     replyTo(user.getSocket(), ERR_NEEDMOREPARAMS(std::string("Guest"), "USER"));
                 else if (!user.setUsername(fields[0])|| fields[1] != "0" || fields[2] != "*" || !user.setRealname(realName))
                     replyTo(user.getSocket(), ERR_USERFORMAT);
-                std::cout << realName << std::endl;
 			}
 			else
 				replyTo(user.getSocket(), ERR_NEEDMOREPARAMS(std::string("Guest"), "USER"));
