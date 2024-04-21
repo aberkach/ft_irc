@@ -330,7 +330,7 @@ void Server::passCommand(const std::vector<std::string> &fields, Client &user)
 }
 
 
-void Server::nickCommand(const std::vector<std::string> &fields, Client &user) // can be resent after registration
+void Server::nickCommand(const std::vector<std::string> &fields, Client &user)
 {
 	if (user.getValidPass() == true)
 	{
@@ -366,11 +366,14 @@ void Server::userCommand(const std::string& message, const std::vector<std::stri
 	{
 		if (user.getValidPass())
 		{
-			if (fields.size() > 3) // real name may contain spaces
+			if (fields.size() >= 4)
 			{
-				size_t p;// refigure for the : 
-				if (( p = message.find_first_of(":")) == std::string::npos || fields[1] != "0" || fields[2] != "*" || !user.setUsername(fields[0]) || !user.setRealname(message.substr(p + 1)))
-					replyTo(user.getSocket(), ERR_USERFORMAT);
+                std::string realName = (fields[3][0] == ':') ? message.substr(message.find_first_of(":") + 1) : fields[3];
+                if (realName.empty())
+                    replyTo(user.getSocket(), ERR_NEEDMOREPARAMS(std::string("Guest"), "USER"));
+                else if (!user.setUsername(fields[0])|| fields[1] != "0" || fields[2] != "*" || !user.setRealname(realName))
+                    replyTo(user.getSocket(), ERR_USERFORMAT);
+                std::cout << realName << std::endl;
 			}
 			else
 				replyTo(user.getSocket(), ERR_NEEDMOREPARAMS(std::string("Guest"), "USER"));
@@ -390,32 +393,22 @@ void Server::privmsgCommand(const std::string& message, std::vector<std::string>
 			replyTo(user.getSocket(), ERR_NORECIPIENT(user.getNickname(), "PRIVMSG"));
         else if (fields.size() >= 2)
         {
-            if (fields[0] == "$")
+            std::string msg = (fields[1][0] == ':') ? message.substr(message.find_first_of(":") + 1) : fields[1];
+            if (msg.empty())
+                return (replyTo(user.getSocket(), ERR_NOTEXTTOSEND(user.getNickname())));
+            
+            // if (fields[0] == "$") // needs a sever user admin
+            // {
+            //     for (std::map<int, Client>::const_iterator it = _clients.begin(); it != _clients.end(); ++it)
+            //         replyTo(it->second.getSocket(), PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), it->second.getNickname(), msg));
+            // }
+            // else if (fields[0][0] == '#')
+            if (fields[0][0] == '#')
             {
-                std::string msg = (fields[1][0] == ':') ? message.substr(message.find_first_of(":") + 1) : fields[1];
-                if (msg.empty())
-                    return (replyTo(user.getSocket(), ERR_NOTEXTTOSEND(user.getNickname())));
+                std::map<std::string, Channel>::iterator it = _channels.find(fields[0]); // check the validity of this for upper and unickness
 
-                for (std::map<int, Client>::const_iterator it = _clients.begin(); it != _clients.end(); ++it)
-                    replyTo(it->second.getSocket(), PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), it->second.getNickname(), msg));
-            }
-            else if (fields[0][0] == '#')
-            {
-
-
-                std::map<std::string, Channel>::iterator it = _channels.find(fields[0]);
                 if (it != _channels.end())
-                {
-                    if (fields[1][0] == ':')
-                    {
-                        std::string msg = message.substr(message.find_first_of(":") + 1);
-                        if (msg.empty())
-                            return (replyTo(user.getSocket(), ERR_NOTEXTTOSEND(user.getNickname())));
-                        it->second.broadCast(PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), fields[0], msg), user.getSocket());
-                    }
-                    else
-                        it->second.broadCast(PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), fields[0], fields[1]), user.getSocket());
-                }
+                    it->second.broadCast(PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), fields[0], msg), user.getSocket());
                 else
                     replyTo(user.getSocket(), ERR_NOSUCHNICK(user.getNickname(), fields[0]));
             }
@@ -424,18 +417,7 @@ void Server::privmsgCommand(const std::string& message, std::vector<std::string>
                 for (std::map<int, Client>::const_iterator it = _clients.begin() ; it != _clients.end(); ++it)
                 {
                     if (stringUpper(it->second.getNickname()) == stringUpper(fields[0]))
-                    {
-                        if (fields[1][0] == ':')
-                        {
-                            std::string msg = message.substr(message.find_first_of(":") + 1);
-                            if (msg.empty())
-                                return (replyTo(user.getSocket(), ERR_NOTEXTTOSEND(user.getNickname())));
-                            replyTo(it->second.getSocket(), PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), it->second.getNickname(), msg));
-                        }
-                        else
-                            replyTo(it->second.getSocket(), PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), it->second.getNickname(), fields[1]));
-                        return;
-                    }
+                        return (replyTo(it->second.getSocket(), PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), it->second.getNickname(), msg)));
                 }
                 replyTo(user.getSocket(), ERR_NOSUCHNICK(user.getNickname(), fields[0]));
             }
@@ -446,3 +428,8 @@ void Server::privmsgCommand(const std::string& message, std::vector<std::string>
     else
         replyTo(user.getSocket(), ERR_NOTREGISTERED(user.getNickname()));
 }
+
+//server always send ping and a msg if u dont respond 
+// PING :cadmium.libera.chat
+// xxx!~sss@197.230.30.146 QUIT :Ping timeout: 245 seconds
+// ERROR :Closing Link: 197.230.30.146 (Ping timeout: 245 seconds)
