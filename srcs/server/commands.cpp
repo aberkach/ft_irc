@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:19:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/20 20:46:06 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/21 19:12:13 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,8 @@ void Server::inviteCommand(std::vector<std::string> &fields, Client &client) {
     if (client.getRegistered()) {
         std::string invitedUser = fields[0];
         std::string chnName = fields[1];
-        chnMapIt chnIt = server_channels.find(chnName);
-        if (chnIt == server_channels.end())
+        chnMapIt chnIt = _channels.find(chnName);
+        if (chnIt == _channels.end())
         {
             std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
             replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(clientHost, chnName));
@@ -63,8 +63,8 @@ void Server::topicCommand (std::vector<std::string> &fields, Client &client) {
         if(fields.size() > 1) {
             topic = fields[1];
             // check if the client is operator of the channel
-            chnMapIt chnIt = server_channels.find(chnName);
-            if (chnIt == server_channels.end())
+            chnMapIt chnIt = _channels.find(chnName);
+            if (chnIt == _channels.end())
             {
                 std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
                 replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(clientHost, chnName));
@@ -74,6 +74,7 @@ void Server::topicCommand (std::vector<std::string> &fields, Client &client) {
                 topic = fields[1];
                 chnIt->second.setTopic(topic);
                 replyTo(client.getSocket(), RPL_TOPIC(client.getNickname(), chnName, topic));
+                chnIt->second.broadCast(RPL_TOPIC(client.getNickname(), chnName, topic), client.getSocket());
             }
             else
                 replyTo(client.getSocket(), ERR_CHANOPRIVSNEEDED(client.getNickname(), chnName));
@@ -81,15 +82,17 @@ void Server::topicCommand (std::vector<std::string> &fields, Client &client) {
         // if the client wants to get the topic of the channel
         else if (fields.size() == 1)
         {
-            chnMapIt chnIt = server_channels.find(chnName);
-            if (chnIt == server_channels.end())
+            chnMapIt chnIt = _channels.find(chnName);
+            if (chnIt == _channels.end())
             {
                 std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
                 replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(clientHost, chnName));
                 return;
             }
             if (chnIt->second.getTopic() != "")
+            {
                 replyTo(client.getSocket(), RPL_TOPIC(client.getNickname(), chnName, chnIt->second.getTopic()));
+            }
             else
                 replyTo(client.getSocket(), RPL_NOTOPIC(client.getNickname(), chnName));
         }
@@ -113,8 +116,8 @@ void Server::kickCommand (std::vector<std::string> &fields, Client &client) {
         }
         std::string chnName = fields[0];
         std::string usersBeKicked = fields[1];
-        chnMapIt joinedChnIt = server_channels.find(chnName);
-        if (joinedChnIt == server_channels.end())
+        chnMapIt joinedChnIt = _channels.find(chnName);
+        if (joinedChnIt == _channels.end())
         {
             std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
             replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(clientHost, chnName));
@@ -129,19 +132,25 @@ void Server::kickCommand (std::vector<std::string> &fields, Client &client) {
             if (joinedChnIt->second.isClientExist(usersBeKicked))
             {
                 // send a message to the client that has been kicked
-                std::string reason = "You've been kicked from the channel";
+                std::string reason;
+                if (fields.size() > 2)
+                    reason = fields[2];
+                else
+                    reason = client.getNickname();
                 std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
                 std::string KickErrMessage = RPL_KICK(client.getNickname(), client.getRealname(), clientHost, chnName, usersBeKicked, reason);
                 
                 for (std::map<std::string, Client>::iterator it = joinedChnIt->second.getUsers().begin(); it != joinedChnIt->second.getUsers().end(); it++)
                 {
+                    if (it->first == usersBeKicked)
+                        continue;
                     replyTo(it->second.getSocket(), KickErrMessage);
                 }
-                joinedChnIt->second.removeUser(joinedChnIt->second.getUser(usersBeKicked), chnName);
+                joinedChnIt->second.removeUser(joinedChnIt->second.getUser(usersBeKicked));
                 
             }
             // if the client is not in the channel, send an error message to the client
-            else
+            else if (joinedChnIt->second.isClientExist(usersBeKicked) == false)
                 replyTo(client.getSocket(), ERR_USERNOTINCHANNEL(client.getNickname(), usersBeKicked, chnName));
         }
         else
@@ -152,11 +161,9 @@ void Server::kickCommand (std::vector<std::string> &fields, Client &client) {
 }
 
 
-//TODO: this still on testing /.......
-
 bool Server::joinChannel(std::string &chnName, std::vector<std::string> &keys, Client &client, chnMapIt &chnIt) {
     // if the channel already exist, check if the client is already in the channel
-    if (chnIt != server_channels.end())
+    if (chnIt != _channels.end())
     {
         // if the client is already in the channel, do nothing
         if (chnIt->second.isClientExist(client.getNickname()) == true)
@@ -197,14 +204,13 @@ bool Server::joinChannel(std::string &chnName, std::vector<std::string> &keys, C
                 }
             }
         }
+        // here we send a message to the client to inform him that he joined the channel and broadcast the message to the other users in the channel
         std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
-        // replyTo(client.getSocket(), RPL_TOPIC(chnIt->second.getUserName(client.getNickname()), chnName, chnIt->second.getTopic()));
-        
-        // replyTo(client.getSocket(), RPL_TOPIC(chnIt->second.getUserName(client.getNickname()), chnName, chnIt->second.getTopic()));
         for (std::map<std::string, Client>::iterator it = chnIt->second.getUsers().begin(); it != chnIt->second.getUsers().end(); it++)
         {
             std::string usersList = chnIt->second.getChannelUsersInString();
             replyTo(it->second.getSocket(), RPL_JOIN(chnIt->second.getUserName(client.getNickname()), client.getRealname(), chnName, clientHost));
+            // this replies to the client with the list of users in the channel and topic of the channel
             if (it->first == client.getNickname())
             {
                 if (chnIt->second.getTopic() != "")
@@ -219,7 +225,7 @@ bool Server::joinChannel(std::string &chnName, std::vector<std::string> &keys, C
 
 bool Server::createChannel(std::string &chnName, std::vector<std::string> &keys, Client &client) {
     // create a new channel
-    server_channels.insert(std::pair<std::string, Channel>(chnName, Channel(chnName)));
+    _channels.insert(std::pair<std::string, Channel>(chnName, Channel(chnName)));
     // check if the channel has a key
     if (keys.size() > 0)
     {
@@ -228,17 +234,17 @@ bool Server::createChannel(std::string &chnName, std::vector<std::string> &keys,
         {
             // here we send an error message to the client to inform him that the key is incorrect
             keys.erase(keys.begin());
-            server_channels.erase(chnName);
+            _channels.erase(chnName);
             replyTo(client.getSocket(), ERR_BADCHANNELKEY(client.getNickname(), chnName));
             return false;
         }
-        server_channels.find(chnName)->second.setKey(keys[0]);
+        _channels.find(chnName)->second.setKey(keys[0]);
         keys.erase(keys.begin());
     }
     else
-        server_channels.find(chnName)->second.setKey("");
+        _channels.find(chnName)->second.setKey("");
     // make the client an operator of the channel and add him to the channel
-    server_channels.find(chnName)->second.addOperator(client);
+    _channels.find(chnName)->second.addOperator(client);
     return true;
 }
 
@@ -259,21 +265,22 @@ void Server::processTheJoinArgs(std::vector<std::string> &channels , std::vector
         else
         {
             // check if the channel already exist
-            chnMapIt chnIt = server_channels.find(chnName);
+            chnMapIt chnIt = _channels.find(chnName);
             
             // create the channel
-            if (chnIt == server_channels.end())
+            if (chnIt == _channels.end())
             {
                 if (!createChannel(chnName, keys, client))
                     continue;
                 // here we send a message to the client to inform him that he joined the channel
                 std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
-                chnIt = server_channels.find(chnName);
+                chnIt = _channels.find(chnName);
                 
-                // replyTo(client.getSocket(), RPL_TOPIC(chnIt->second.getUserName(client.getNickname()), chnName, chnIt->second.getTopic()));
+
                 for (std::map<std::string, Client>::iterator it = chnIt->second.getUsers().begin(); it != chnIt->second.getUsers().end(); it++)
                 {
-                    std::string usersList = server_channels.find(chnName)->second.getChannelUsersInString();
+                    std::string usersList = chnIt->second.getChannelUsersInString();
+                    
                     if (chnIt->second.getTopic() != "")
                         replyTo(it->second.getSocket(), RPL_TOPIC(chnIt->second.getUserName(client.getNickname()), chnName, chnIt->second.getTopic()));
                     replyTo(it->second.getSocket(), RPL_JOIN(client.getNickname(), client.getRealname(), chnName, clientHost));
@@ -312,7 +319,7 @@ void Server::joinCommand(std::vector<std::string> &fields, Client &client) {
 	else
 		replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));
     // print the users in the channel
-    // for (chnMapIt it = server_channels.begin(); it != server_channels.end(); it++)
+    // for (chnMapIt it = _channels.begin(); it != _channels.end(); it++)
     // {
     //     std::cout << "channel: " << it->first << std::endl;
     //     std::map<std::string, Client> users = it->second.getUsers();
@@ -321,7 +328,6 @@ void Server::joinCommand(std::vector<std::string> &fields, Client &client) {
     //     std::cout << "----------------" << std::endl;
     // }
 }
- 
 
 void Server::passCommand(const std::vector<std::string> &fields, Client &user)
 {
@@ -359,8 +365,11 @@ void Server::nickCommand(const std::vector<std::string> &fields, Client &user) /
 			}
 		}
 		// add a condition for the msg in case he is registerd and changed his name to smthing else !!!
+        std::string oldNick = user.getNickname();
 		if (user.setNickname(fields[0]) == false)
-			replyTo(user.getSocket(), ERR_ERRONEUSNICKNAME(fields[0]));
+			return (replyTo(user.getSocket(), ERR_ERRONEUSNICKNAME(fields[0])));
+        if (user.getRegistered())
+            replyTo(user.getSocket(), CHANGENICK(oldNick, user.getUsername(), inet_ntoa(_addr.sin_addr), fields[0]));
 	}
 	else
 		replyTo(user.getSocket(), ERR_FIRSTCOMMAND);
@@ -374,7 +383,7 @@ void Server::userCommand(const std::string& message, const std::vector<std::stri
 		{
 			if (fields.size() > 3) // real name may contain spaces
 			{
-				size_t p;
+				size_t p;// refigure for the : 
 				if (( p = message.find_first_of(":")) == std::string::npos || fields[1] != "0" || fields[2] != "*" || !user.setUsername(fields[0]) || !user.setRealname(message.substr(p + 1)))
 					replyTo(user.getSocket(), ERR_USERFORMAT);
 			}
@@ -386,4 +395,69 @@ void Server::userCommand(const std::string& message, const std::vector<std::stri
 	}
 	else
 		replyTo(user.getSocket(), ERR_ALREADYREGISTERED(user.getNickname()));
+}
+
+void Server::privmsgCommand(const std::string& message, std::vector<std::string> &fields, Client &user)
+{
+    if (user.getRegistered())
+    {
+        if (fields.empty())
+			replyTo(user.getSocket(), ERR_NORECIPIENT(user.getNickname(), "PRIVMSG"));
+        else if (fields.size() >= 2)
+        {
+            if (fields[0] == "$")
+            {
+                std::string msg = (fields[1][0] == ':') ? message.substr(message.find_first_of(":") + 1) : fields[1];
+                if (msg.empty())
+                    return (replyTo(user.getSocket(), ERR_NOTEXTTOSEND(user.getNickname())));
+
+                for (std::map<int, Client>::const_iterator it = _clients.begin(); it != _clients.end(); ++it)
+                    replyTo(it->second.getSocket(), PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), it->second.getNickname(), msg));
+            }
+            else if (fields[0][0] == '#')
+            {
+
+
+                std::map<std::string, Channel>::iterator it = _channels.find(fields[0]);
+                if (it != _channels.end())
+                {
+                    if (fields[1][0] == ':')
+                    {
+                        std::string msg = message.substr(message.find_first_of(":") + 1);
+                        if (msg.empty())
+                            return (replyTo(user.getSocket(), ERR_NOTEXTTOSEND(user.getNickname())));
+                        it->second.broadCast(PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), fields[0], msg), user.getSocket());
+                    }
+                    else
+                        it->second.broadCast(PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), fields[0], fields[1]), user.getSocket());
+                }
+                else
+                    replyTo(user.getSocket(), ERR_NOSUCHNICK(user.getNickname(), fields[0]));
+            }
+            else
+            {
+                for (std::map<int, Client>::const_iterator it = _clients.begin() ; it != _clients.end(); ++it)
+                {
+                    if (stringUpper(it->second.getNickname()) == stringUpper(fields[0]))
+                    {
+                        if (fields[1][0] == ':')
+                        {
+                            std::string msg = message.substr(message.find_first_of(":") + 1);
+                            if (msg.empty())
+                                return (replyTo(user.getSocket(), ERR_NOTEXTTOSEND(user.getNickname())));
+                            replyTo(it->second.getSocket(), PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), it->second.getNickname(), msg));
+                        }
+                        else
+                            replyTo(it->second.getSocket(), PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), it->second.getNickname(), fields[1]));
+                        return;
+                    }
+                }
+                replyTo(user.getSocket(), ERR_NOSUCHNICK(user.getNickname(), fields[0]));
+            }
+        }
+        else
+			replyTo(user.getSocket(), ERR_NOTEXTTOSEND(user.getNickname()));
+    }
+    else
+        replyTo(user.getSocket(), ERR_NOTREGISTERED(user.getNickname()));
 }

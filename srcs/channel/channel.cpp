@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/19 19:20:21 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/21 19:10:48 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ void Channel::setTopic(std::string topic)
 
 Client &Channel::getUser(std::string &nickName)
 {
-    return _users[nickName];
+    return (_users.find(nickName)->second);
 }
 
 std::map<std::string, Client> &Channel::getUsers()
@@ -120,13 +120,28 @@ void Channel::addUser(Client &client)
     _users.insert(std::pair<std::string, Client>(client.getNickname(), client));
 }
 
-void Channel::removeUser(Client &client, std::string &channelName)
+void Channel::removeUser(Client &client)
 {
     // client.removeChannel(channelName);
 
     // maybe I gotta check if the user is the operator of the channel
     // so I need to set another operator
-    _users.erase(client.getNickname());
+    for (std::vector<Client>::iterator it = _chanOps.begin(); it != _chanOps.end(); it++)
+    {
+        if (it->getNickname() == client.getNickname())
+        {
+            _chanOps.erase(it);
+            break;
+        }
+    }
+    for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); it++)
+    {
+        if (it->second.getNickname() == client.getNickname() || it->first == '@' + client.getNickname())
+        {
+            _users.erase(it);
+            break;
+        }
+    }
 }
 
 void Channel::addOperator(Client &op)
@@ -144,4 +159,15 @@ bool Channel::isOperator(Client &op)
             return true;
     }
     return false;
+}
+
+void replyTo(int socket, std::string buffer); // FORWARD DEC WILL CHANGE LATTER
+
+void Channel::broadCast(std::string msg, int excludedFd)
+{
+    for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); ++it)
+    {
+        if (it->second.getSocket() != excludedFd)
+            replyTo(it->second.getSocket(), msg);
+    }
 }

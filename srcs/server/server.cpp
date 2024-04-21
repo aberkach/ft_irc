@@ -1,4 +1,17 @@
-// #include "../../Inc/ft_irc.hpp"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   server.cpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/21 14:49:52 by abberkac          #+#    #+#             */
+/*   Updated: 2024/04/21 14:50:56 by abberkac         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+
+#include "../../Inc/ft_irc.hpp"
 #include "server.hpp"
 #include <cstddef>
 #include <cstdlib>
@@ -178,6 +191,8 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 		nickCommand(fields, user);
 	else if (command == "USER")
 		userCommand(message, fields, user);
+	else if (command == "PRIVMSG")
+		privmsgCommand(message, fields, user);
 	else if (command == "JOIN")
 		joinCommand(fields, user);
 	else if (command == "QUIT")
