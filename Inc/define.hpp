@@ -101,10 +101,8 @@
 #define ERR_BADCHANNELKEY(client, channel)                  ":" SERVERNAME " 475 " + (client) + " " + (channel) + " :Cannot join channel (+k)\r\n"
 #define ERR_BADCHANMASK(channel)                            ":" SERVERNAME " 476 " + (channel) + " :Bad Channel Mask\r\n"
 
-// need more things to add when the user is joined the channel successfully
-#define JOIN_SUCC(nickname, username, client_ip, channel)   ":" + (nickname) + "!" + (username) + "@" + (client_ip) + " JOIN " + (channel) + "\r\n"
-#define KICK_MSG(client, ipaddr, channel, kicked, reason)   ":" + (client) + "!" + (ipaddr) + " KICK " + (channel) + " " + (kicked) + " " + (reason) + "\r\n"
-#define QUIT_MSG(nickname, username, ipaddr, reason)        ":" + (nickname) + "!" + (username) + "@" + (ipaddr) + " QUIT :Client Quit" + (reason) + "\r\n"
+
+
 
 // ping | pong
 // #define PONG(client, server)                             "PONG " + (client) + " :" + (server) + "\r\n"
@@ -115,8 +113,10 @@
 #define ERR_CHANOPRIVSNEEDED(client, channel)                           ":" SERVERNAME " 482 " + (client) + " " + (channel) + " :You're not channel operator\r\n"
 // need more things to add when the user is joined the channel successfully
 #define RPL_JOIN(nick, username, channelname, ipaddress)                ":" + (nick) + "!" + (username) + "@" + (ipaddress) + " JOIN " + (channelname) + "\r\n"
+
 #define RPL_NOTOPIC(client, channel)                                    ":" SERVERNAME " 331 " + (client) + " " + (channel) + " :No topic is set\r\n"
 #define RPL_TOPIC(client, channel, topic)                               ":" SERVERNAME " 332 " + (client) + " " + (channel) + " :" + (topic) + "\r\n"
+
 #define RPL_KICK(kicker, username, host, channel, targetuser, reason)   ":" + (kicker) + "!" + (username) + "@" + (host) + " KICK " + (channel) + " " + (targetuser) + " :" + (reason) + "\r\n"
 
 #define RPL_NAMREPLY(clients, channelname, nick)                        ":" SERVERNAME " 353 " + (nick) + " = " + (channelname) + " :" + (clients) + "\r\n"
@@ -125,6 +125,8 @@
 
 #define RPL_INVITING(inviting, invited, channel)                        ":" SERVERNAME " 341 " + inviting + " " + invited + " " + channel + " :Inviting " + invited + " to " + channel + "\r\n"
 #define RPL_INVITED(nick, username, clienthostname, invited, channel) ":" + nick + "!" + username + "@" + clienthostname + " INVITE " + invited + " :" + channel + "\r\n"
+#define QUIT_MSG(nickname, username, ipaddr, reason)        ":" + (nickname) + "!" + (username) + "@" + (ipaddr) + " QUIT :Client Quit" + (reason) + "\r\n"
+#define PART_MSG(nickname, username, ipaddr, channel, reason)         ":" + (nickname) + "!" + (username) + "@" + ipaddr + " PART " + (channel) + " " + (reason) + "\r\n"
 // #define ERR_NORECIPENT(client, command)                              ":" SERVERNAME " 411 " + (client) + " :No recipient given " + (command) + "\r\n"
 
 // #define RPL_CREATIONTIME(client, channel, creation_time)             ":" SERVERNAME " 329 " + (client) + " " + (channel) + " " + (creation_time) + "\r\n"
