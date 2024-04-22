@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:19:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/22 17:02:18 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/22 18:53:01 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,44 @@
 #include "../channel/channel.hpp"
 #include "../client/client.hpp"
 #include <cstddef>
+#include <string>
 #include <vector>
+
+// list command
+
+void Server::listCommand (std::vector<std::string> &fields, Client &client)
+{
+    if (client.getRegistered() == false)
+    {
+        replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));
+        return;
+    }
+    if (!fields.empty())
+    {
+        std::vector<std::string> channels = splitByDelim(fields[0], ',');
+        for (size_t i = 0; i < channels.size(); i++)
+        {
+            std::string chnName = channels[i];
+            chnMapIt chnIt = _channels.find(chnName);
+            if (chnIt != _channels.end())
+            {
+                if (chnIt->second.isClientExist(client.getNickname()))
+                {
+                    if (chnIt->second.getTopic() != "")
+                        replyTo(client.getSocket(), LIST_MSG(chnIt->second.getName(), chnIt->second.getName(), std::to_string(chnIt->second.getUsers().size()), chnIt->second.getTopic()));
+                    else
+                        replyTo(client.getSocket(), LIST_MSG(chnIt->second.getName(), chnIt->second.getName(), std::to_string(chnIt->second.getUsers().size()), "No topic is set"));
+                }
+                else
+                    replyTo(client.getSocket(), ERR_NOTONCHANNEL(client.getNickname(), chnName));
+            }
+            else
+                replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(client.getNickname(), chnName));
+        }
+    }
+    else
+        replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "LIST"));
+}
 
 
 // part command
