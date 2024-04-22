@@ -6,16 +6,82 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:19:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/21 23:34:30 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/22 17:02:18 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "server.hpp"
 #include "../channel/channel.hpp"
 #include "../client/client.hpp"
+#include <cstddef>
+#include <vector>
 
 
-// invite command
+// part command
+void Server::partCommand (std::vector<std::string> &fields, Client &client)
+{
+    if (client.getRegistered())
+    {
+        if (fields.empty())
+            replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "PART"));
+        else
+        {
+            std::vector<std::string> channels = splitByDelim(fields[0], ',');
+            for(size_t i = 0; i < channels.size(); i++)
+            {
+                std::string chnName = channels[i];
+                chnMapIt chnIt = _channels.find(chnName);
+                if (chnIt != _channels.end())
+                {
+                    if (chnIt->second.isClientExist(client.getNickname()))
+                    {
+                        std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
+                        replyTo(client.getSocket(), PART_MSG(client.getNickname(), client.getUsername(), clientHost, chnName, fields[1]));
+                        if (fields.size() > 1)
+                            chnIt->second.broadCast(PART_MSG(client.getNickname(), client.getUsername(), clientHost, chnName, fields[1]), client.getSocket());
+                        else
+                            chnIt->second.broadCast(PART_MSG(client.getNickname(), client.getUsername(), clientHost, chnName, "Client Quit"), client.getSocket());
+                        chnIt->second.removeUser(client);
+                    }
+                    else
+                        replyTo(client.getSocket(), ERR_NOTONCHANNEL(client.getNickname(), chnName));
+                }
+                else
+                    replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(client.getNickname(), chnName));
+            }
+        }
+    }
+    else
+        replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));
+}
+
+// quit command
+void Server::quitCommand(std::vector<std::string> &fields, Client &client)
+{
+    if (client.getRegistered())
+    {
+        std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
+        std::string quitMessage;
+        if (fields.empty())
+            quitMessage = QUIT_MSG(client.getNickname(), client.getUsername(), clientHost, "Client Quit");
+        
+        quitMessage = QUIT_MSG(client.getNickname(), client.getUsername(), clientHost, fields[0]);
+        replyTo(client.getSocket(), quitMessage);
+        for (chnMapIt it = _channels.begin(); it != _channels.end(); it++)
+        {
+            if (it->second.isClientExist(client.getNickname()))
+            {
+                it->second.broadCast(quitMessage, client.getSocket());
+                it->second.removeUser(client);
+            }
+        }
+        close(client.getSocket());
+    }
+    else
+        replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));
+}
+
+
 
 
 bool Server::joinChannel(std::string &chnName, std::vector<std::string> &keys, Client &client, chnMapIt &chnIt) {
@@ -177,15 +243,6 @@ void Server::joinCommand(std::vector<std::string> &fields, Client &client) {
     // if the client is not registered, send an error message    
 	else
 		replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));
-    // print the users in the channel
-    // for (chnMapIt it = _channels.begin(); it != _channels.end(); it++)
-    // {
-    //     std::cout << "channel: " << it->first << std::endl;
-    //     std::map<std::string, Client> users = it->second.getUsers();
-    //     for (std::map<std::string, Client>::iterator it2 = users.begin(); it2 != users.end(); it2++)
-    //         std::cout << "user: " << it2->first << std::endl;
-    //     std::cout << "----------------" << std::endl;
-    // }
 }
 
 void Server::passCommand(const std::vector<std::string> &fields, Client &user)

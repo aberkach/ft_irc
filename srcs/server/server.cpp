@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 14:49:52 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/21 23:03:32 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/22 16:39:05 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,18 +196,7 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 	else if (command == "JOIN")
 		joinCommand(fields, user);
 	else if (command == "QUIT")
-	{
-		char *host = inet_ntoa(user._addr.sin_addr);
-
-		if (!fields.empty())
-			replyTo(user.getSocket(), QUIT_MSG(user.getNickname(), user.getRealname(), host, fields[0]));
-		else
-			replyTo(user.getSocket(), QUIT_MSG(user.getNickname(), user.getRealname(), host, " with QUIT command"));
-		std::cout << "Connection closed with: " << user.getNickname() << std::endl;
-		close(user.getSocket());
-		user.setSocket(-1);
-		_clients.erase(user.getSocket());
-	}
+		quitCommand(fields, user);
 	else if (command == "KICK")
 		kickCommand(fields, user);
 	else if (command == "PONG")
@@ -219,6 +208,8 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 	else if (command == "TOPIC") {
 		topicCommand(fields, user);
 	}
+	else if (command == "PART")
+		partCommand(fields, user);
 	else if (command == "INVITE")
 		inviteCommand(fields, user);
 	else

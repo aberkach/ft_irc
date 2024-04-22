@@ -6,13 +6,16 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 23:33:20 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/21 23:34:46 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/22 16:29:47 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "server.hpp"
+#include <cstddef>
+#include <vector>
 #include "../client/client.hpp"
 #include "../channel/channel.hpp"
+
 
 void Server::inviteCommand(std::vector<std::string> &fields, Client &client) {
     if (fields.size() < 2) {
@@ -106,13 +109,13 @@ void Server::topicCommand (std::vector<std::string> &fields, Client &client) {
 // kick command
 void Server::kickCommand (std::vector<std::string> &fields, Client &client) {
     if (client.getRegistered()) {
-
+        
         if (fields.size() < 2) {
             replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "KICK"));
             return;
         }
         std::string chnName = fields[0];
-        std::string usersBeKicked = fields[1];
+        std::vector<std::string> usersBeKicked = splitByDelim(fields[1], ',');
         chnMapIt joinedChnIt = _channels.find(chnName);
         if (joinedChnIt == _channels.end())
         {
@@ -126,29 +129,32 @@ void Server::kickCommand (std::vector<std::string> &fields, Client &client) {
             return;
         }
         if (joinedChnIt->second.isOperator(client)) {
-            if (joinedChnIt->second.isClientExist(usersBeKicked))
+            for (size_t i = 0; i < usersBeKicked.size(); i++)
             {
-                // send a message to the client that has been kicked
-                std::string reason;
-                if (fields.size() > 2)
-                    reason = fields[2];
-                else
-                    reason = client.getNickname();
-                std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
-                std::string KickErrMessage = RPL_KICK(client.getNickname(), client.getRealname(), clientHost, chnName, usersBeKicked, reason);
-                
-                for (std::map<std::string, Client>::iterator it = joinedChnIt->second.getUsers().begin(); it != joinedChnIt->second.getUsers().end(); it++)
+                if (joinedChnIt->second.isClientExist(usersBeKicked[i]))
                 {
-                    if (it->first == usersBeKicked)
-                        continue;
-                    replyTo(it->second.getSocket(), KickErrMessage);
+                    // send a message to the client that has been kicked
+                    std::string reason;
+                    if (fields.size() > 2)
+                        reason = fields[2];
+                    else
+                        reason = client.getNickname();
+                    std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
+                    std::string KickErrMessage = RPL_KICK(client.getNickname(), client.getRealname(), clientHost, chnName, usersBeKicked[i], reason);
+                    
+                    for (std::map<std::string, Client>::iterator it = joinedChnIt->second.getUsers().begin(); it != joinedChnIt->second.getUsers().end(); it++)
+                    {
+                        if (it->first == usersBeKicked[i])
+                            continue;
+                        replyTo(it->second.getSocket(), KickErrMessage);
+                    }
+                    joinedChnIt->second.removeUser(joinedChnIt->second.getUser(usersBeKicked[i]));
+                    
                 }
-                joinedChnIt->second.removeUser(joinedChnIt->second.getUser(usersBeKicked));
-                
+                // if the client is not in the channel, send an error message to the client
+                else if (joinedChnIt->second.isClientExist(usersBeKicked[i]) == false)
+                    replyTo(client.getSocket(), ERR_USERNOTINCHANNEL(client.getNickname(), usersBeKicked[i], chnName));
             }
-            // if the client is not in the channel, send an error message to the client
-            else if (joinedChnIt->second.isClientExist(usersBeKicked) == false)
-                replyTo(client.getSocket(), ERR_USERNOTINCHANNEL(client.getNickname(), usersBeKicked, chnName));
         }
         else
             replyTo(client.getSocket(), ERR_CHANOPRIVSNEEDED(client.getNickname(), chnName));

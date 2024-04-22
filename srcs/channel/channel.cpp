@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/21 23:27:10 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/22 16:42:34 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,7 +117,7 @@ bool Channel::isClientExist(std::string nickName)
 void Channel::addUser(Client &client)
 {
     // client.setChannel(_name, *this);
-    _users.insert(std::pair<std::string, Client>(client.getNickname(), client));
+    _users.insert(std::pair<std::string, Client>(client.getNickname(), Client(client)));
 }
 
 void Channel::removeUser(Client &client)
