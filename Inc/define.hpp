@@ -115,7 +115,8 @@
 #define RPL_JOIN(nick, username, channelname, ipaddress)                ":" + (nick) + "!" + (username) + "@" + (ipaddress) + " JOIN " + (channelname) + "\r\n"
 
 #define RPL_NOTOPIC(client, channel)                                    ":" SERVERNAME " 331 " + (client) + " " + (channel) + " :No topic is set\r\n"
-#define RPL_TOPIC(nickname, username, ipaddr, channel, topic)           ":" + (nickname) + "!" + (username) + "@" + (ipaddr) + " TOPIC " + channel + " " + (topic) + "\r\n"
+#define RPL_TOPICSETBY(nickname, username, ipaddr, channel, topic)      ":" + (nickname) + "!" + (username) + "@" + (ipaddr) + " TOPIC " + channel + " :" + (topic) + "\r\n"
+#define RPL_TOPIC(client, channel, topic)                               ":" SERVERNAME " 332 " + (client) + " " + (channel) + " :" + (topic) + "\r\n"
 
 #define RPL_KICK(kicker, username, host, channel, targetuser, reason)   ":" + (kicker) + "!" + (username) + "@" + (host) + " KICK " + (channel) + " " + (targetuser) + " :" + (reason) + "\r\n"
 
