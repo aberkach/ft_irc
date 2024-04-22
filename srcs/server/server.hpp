@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 14:50:26 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/22 16:30:14 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/22 18:32:26 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ class Server {
         void inviteCommand(std::vector<std::string> &fields, Client &client);
         void quitCommand(std::vector<std::string> &fields, Client &client);
         void partCommand(std::vector<std::string> &fields, Client &client);
+        void listCommand(std::vector<std::string> &fields, Client &client);
 
 };
 

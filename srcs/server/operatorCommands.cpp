@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 23:33:20 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/22 16:29:47 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/22 18:56:16 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ void Server::inviteCommand(std::vector<std::string> &fields, Client &client) {
         {
             // here we send a message to the client that has been invited
             std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
-            std::string inviteMessage = RPL_INVITED(client.getNickname(), client.getUsername(), clientHost, chnName, invitedUser);
+            std::string inviteMessage = RPL_INVITED(client.getNickname(), client.getUsername(), clientHost, invitedUser, chnName);
             replyTo(client.getSocket(), RPL_INVITING(client.getNickname(), invitedUser, chnName));
             for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
             {

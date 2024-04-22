@@ -172,7 +172,6 @@ Client::refStatus(void)
         replyTo(_socket, RPL_MYINFO(_nickName));
         replyTo(_socket, RPL_ISUPPORT(_nickName));
     }
-
 };
 
 Client::~Client(void)
