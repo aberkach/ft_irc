@@ -115,7 +115,7 @@
 #define RPL_JOIN(nick, username, channelname, ipaddress)                ":" + (nick) + "!" + (username) + "@" + (ipaddress) + " JOIN " + (channelname) + "\r\n"
 
 #define RPL_NOTOPIC(client, channel)                                    ":" SERVERNAME " 331 " + (client) + " " + (channel) + " :No topic is set\r\n"
-#define RPL_TOPIC(client, channel, topic)                               ":" SERVERNAME " 332 " + (client) + " " + (channel) + " :" + (topic) + "\r\n"
+#define RPL_TOPIC(nickname, username, ipaddr, channel, topic)           ":" + (nickname) + "!" + (username) + "@" + (ipaddr) + " TOPIC " + channel + " " + (topic) + "\r\n"
 
 #define RPL_KICK(kicker, username, host, channel, targetuser, reason)   ":" + (kicker) + "!" + (username) + "@" + (host) + " KICK " + (channel) + " " + (targetuser) + " :" + (reason) + "\r\n"
 
@@ -126,8 +126,10 @@
 #define RPL_INVITING(inviting, invited, channel)                        ":" SERVERNAME " 341 " + inviting + " " + invited + " " + channel + " :Inviting " + invited + " to " + channel + "\r\n"
 #define RPL_INVITED(nick, username, clienthostname, invited, channel) ":" + nick + "!" + username + "@" + clienthostname + " INVITE " + invited + " :" + channel + "\r\n"
 #define QUIT_MSG(nickname, username, ipaddr, reason)        ":" + (nickname) + "!" + (username) + "@" + (ipaddr) + " QUIT :Client Quit" + (reason) + "\r\n"
-#define PART_MSG(nickname, username, ipaddr, channel, reason)         ":" + (nickname) + "!" + (username) + "@" + ipaddr + " PART " + (channel) + " " + (reason) + "\r\n"
+#define PART_MSG(nickname, username, ipaddr, channel, reason)         ":" + (nickname) + "!" + (username) + "@" + (ipaddr) + " PART " + (channel) + " " + (reason) + "\r\n"
+#define RPL_LISTSTART(client)                                        ":" SERVERNAME " 321 " + (client) + " Channel :Users Name" + "\r\n"
 #define LIST_MSG(client, channel, nb_users, topic)                   ":" SERVERNAME " 322 " + (client) + " " + (channel) + " " + (nb_users) + " :" + (topic) + "\r\n"
+#define RPL_LISTEND(client)                                          ":" SERVERNAME " 323 " + (client) + " :End of /LIST" + "\r\n"
 // #define ERR_NORECIPENT(client, command)                              ":" SERVERNAME " 411 " + (client) + " :No recipient given " + (command) + "\r\n"
 
 // #define RPL_CREATIONTIME(client, channel, creation_time)             ":" SERVERNAME " 329 " + (client) + " " + (channel) + " " + (creation_time) + "\r\n"
