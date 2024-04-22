@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 23:33:20 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/22 20:43:58 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/22 23:03:00 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,9 +74,10 @@ void Server::topicCommand (std::vector<std::string> &fields, Client &client) {
             }
             if (chnIt->second.isOperator(client)) {
                 topic = fields[1];
+                std::cout << "topic: " << topic << std::endl;
                 chnIt->second.setTopic(topic);
                 std::string clintHost = inet_ntoa(client.getAddr().sin_addr);
-                chnIt->second.broadCast(RPL_TOPIC(client.getNickname(), client.getUsername(), clintHost, chnName, topic), -1);
+                chnIt->second.broadCast(RPL_TOPICSETBY(client.getNickname(), client.getUsername(), clintHost, chnName, chnIt->second.getTopic()), -1);
             }
             else
                 replyTo(client.getSocket(), ERR_CHANOPRIVSNEEDED(client.getNickname(), chnName));
@@ -95,7 +96,9 @@ void Server::topicCommand (std::vector<std::string> &fields, Client &client) {
             {
                 std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
                 // need to send the topic to the client
-                replyTo(client.getSocket(), RPL_TOPIC(client.getNickname(), client.getUsername(), clientHost, chnName, chnIt->second.getTopic()));
+                topic = chnIt->second.getTopic();
+                std::cout << "topic: " << topic << std::endl;
+                replyTo(client.getSocket(), RPL_TOPICSETBY(client.getNickname(), client.getUsername(), clientHost, chnName, topic));
             }
             else
                 replyTo(client.getSocket(), ERR_NOTONCHANNEL(client.getNickname(), chnName));

@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:19:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/22 20:39:00 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/22 23:03:57 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "../channel/channel.hpp"
 #include "../client/client.hpp"
 #include <cstddef>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -28,30 +29,30 @@ void Server::listCommand (std::vector<std::string> &fields, Client &client)
     }
     if (fields.size() >= 1)
     {
-        std::vector<std::string> channels = splitByDelim(fields[0], ',');
-        for (size_t i = 0; i < channels.size(); i++)
+        std::string chnName = fields[0];
+        chnMapIt chnIt = _channels.find(chnName);
+        if (chnIt != _channels.end())
         {
-            std::string chnName = channels[i];
-            chnMapIt chnIt = _channels.find(chnName);
-            if (chnIt != _channels.end())
+            if (chnIt->second.isClientExist(client.getNickname()))
             {
-                if (chnIt->second.isClientExist(client.getNickname()))
+                if (chnIt->second.getTopic() != "")
                 {
-                    if (chnIt->second.getTopic() != "")
-                    {
-                        replyTo(client.getSocket(), RPL_LISTSTART(client.getNickname()));
-                        replyTo(client.getSocket(), LIST_MSG(client.getNickname(), chnIt->second.getName(), std::to_string(chnIt->second.getUsers().size()), chnIt->second.getTopic()));
-                        replyTo(client.getSocket(), RPL_LISTEND(client.getNickname()));
-                    }
-                    else
-                        replyTo(client.getSocket(), LIST_MSG(client.getNickname(), chnIt->second.getName(), std::to_string(chnIt->second.getUsers().size()), "No topic is set"));
+                    replyTo(client.getSocket(), RPL_LISTSTART(client.getNickname()));
+                    replyTo(client.getSocket(), LIST_MSG(client.getNickname(), chnName, std::to_string(chnIt->second.getUsers().size()), chnIt->second.getTopic()));
+                    replyTo(client.getSocket(), RPL_LISTEND(client.getNickname()));
                 }
                 else
-                    replyTo(client.getSocket(), ERR_NOTONCHANNEL(client.getNickname(), chnName));
+                {
+                    replyTo(client.getSocket(), RPL_LISTSTART(client.getNickname()));
+                    replyTo(client.getSocket(), LIST_MSG(client.getNickname(), chnName, std::to_string(chnIt->second.getUsers().size()), "No topic set"));
+                    replyTo(client.getSocket(), RPL_LISTEND(client.getNickname()));
+                }
             }
             else
-                replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(client.getNickname(), chnName));
+                replyTo(client.getSocket(), ERR_NOTONCHANNEL(client.getNickname(), chnName));
         }
+        else
+            replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(client.getNickname(), chnName));
     }
     else
         replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "LIST"));
@@ -181,7 +182,7 @@ bool Server::joinChannel(std::string &chnName, std::vector<std::string> &keys, C
             // this replies to the client with the list of users in the channel and topic of the channel
             if (it->first == client.getNickname())
             {
-                
+                replyTo(client.getSocket(), RPL_TOPIC(chnIt->second.getUserName(client.getNickname()), chnName, chnIt->second.getTopic()));
                 replyTo(client.getSocket(), RPL_NAMREPLY(usersList, chnName, chnIt->second.getUserName(client.getNickname())));
                 replyTo(client.getSocket(), RPL_ENDOFNAMES(chnIt->second.getUserName(client.getNickname()), chnName));
             }
