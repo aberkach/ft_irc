@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   server.hpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/21 14:50:26 by abberkac          #+#    #+#             */
+/*   Updated: 2024/04/22 18:32:26 by abberkac         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef SERVER_HPP__
 #define SERVER_HPP__
 
@@ -58,6 +70,9 @@ class Server {
         void kickCommand(std::vector<std::string> &fields, Client &client);
         void topicCommand(std::vector<std::string> &fields, Client &client);
         void inviteCommand(std::vector<std::string> &fields, Client &client);
+        void quitCommand(std::vector<std::string> &fields, Client &client);
+        void partCommand(std::vector<std::string> &fields, Client &client);
+        void listCommand(std::vector<std::string> &fields, Client &client);
 
 };
 

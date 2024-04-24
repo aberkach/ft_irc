@@ -159,25 +159,6 @@ sockaddr_in Client::getAddr(void) const
 };
 
 
-// std::map<std::string, Channel>::iterator Client::getChannel(std::string &chnName)
-// {
-//     return joined_channels.find(chnName);
-// };
-
-// std::map<std::string, Channel> Client::getChannels(void)
-// {
-//     return joined_channels;
-// };
-
-/// status ref
-
-
-// void
-// Client::removeChannel(std::string &chnName)
-// {
-//     joined_channels.erase(chnName);
-// };
-
 void 
 Client::refStatus(void)
 {
@@ -191,7 +172,6 @@ Client::refStatus(void)
         replyTo(_socket, RPL_MYINFO(_nickName));
         replyTo(_socket, RPL_ISUPPORT(_nickName));
     }
-
 };
 
 Client::~Client(void)

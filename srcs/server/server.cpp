@@ -183,18 +183,7 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 	else if (command == "JOIN")
 		joinCommand(fields, user);
 	else if (command == "QUIT")
-	{
-		char *host = inet_ntoa(user._addr.sin_addr);
-
-		if (!fields.empty())
-			replyTo(user.getSocket(), QUIT_MSG(user.getNickname(), user.getRealname(), host, fields[0]));
-		else
-			replyTo(user.getSocket(), QUIT_MSG(user.getNickname(), user.getRealname(), host, " with QUIT command"));
-		std::cout << "Connection closed with: " << user.getNickname() << std::endl;
-		close(user.getSocket());
-		user.setSocket(-1);
-		_clients.erase(user.getSocket());
-	}
+		quitCommand(fields, user);
 	else if (command == "KICK")
 		kickCommand(fields, user);
 	else if (command == "PONG")
@@ -206,6 +195,12 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 	else if (command == "TOPIC") {
 		topicCommand(fields, user);
 	}
+	else if (command == "PART")
+		partCommand(fields, user);
+	else if (command == "LIST")
+		listCommand(fields, user);
+	else if (command == "INVITE")
+		inviteCommand(fields, user);
 	else
 		replyTo(user.getSocket(), ERR_UNKNOWNCOMMAND(user.getNickname(), command));
 }
@@ -240,6 +235,12 @@ Server::handleIncomeData(int i)
 		{
 			fields[0] = stringUpper(fields[0]);
 			commandList(rec ,fields, _clients.find(_fds[i].fd)->second);
+			// if (fields[0] == "QUIT")
+			// {
+			// 	_clients.erase(_fds[i].fd);
+			// 	close(_fds[i].fd);
+			// 	_fds[i].fd = -1;
+			// }
 			_clients.find(_fds[i].fd)->second.refStatus();
 		}
 	}
