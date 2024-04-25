@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 14:49:52 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/25 18:24:14 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/25 20:49:21 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -240,6 +240,17 @@ Server::handleIncomeData(int i)
 		// here we handle the message
 		buffer[rc] = '\0';
 		std::string rec(buffer);
+		// check if the message is valid (finished by \r\n)
+		if (rec.find("\r\n") == std::string::npos)
+		{
+			_clients.find(_fds[i].fd)->second._clientBuffer += rec;
+			return;
+		}
+		else
+		{
+			rec = _clients.find(_fds[i].fd)->second._clientBuffer + rec;
+			_clients.find(_fds[i].fd)->second._clientBuffer.clear();
+		}
 		// remove the remove all spaces from the message (included \r\n)
 		rec = trimTheSpaces(rec);
 		// split the message by space
