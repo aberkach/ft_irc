@@ -101,7 +101,35 @@
 #define ERR_BADCHANNELKEY(client, channel)                  ":" SERVERNAME " 475 " + (client) + " " + (channel) + " :Cannot join channel (+k)\r\n"
 #define ERR_BADCHANMASK(channel)                            ":" SERVERNAME " 476 " + (channel) + " :Bad Channel Mask\r\n"
 
+// #define ERR_INVALIDKEY (525) : if the operator is trying to set a key that is not valid with mode +k 
+#define ERR_CHANOPRIVSNEEDED(client, channel)                           ":" SERVERNAME " 482 " + (client) + " " + (channel) + " :You're not channel operator\r\n"
+// need more things to add when the user is joined the channel successfully
+#define RPL_JOIN(nick, username, channelname, ipaddress)                ":" + (nick) + "!~" + (username) + "@" + (ipaddress) + " JOIN " + (channelname) + "\r\n"
+#define RPL_NOTOPIC(client, channel)                                    ":" SERVERNAME " 331 " + (client) + " " + (channel) + " :No topic is set\r\n"
+#define RPL_TOPIC(client, channel, topic)                               ":" SERVERNAME " 332 " + (client) + " " + (channel) + " :" + (topic) + "\r\n"
+#define RPL_KICK(kicker, username, host, channel, targetuser, reason)   ":" + (kicker) + "!" + (username) + "@" + (host) + " KICK " + (channel) + " " + (targetuser) + " :" + (reason) + "\r\n"
 
+#define RPL_NAMREPLY(clients, channelname, nick)                        ":" SERVERNAME " 353 " + (nick) + " = " + (channelname) + " :" + (clients) + "\r\n"
+#define RPL_ENDOFNAMES(client, channel)                                 ":" SERVERNAME " 366 " + (client) + " " + (channel) + " :End of /NAMES list" + "\r\n"
+#define INVITE_MSG(client, ipaddr, channel, invited)                    ":" SERVERNAME " " + (client) + " !~ " + (ipaddr) + " INVITE " + (channel) + " " + (invited) + "\r\n"
+
+
+// #define ERR_NORECIPENT(client, command)                              ":" SERVERNAME " 411 " + (client) + " :No recipient given " + (command) + "\r\n"
+
+// #define RPL_CREATIONTIME(client, channel, creation_time)             ":" SERVERNAME " 329 " + (client) + " " + (channel) + " " + (creation_time) + "\r\n"
+// #define RPL_ENDOFINVITELIST(client)                                  ":" SERVERNAME " 337 " + " :End of /INVITE list\r\n"
+// #define RPL_CHANNELMODEIS(client, channel, modestring, modargument)  ":" SERVERNAME " 324 " + (client) + " "+ (channel) + " " +(modestring) + " " + (modargument) + "\r\n"
+// #define RPL_INVITING(client, nick, channel)                          ":" SERVERNAME " 341 " + (client) + " " + (nick) + " " + (channel) + "\r\n"
+// #define RPL_TOPICWHOTIME(client, channel, nick, setat)               ":" SERVERNAME " 333 " + (client) + " " + (channel) + " " + (nick) + " " + (setat) + "\r\n"
+// #define RPL_MOTD(client, sentence)                                   ":" SERVERNAME " 372 " + (client) + " " + (sentence) + "\r\n"
+// #define ERR_UMODEUNKNOWNFLAG(client)                                 ":" SERVERNAME " 501 " + (client) + " :Unknown MODE flag" + "\r\n"
+// #define ERR_INVALIDMODEPARAM(client, target, modechar, parameter)    ":" SERVERNAME " 696 " + (client) + " " + (target) + " " + (modechar) + " " + " You must specify a parameter for the key mode. Syntax: " + (parameter) + "\r\n"
+// #define RPL_LIST(client, channel, nb_users, topic)                   ":" SERVERNAME " 322 " + (client) + " " + (channel) + " " + (nb_users) + " :" + (topic) + "\r\n"
+// #define RPL_LISTSTART(client)                                        ":" SERVERNAME " 321 " + (client) + " Channel :Users Name" + "\r\n"
+// #define RPL_LISTEND(client)                                          ":" SERVERNAME " 323 " + (client) + " :End of /LIST" + "\r\n"
+// #define ERR_NOORIGIN(client)                                         ":" SERVERNAME " 409 " + (client) + " :No origin specified" + "\r\n"
+
+// #define RPL_WHOREPLY(client, channel, username, hostname, servername, nickname, mode, realname)     ":" SERVERNAME " 352 " + (client) + " " + (channel) + " " + (username) + " " + (hostname) + " " + (servername) + " " + (nickname) + " " + (mode) + " " + (realname) + "\r\n"
 
 
 // ping | pong
@@ -165,6 +193,6 @@
 
 // debuging macro
 // #ifndef DEBUG__
-// #define DEBUG__ 0
+// #define DEBUG__ 
 
 #endif 
