@@ -9,6 +9,7 @@ class Client
 {
     public:
         sockaddr_in _addr;
+        std::string _clientBuffer;
 
     private:
         int _socket;

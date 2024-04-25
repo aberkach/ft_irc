@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:19:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/25 18:46:38 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/25 22:44:43 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,12 +70,13 @@ void Server::partCommand (std::vector<std::string> &fields, Client &client)
                     if (chnIt->second.isClientExist(client.getNickname()))
                     {
                         std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
-                        replyTo(client.getSocket(), PART_MSG(client.getNickname(), client.getUsername(), clientHost, chnName, fields[1]));
-                        if (fields.size() > 1)
-                            chnIt->second.broadCast(PART_MSG(client.getNickname(), client.getUsername(), clientHost, chnName, fields[1]), client.getSocket());
+                        std::string reason = (fields.size() > 1) ? fields[1] : "Client Quit";
+                        replyTo(client.getSocket(), PART_MSG(client.getNickname(), client.getUsername(), clientHost, chnName, reason));
+                        chnIt->second.broadCast(PART_MSG(client.getNickname(), client.getUsername(), clientHost, chnName, reason), client.getSocket());
+                        if (chnIt->second.getUsers().size() == 1)
+                            _channels.erase(chnIt);
                         else
-                            chnIt->second.broadCast(PART_MSG(client.getNickname(), client.getUsername(), clientHost, chnName, "Client Quit"), client.getSocket());
-                        chnIt->second.removeUser(client);
+                            chnIt->second.removeUser(client);
                     }
                     else
                         replyTo(client.getSocket(), ERR_NOTONCHANNEL(client.getNickname(), chnName));

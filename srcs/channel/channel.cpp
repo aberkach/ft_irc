@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/22 16:42:34 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/25 22:40:41 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,20 +126,23 @@ void Channel::removeUser(Client &client)
 
     // maybe I gotta check if the user is the operator of the channel
     // so I need to set another operator
-    for (std::vector<Client>::iterator it = _chanOps.begin(); it != _chanOps.end(); it++)
-    {
-        if (it->getNickname() == client.getNickname())
-        {
-            _chanOps.erase(it);
-            break;
-        }
-    }
     for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); it++)
     {
         if (it->second.getNickname() == client.getNickname() || it->first == '@' + client.getNickname())
-        {
+        {   
             _users.erase(it);
             break;
+        }
+    }
+    if (isOperator(client))
+    {
+        for (std::vector<Client>::iterator it = _chanOps.begin(); it != _chanOps.end(); it++)
+        {
+            if (it->getNickname() == client.getNickname())
+            {
+                _chanOps.erase(it);
+                break;
+            }
         }
     }
 }
