@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:19:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/22 23:11:23 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/25 18:23:50 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -326,6 +326,9 @@ void Server::nickCommand(const std::vector<std::string> &fields, Client &user) /
 			return (replyTo(user.getSocket(), ERR_ERRONEUSNICKNAME(fields[0])));
         if (user.getRegistered())
             replyTo(user.getSocket(), CHANGENICK(oldNick, user.getUsername(), inet_ntoa(_addr.sin_addr), fields[0]));
+			return (replyTo(user.getSocket(), ERR_ERRONEUSNICKNAME(fields[0])));
+        if (user.getRegistered())
+            replyTo(user.getSocket(), CHANGENICK(oldNick, user.getUsername(), inet_ntoa(_addr.sin_addr), fields[0]));
 	}
 	else
 		replyTo(user.getSocket(), ERR_FIRSTCOMMAND);
@@ -344,7 +347,7 @@ void Server::userCommand(const std::string& message, const std::vector<std::stri
                     replyTo(user.getSocket(), ERR_NEEDMOREPARAMS(std::string("Guest"), "USER"));
                 else if (!user.setUsername(fields[0])|| fields[1] != "0" || fields[2] != "*" || !user.setRealname(realName))
                     replyTo(user.getSocket(), ERR_USERFORMAT);
-			}
+            }
 			else
 				replyTo(user.getSocket(), ERR_NEEDMOREPARAMS(std::string("Guest"), "USER"));
 		}
