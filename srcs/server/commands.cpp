@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:19:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/25 18:23:50 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/25 18:46:38 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,30 +29,22 @@ void Server::listCommand (std::vector<std::string> &fields, Client &client)
     }
     if (fields.size() >= 1)
     {
-        std::string chnName = fields[0];
-        chnMapIt chnIt = _channels.find(chnName);
-        if (chnIt != _channels.end())
+        std::vector<std::string> chnName = splitByDelim(fields[0], ',');
+        replyTo(client.getSocket(), RPL_LISTSTART(client.getNickname()));
+        for (size_t i = 0; i < chnName.size(); i++)
         {
-            if (chnIt->second.isClientExist(client.getNickname()))
+            chnMapIt chnIt = _channels.find(chnName[i]);
+            if (chnIt != _channels.end())
             {
                 if (chnIt->second.getTopic() != "")
-                {
-                    replyTo(client.getSocket(), RPL_LISTSTART(client.getNickname()));
-                    replyTo(client.getSocket(), LIST_MSG(client.getNickname(), chnName, std::to_string(chnIt->second.getUsers().size()), chnIt->second.getTopic()));
-                    replyTo(client.getSocket(), RPL_LISTEND(client.getNickname()));
-                }
+                    replyTo(client.getSocket(), LIST_MSG(client.getNickname(), chnName[i], std::to_string(chnIt->second.getUsers().size()), chnIt->second.getTopic()));
                 else
-                {
-                    replyTo(client.getSocket(), RPL_LISTSTART(client.getNickname()));
-                    replyTo(client.getSocket(), LIST_MSG(client.getNickname(), chnName, std::to_string(chnIt->second.getUsers().size()), "No topic set"));
-                    replyTo(client.getSocket(), RPL_LISTEND(client.getNickname()));
-                }
+                    replyTo(client.getSocket(), LIST_MSG(client.getNickname(), chnName[i], std::to_string(chnIt->second.getUsers().size()), "No topic set"));
             }
             else
-                replyTo(client.getSocket(), ERR_NOTONCHANNEL(client.getNickname(), chnName));
+                replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(client.getNickname(), chnName[i]));
         }
-        else
-            replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(client.getNickname(), chnName));
+        replyTo(client.getSocket(), RPL_LISTEND(client.getNickname()));
     }
     else
         replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "LIST"));
@@ -117,6 +109,7 @@ void Server::quitCommand(std::vector<std::string> &fields, Client &client)
                 it->second.removeUser(client);
             }
         }
+        
         close(client.getSocket());
         // remove the client from the clients map
         //.....
