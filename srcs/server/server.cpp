@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 14:49:52 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/25 20:49:21 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/27 16:08:23 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,11 +141,6 @@ Server::Server(uint16_t port, char *password) : _port(port), _password(password)
 	_fds[0].revents = 0;
 }
 
-// Setters ::-----------------------------------------------------------------------------------
-
-
-// ---------------------------------------------------------------------------------------------
-
 // Handle incoming connections:
 void Server::handlIncomeConnections() 
 {
@@ -177,7 +172,7 @@ void Server::handlIncomeConnections()
 	}
 }
 
-
+// mode #channel +o 
 void Server::commandList(const std::string& message, std::vector<std::string> &fields, Client &user)
 {
 	std::string command(fields[0]);
@@ -223,7 +218,7 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 void 
 Server::handleIncomeData(int i) 
 {
-	char buffer[1024] = {0};
+	char buffer[2048] = {0};
 	int rc;
 
 	rc = recv(_fds[i].fd, buffer, sizeof(buffer), 0);
@@ -241,7 +236,7 @@ Server::handleIncomeData(int i)
 		buffer[rc] = '\0';
 		std::string rec(buffer);
 		// check if the message is valid (finished by \r\n)
-		if (rec.find("\r\n") == std::string::npos)
+		if (rec.find_first_of("\r") == std::string::npos && rec.find_first_of("\n") == std::string::npos)
 		{
 			_clients.find(_fds[i].fd)->second._clientBuffer += rec;
 			return;
@@ -259,12 +254,7 @@ Server::handleIncomeData(int i)
 		{
 			fields[0] = stringUpper(fields[0]);
 			commandList(rec ,fields, _clients.find(_fds[i].fd)->second);
-			// if (fields[0] == "QUIT")
-			// {
-			// 	_clients.erase(_fds[i].fd);
-			// 	close(_fds[i].fd);
-			// 	_fds[i].fd = -1;
-			// }
+		
 			_clients.find(_fds[i].fd)->second.refStatus();
 		}
 	}
@@ -290,12 +280,12 @@ int Server::createServer()
 	        continue;
 	    }
 		for (size_t i = 0; i < _nfds; i++) {
-			if (_fds[i].revents & POLLIN) {
-	    		// Check for incoming connection on the server socke
+			if (_fds[i].revents & POLLIN) 
+			{
+	    		// Check for incoming connection on the server socket
 				if (_fds[i].fd == _listen_sd)
 					handlIncomeConnections();
 				else
-				    // Iterate through fds array to check for messages from clients
 					handleIncomeData(i);
 			}
 	    }

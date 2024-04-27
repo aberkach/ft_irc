@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:19:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/25 22:44:43 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/27 18:20:51 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -319,10 +319,7 @@ void Server::nickCommand(const std::vector<std::string> &fields, Client &user) /
 		if (user.setNickname(fields[0]) == false)
 			return (replyTo(user.getSocket(), ERR_ERRONEUSNICKNAME(fields[0])));
         if (user.getRegistered())
-            replyTo(user.getSocket(), CHANGENICK(oldNick, user.getUsername(), inet_ntoa(_addr.sin_addr), fields[0]));
-			return (replyTo(user.getSocket(), ERR_ERRONEUSNICKNAME(fields[0])));
-        if (user.getRegistered())
-            replyTo(user.getSocket(), CHANGENICK(oldNick, user.getUsername(), inet_ntoa(_addr.sin_addr), fields[0]));
+            replyTo(user.getSocket(), CHANGENICK(oldNick, user.getUsername(), inet_ntoa(user.getAddr().sin_addr), fields[0]));
 	}
 	else
 		replyTo(user.getSocket(), ERR_FIRSTCOMMAND);
@@ -363,13 +360,6 @@ void Server::privmsgCommand(const std::string& message, std::vector<std::string>
             std::string msg = (fields[1][0] == ':') ? message.substr(message.find_first_of(":") + 1) : fields[1];
             if (msg.empty())
                 return (replyTo(user.getSocket(), ERR_NOTEXTTOSEND(user.getNickname())));
-            
-            // if (fields[0] == "$") // needs a sever user admin
-            // {
-            //     for (std::map<int, Client>::const_iterator it = _clients.begin(); it != _clients.end(); ++it)
-            //         replyTo(it->second.getSocket(), PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), it->second.getNickname(), msg));
-            // }
-            // else if (fields[0][0] == '#')
             if (fields[0][0] == '#')
             {
                 std::map<std::string, Channel>::iterator it = _channels.find(fields[0]); // check the validity of this for upper and unickness
