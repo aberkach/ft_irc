@@ -1,3 +1,5 @@
+
+
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
@@ -6,7 +8,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 14:49:52 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/27 16:08:23 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/27 20:49:48 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,57 +50,61 @@ std::string stringUpper(const std::string &_str)
 }
 
 
+std::vector<std::string> splitBySpace(std::string str)
+{
+    // split the string by the delim
+    std::vector<std::string> tokens;
+    std::string token;
+
+	std::cout << "str : " << str << std::endl;
+	bool isTwoPoints = false;
+	for (size_t i = 0; i < str.length(); i++)
+    {
+		if (str[i] == ' ' && isTwoPoints == false)
+		{
+			if (token.empty())
+				continue;
+			tokens.push_back(token);
+			token.clear();
+		}
+		else if (str[i] == ':' && isTwoPoints == false)
+			isTwoPoints = true;
+		else
+            token += str[i];
+    }
+	tokens.push_back(token);
+	for (size_t i = 0; i < tokens.size(); i++)
+		std::cout << "token : " << tokens[i] << std::endl;
+    return tokens;
+}
+
 std::vector<std::string> splitByDelim(std::string str, char delim)
 {
     // split the string by the delim
     std::vector<std::string> tokens;
     std::string token;
 
-	if (delim != ' ') {
-    	for (size_t i = 0; i < str.length(); i++)
-    	{
-    	    if (str[i] == delim)
-    	    {
-				// skip the delim
-				if (token.empty())
-					continue;
-    	        tokens.push_back(token);
-    	        token.clear();
-    	    }
-    	    else
-    	        token += str[i];
-    	}
-	}
-	else {
-		for (size_t i = 0; i < str.length(); i++)
-    	{
-			if (str[i] == ' ' || str[i] == '\t' || str[i] == '\v' || str[i] == '\b' || str[i] == '\r' || str[i] == '\n')
-    	    {
-				// skip the delim
-				if (token.empty())
-					continue;
-    	        if (token[0] == ':')
-		        {
-		            token.erase(0, 1);
-		            token += str.substr(i);
-					tokens.push_back(token);
-					continue;
-		        }
-		        tokens.push_back(token);
-		        token.clear();
-    	    }
-			else
-    	        token += str[i];
-    	}
-	}
-    tokens.push_back(token);
+    for (size_t i = 0; i < str.length(); i++)
+    {
+        if (str[i] == delim)
+        {
+			// skip the delim
+			if (token.empty())
+				continue;
+            tokens.push_back(token);
+            token.clear();
+        }
+        else
+            token += str[i];
+    }
+	tokens.push_back(token);
     return tokens;
 }
 
 // parameterized constructor : initialize the server socket and set the port number
 Server::Server(uint16_t port, char *password) : _port(port), _password(password)
 {
-	_fds.resize(1500);
+	_pollFds.resize(1500);
 	_listen_sd = socket(AF_INET, SOCK_STREAM, 0); // Create a TCP socket
 	if (_listen_sd < 0)
 		Err("socket() failed", 1);
@@ -135,16 +141,16 @@ Server::Server(uint16_t port, char *password) : _port(port), _password(password)
 	}
 	
 	// Initialize the fds array with the server socket
-	// memset(_fds, 0 , sizeof(_fds));
-	_fds[0].fd = _listen_sd;
-	_fds[0].events = POLLIN;
-	_fds[0].revents = 0;
+	// memset(_pollFds, 0 , sizeof(_pollFds));
+	_pollFds[0].fd = _listen_sd;
+	_pollFds[0].events = POLLIN;
+	_pollFds[0].revents = 0;
 }
 
 // Handle incoming connections:
 void Server::handlIncomeConnections() 
 {
-	if (_fds[0].revents == POLLIN)
+	if (_pollFds[0].revents == POLLIN)
 	{
 		struct sockaddr_in client_adrs;
 		socklen_t sock_len = sizeof(client_adrs);
@@ -156,15 +162,15 @@ void Server::handlIncomeConnections()
 		
 	    else {
 			// Resize the fds array if it's full
-			if (_nfds >= _fds.size())
-				_fds.resize(_fds.size() * 2);
+			if (_nfds >= _pollFds.size())
+				_pollFds.resize(_pollFds.size() * 2);
 	        // Add the new client socket to the fds array and clientsFds map
 	        std::cout << "New incoming connection - " << newSck << std::endl;
 			// std::cout << client_adrs.sin_addr.s_addr << std::endl;
 	        fcntl(newSck, F_SETFL, O_NONBLOCK);
-			_fds[_nfds].fd = newSck;
-	        _fds[_nfds].events = POLLIN;
-			_fds[_nfds].revents = 0;
+			_pollFds[_nfds].fd = newSck;
+	        _pollFds[_nfds].events = POLLIN;
+			_pollFds[_nfds].revents = 0;
 			// Add the new client to the clients map
 	        _clients.insert(std::pair<int, Client>(newSck, Client(newSck, client_adrs)));
 	        _nfds++;
@@ -177,6 +183,7 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 {
 	std::string command(fields[0]);
 	fields.erase(fields.begin());
+
 
 	if (command.empty())
 		return;
@@ -221,15 +228,15 @@ Server::handleIncomeData(int i)
 	char buffer[2048] = {0};
 	int rc;
 
-	rc = recv(_fds[i].fd, buffer, sizeof(buffer), 0);
+	rc = recv(_pollFds[i].fd, buffer, sizeof(buffer), 0);
 	if (rc < 0)
 		Err("recv() failed", 0);
 	else if (rc == 0) {
 		std::cout << "Connection closed" << std::endl;
 		// Remove closed client from fds array and clientsFds map
-		_clients.erase(_fds[i].fd);
-		close(_fds[i].fd);
-		_fds[i].fd = -1;
+		_clients.erase(_pollFds[i].fd);
+		close(_pollFds[i].fd);
+		_pollFds[i].fd = -1;
 	}
 	else {
 		// here we handle the message
@@ -238,24 +245,24 @@ Server::handleIncomeData(int i)
 		// check if the message is valid (finished by \r\n)
 		if (rec.find_first_of("\r") == std::string::npos && rec.find_first_of("\n") == std::string::npos)
 		{
-			_clients.find(_fds[i].fd)->second._clientBuffer += rec;
+			_clients.find(_pollFds[i].fd)->second._clientBuffer += rec;
 			return;
 		}
 		else
 		{
-			rec = _clients.find(_fds[i].fd)->second._clientBuffer + rec;
-			_clients.find(_fds[i].fd)->second._clientBuffer.clear();
+			rec = _clients.find(_pollFds[i].fd)->second._clientBuffer + rec;
+			_clients.find(_pollFds[i].fd)->second._clientBuffer.clear();
 		}
 		// remove the remove all spaces from the message (included \r\n)
 		rec = trimTheSpaces(rec);
 		// split the message by space
-		std::vector<std::string> fields = splitByDelim(rec, ' ');
+		std::vector<std::string> fields = splitBySpace(rec);
 		if (!fields.empty())
 		{
 			fields[0] = stringUpper(fields[0]);
-			commandList(rec ,fields, _clients.find(_fds[i].fd)->second);
+			commandList(rec ,fields, _clients.find(_pollFds[i].fd)->second);
 		
-			_clients.find(_fds[i].fd)->second.refStatus();
+			_clients.find(_pollFds[i].fd)->second.refStatus();
 		}
 	}
 }
@@ -270,7 +277,7 @@ int Server::createServer()
 	std::cout << "server is running : " << std::endl;
 	while (true) {
 	    // Wait for events on monitored file descriptors
-	    rc = poll(_fds.data(), _nfds, 0);
+	    rc = poll(_pollFds.data(), _nfds, 0);
 
 	    // If poll failed or timeout occurred, continue to the next iteration
 	    if (rc == 0)
@@ -280,10 +287,10 @@ int Server::createServer()
 	        continue;
 	    }
 		for (size_t i = 0; i < _nfds; i++) {
-			if (_fds[i].revents & POLLIN) 
+			if (_pollFds[i].revents & POLLIN) 
 			{
 	    		// Check for incoming connection on the server socket
-				if (_fds[i].fd == _listen_sd)
+				if (_pollFds[i].fd == _listen_sd)
 					handlIncomeConnections();
 				else
 					handleIncomeData(i);
@@ -293,8 +300,8 @@ int Server::createServer()
 	    // Compact the fds array to remove closed client sockets
 	    current_size = 0;
 	    for (size_t i = 0; i < _nfds; i++) {
-	        if (_fds[i].fd >= 0) {
-	            _fds[current_size] = _fds[i];
+	        if (_pollFds[i].fd >= 0) {
+	            _pollFds[current_size] = _pollFds[i];
 	            current_size++;
 	        }
 	    }
