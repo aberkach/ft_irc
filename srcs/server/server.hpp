@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 14:50:26 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/26 22:28:21 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/04/28 17:16:11 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ class Server {
         int                             _listen_sd;
         struct sockaddr_in              _addr;
         size_t                          _nfds;
-        std::vector<pollfd>    	        _fds;
+        std::vector<pollfd>    	        _pollFds;
         std::map<int, Client>           _clients;
         std::map<std::string, Channel>  _channels; // list of channels in the server
 
@@ -76,6 +76,7 @@ class Server {
 
 };
 
+std::vector<std::string> splitBySpace(std::string str);
 std::vector<std::string> splitByDelim(std::string str, char delim);
 std::string stringUpper(const std::string &_str);
 
