@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yamajid <yamajid@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:32:12 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/21 23:27:01 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/05/11 23:50:07 by yamajid          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,9 @@ class Channel
 	void removeUser(Client &client);
     bool isClientExist(std::string nickName);
 	void addOperator(Client &op);
-	bool isOperator(Client &op);
+    void removeOperator(Client &op);
+	bool isOperator(std::string nickName);
+    std::vector<Client> getOperator();
 
     void addInvite(Client &invited);
     bool isInvited(Client &invited);

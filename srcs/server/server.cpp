@@ -178,6 +178,85 @@ void Server::handlIncomeConnections()
 	}
 }
 
+void operatorFlag(Client &client, Channel &channel, bool sign, std::vector<std::string> args)
+{
+	if (sign)
+	{
+		if (args.empty())
+			return ;//reply client already operator
+		if (!channel.isClientExist(args[0]))
+			return ; //reply client dosen't exist
+		else{
+			std::map<std::string, Client> it = channel.getUsers();
+			if ((it.find(args[0])) != it.end())
+				return ; //reply client already operator
+			else{	
+				channel.addOperator(it[args[0]]);
+				args.erase(args.begin());
+				//reply client is now operator
+			}
+		}
+	}
+	else{
+		if (args.empty())
+			return ;//reply client already operator
+		if (!channel.isClientExist(args[0]))
+			return ; //reply client dosen't exist
+		else{
+			std::map<std::string, Client> it = channel.getUsers();
+			if ((it.find(args[0])) == it.end())
+				return ; //reply client is not an operator
+			else{	
+				channel.removeOperator(it[args[0]]);
+				args.erase(args.begin());
+				//reply client is now just a user
+			}
+		}
+	}
+}
+
+// int checkArgPlace(std::string field, int len, char c1, char c2){
+// 	int indx = 0;
+
+// 	for(size_t i = 0; i < len; i++){
+// 		if (field[i] == c1){
+// 			indx++;
+// 		}
+// 	}
+
+// }
+
+void Server::modeCommand(std::vector<std::string> fields, Client &client){
+	bool sign = false;
+	std::vector<std::string> args;
+	int idx;
+
+	if (fields[0].empty())
+		return ; //reply no  channel name given
+	if (fields[1].empty())
+		return ; //reply no flags for mode
+	chnMapIt it = _channels.find(fields[0]);
+	if (it == _channels.end())
+		return ; //reply channel dosen't exist
+	if (!it->second.isClientExist(client.getNickname()))
+		return ;  //reply user not on the channel
+	if (!it->second.isOperator(client.getNickname()))
+		return ;//reply is not an operator
+	for(int i = 2; i < fields.size(); i++)
+		if (!fields[i].empty())
+			args.push_back(fields[i]);
+	for(size_t i = 0; i < fields[1].size(); i++){
+		if (fields[1][i] == '+')
+			sign = true;
+		else if (fields[1][i] == '-')
+			sign = false;
+		if (fields[1][i] == 'o'){
+			// idx = checkArgPlace(fields[1], i);
+			operatorFlag(client, it->second, sign, args);
+		}
+	}
+}
+
 // mode #channel +o 
 void Server::commandList(const std::string& message, std::vector<std::string> &fields, Client &user)
 {
@@ -216,6 +295,8 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 		listCommand(fields, user);
 	else if (command == "INVITE")
 		inviteCommand(fields, user);
+	else if (command == "MODE")
+		modeCommand(fields, user);
 	else
 		replyTo(user.getSocket(), ERR_UNKNOWNCOMMAND(user.getNickname(), command));
 }
@@ -243,7 +324,7 @@ Server::handleIncomeData(int i)
 		buffer[rc] = '\0';
 		std::string rec(buffer);
 		// check if the message is valid (finished by \r\n)
-		if (rec.find_first_of("\r") == std::string::npos && rec.find_first_of("\n") == std::string::npos)
+		if (rec.find("\r") == std::string::npos && rec.find_first_of("\n") == std::string::npos)
 		{
 			_clients.find(_pollFds[i].fd)->second._clientBuffer += rec;
 			return;
@@ -256,6 +337,7 @@ Server::handleIncomeData(int i)
 		// remove the remove all spaces from the message (included \r\n)
 		rec = trimTheSpaces(rec);
 		// split the message by space
+		
 		std::vector<std::string> fields = splitBySpace(rec);
 		if (!fields.empty())
 		{
@@ -266,6 +348,8 @@ Server::handleIncomeData(int i)
 		}
 	}
 }
+// lFTmZkkDWY
+//zillow
 
 int Server::createServer() 
 {
