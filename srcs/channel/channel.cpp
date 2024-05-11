@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yamajid <yamajid@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/25 22:40:41 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/05/11 23:49:41 by yamajid          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,18 @@ Channel::~Channel()
 //     *this = src;
 // }
 
+void Channel::removeOperator(Client &op)
+{
+    for (std::vector<Client>::iterator it = _chanOps.begin(); it != _chanOps.end(); it++)
+    {
+        if (it->getNickname() == op.getNickname())
+        {
+            _chanOps.erase(it);
+            break;
+        }
+    }
+}
+
 std::string Channel::getName() const
 {
     return _name;
@@ -49,6 +61,10 @@ std::string Channel::getTopic() const
 void Channel::setTopic(std::string topic)
 {
     _topic = topic;
+}
+
+std::vector<Client> Channel::getOperator(){
+    return _chanOps;
 }
 
 Client &Channel::getUser(std::string &nickName)
@@ -154,11 +170,11 @@ void Channel::addOperator(Client &op)
     _chanOps.insert(_chanOps.begin(), Client(op));
 }
 
-bool Channel::isOperator(Client &op)
+bool Channel::isOperator(std::string nickName)
 {
     for (std::vector<Client>::iterator it = _chanOps.begin(); it != _chanOps.end(); it++)
     {
-        if (it->getNickname() == op.getNickname())
+        if (it->getNickname() == nickName)
             return true;
     }
     return false;

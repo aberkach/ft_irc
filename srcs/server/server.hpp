@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yamajid <yamajid@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 14:50:26 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/28 17:16:11 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/05/11 00:58:45 by yamajid          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,7 @@ class Server {
         void quitCommand(std::vector<std::string> &fields, Client &client);
         void partCommand(std::vector<std::string> &fields, Client &client);
         void listCommand(std::vector<std::string> &fields, Client &client);
+        void modeCommand(std::vector<std::string> vector, Client &client);
 
 };
 
