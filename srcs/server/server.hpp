@@ -6,7 +6,7 @@
 /*   By: yamajid <yamajid@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 14:50:26 by abberkac          #+#    #+#             */
-/*   Updated: 2024/05/11 00:58:45 by yamajid          ###   ########.fr       */
+/*   Updated: 2024/05/12 15:18:45 by yamajid          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <sys/poll.h>
 #include <vector>
 #include <map>
+#include <sstream>
 #include <arpa/inet.h>
 
 // define channel map iterator

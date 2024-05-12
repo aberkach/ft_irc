@@ -215,16 +215,57 @@ void operatorFlag(Client &client, Channel &channel, bool sign, std::vector<std::
 	}
 }
 
-// int checkArgPlace(std::string field, int len, char c1, char c2){
-// 	int indx = 0;
+void	keyWordFlag(Channel &channel, bool sign, std::vector<std::string> args)
+{
+	if (sign)
+	{
+		if (args.empty())
+			return ;//reply no key given
+		channel.setKey(args[0]);
+		args.erase(args.begin());
+		//reply key is now set
+	}
+	else{
+		channel.setKey("");
+		//reply key is now removed
+	}
+}
 
-// 	for(size_t i = 0; i < len; i++){
-// 		if (field[i] == c1){
-// 			indx++;
-// 		}
-// 	}
+void invetOnlyFlag(Channel &channel, bool sign)
+{
+	if (sign){
+		channel.setIsInviteOnly(true);
+		//reply channel is now invite only
+	}
+	else{
+		channel.setIsInviteOnly(false);
+		//reply channel is now not invite only
+	}
+}
 
-// }
+void limitFlag(Channel &channel, bool sign, std::vector<std::string> args)
+{
+	if (sign)
+	{
+		if (args.empty())
+			return ;//reply no limit given
+		std::stringstream  ss(args[0]);
+		size_t limit;
+		if (!(ss >> limit) || !ss.eof())
+			return ; //reply limit must be a number
+		channel.setMaxUsers(limit);
+		args.erase(args.begin());
+		//reply limit is now set
+	}
+	else{
+		channel.setMaxUsers(0);
+		//reply limit is now removed
+	}
+}
+
+void topicFlag(Channel &channel, bool sign, std::vector<std::string> args)
+{
+}
 
 void Server::modeCommand(std::vector<std::string> fields, Client &client){
 	bool sign = false;
@@ -250,10 +291,18 @@ void Server::modeCommand(std::vector<std::string> fields, Client &client){
 			sign = true;
 		else if (fields[1][i] == '-')
 			sign = false;
-		if (fields[1][i] == 'o'){
-			// idx = checkArgPlace(fields[1], i);
+		if (fields[1][i] == 'o')
 			operatorFlag(client, it->second, sign, args);
-		}
+		else if (fields[1][i] == 'k')
+			keyWordFlag(it->second, sign, args);
+		else if (fields[1][i] == 'i')
+			invetOnlyFlag(it->second, sign);
+		else if (fields[1][i] == 'l')
+			limitFlag(it->second, sign, args);
+		else if (fields[1][i] == 't')
+			topicFlag(it->second, sign, args);
+		else
+			return ; //reply unknown mode flag
 	}
 }
 
