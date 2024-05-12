@@ -6,7 +6,7 @@
 /*   By: yamajid <yamajid@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/05/12 15:23:44 by yamajid          ###   ########.fr       */
+/*   Updated: 2024/05/12 16:32:18 by yamajid          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ std::string Channel::getKey() const
 {
     return _key;
 }
+
 
 bool Channel::getIsInviteOnly() const
 {
