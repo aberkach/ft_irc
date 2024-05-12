@@ -6,7 +6,7 @@
 /*   By: yamajid <yamajid@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:32:12 by abberkac          #+#    #+#             */
-/*   Updated: 2024/05/11 23:50:07 by yamajid          ###   ########.fr       */
+/*   Updated: 2024/05/12 15:23:30 by yamajid          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@ class Channel
       std::map<std::string, Client>   _users; // list of users in the channel
       std::vector<Client>             _chanOps; // list of operators in the channel
       std::vector<Client>             _chanInvites; // list of invited users in the channel
+      bool                           _isInviteOnly; // if the channel is invite only
+      size_t                        _maxUsers; // max number of users in the channel
   
   public:
     Channel();
@@ -36,6 +38,8 @@ class Channel
     std::string getName() const;
     std::string getTopic() const;
     std::string getKey() const;
+    bool getIsInviteOnly() const;
+    size_t getMaxUsers() const;
 
 	Client &getUser(std::string &nickName);
     std::string getUserName(std::string clientName);
@@ -46,6 +50,8 @@ class Channel
     void setName(std::string name);
     void setTopic(std::string topic);
     void setKey(std::string key);
+    void setIsInviteOnly(bool isInviteOnly);
+    void setMaxUsers(size_t maxUsers);
 
     void addUser(Client &user);
 	void removeUser(Client &client);

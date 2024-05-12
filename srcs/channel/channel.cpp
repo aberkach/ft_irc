@@ -6,7 +6,7 @@
 /*   By: yamajid <yamajid@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/05/11 23:49:41 by yamajid          ###   ########.fr       */
+/*   Updated: 2024/05/12 15:23:44 by yamajid          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,26 @@ std::string Channel::getName() const
 std::string Channel::getKey() const
 {
     return _key;
+}
+
+bool Channel::getIsInviteOnly() const
+{
+    return _isInviteOnly;
+}
+
+void Channel::setIsInviteOnly(bool isInviteOnly)
+{
+    _isInviteOnly = isInviteOnly;
+}
+
+void Channel::setMaxUsers(size_t maxUsers)
+{
+    _maxUsers = maxUsers;
+}
+
+size_t Channel::getMaxUsers() const
+{
+    return _maxUsers;
 }
 
 std::string Channel::getTopic() const
