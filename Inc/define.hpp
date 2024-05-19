@@ -100,6 +100,15 @@
 #define ERR_ALREADYINCHANNEL(client, nick, channel)         ":" SERVERNAME " 443 " + (client) + " " + (nick) + " " + (channel) + " :is already on channel\r\n"
 #define ERR_BADCHANNELKEY(client, channel)                  ":" SERVERNAME " 475 " + (client) + " " + (channel) + " :Cannot join channel (+k)\r\n"
 #define ERR_BADCHANMASK(channel)                            ":" SERVERNAME " 476 " + (channel) + " :Bad Channel Mask\r\n"
+//mode replys
+#define ERR_UMODEUNKNOWNFLAG(client)                        ":" SERVERNAME " 501 " + (client) + " :Unknown MODE flag" + "\r\n"
+#define ERR_CHANNELISFULL(client, channel)                  ":" SERVERNAME " 471 " + (client) + " " + (channel) + ": Cannot channel (+l)\r\n"
+#define ERR_USERNOTINCHANNEL(client, nick, channel)         ":" SERVERNAME " 441 " + (client) + " " + (nick) + " " + (channel) + ": They aren't on that\r\n"
+#define ERR_NONICKNAMEGIVEN(client)                         ":" SERVERNAME " 431 " + (client) + ": No nickname given\r\n"
+#define ERR_INVITEONLYCHAN(client, channel)                 ":" SERVERMODE " 431 " + (client) + " " + (channel) + ":Cannot join channel (+i)\r\n"
+#define ERR_CHANOPRIVSNEEDED(client, channel)               ":" SERVERNAME " 481 " + (client) + " :You're not channel operator\r\n"
+
+
 
 // #define ERR_INVALIDKEY (525) : if the operator is trying to set a key that is not valid with mode +k 
 #define ERR_CHANOPRIVSNEEDED(client, channel)                           ":" SERVERNAME " 482 " + (client) + " " + (channel) + " :You're not channel operator\r\n"
@@ -108,9 +117,10 @@
 // #define RPL_TOPIC(client, channel, topic)                               ":" SERVERNAME " 332 " + (client) + " " + (channel) + " :" + (topic) + "\r\n"
 #define RPL_KICK(kicker, username, host, channel, targetuser, reason)   ":" + (kicker) + "!" + (username) + "@" + (host) + " KICK " + (channel) + " " + (targetuser) + " :" + (reason) + "\r\n"
 
-#define RPL_NAMREPLY(clients, channelname, nick)                        ":" SERVERNAME " 353 " + (nick) + " = " + (channelname) + " :" + (clients) + "\r\n"
-#define RPL_ENDOFNAMES(client, channel)                                 ":" SERVERNAME " 366 " + (client) + " " + (channel) + " :End of /NAMES list" + "\r\n"
-#define INVITE_MSG(client, ipaddr, channel, invited)                    ":" SERVERNAME " " + (client) + " !~ " + (ipaddr) + " INVITE " + (channel) + " " + (invited) + "\r\n"
+#define RPL_NAMREPLY(clients, channelname, nick)              ":" SERVERNAME " 353 " + (nick) + " = " + (channelname) + " :" + (clients) + "\r\n"
+#define RPL_ENDOFNAMES(client, channel)                       ":" SERVERNAME " 366 " + (client) + " " + (channel) + " :End of /NAMES list" + "\r\n"
+#define INVITE_MSG(client, ipaddr, channel, invited)          ":" SERVERNAME " " + (client) + " !~ " + (ipaddr) + " INVITE " + (channel) + " " + (invited) + "\r\n"
+// #define    
 
 
 // #define ERR_NORECIPENT(client, command)                              ":" SERVERNAME " 411 " + (client) + " :No recipient given " + (command) + "\r\n"
@@ -121,7 +131,6 @@
 // #define RPL_INVITING(client, nick, channel)                          ":" SERVERNAME " 341 " + (client) + " " + (nick) + " " + (channel) + "\r\n"
 // #define RPL_TOPICWHOTIME(client, channel, nick, setat)               ":" SERVERNAME " 333 " + (client) + " " + (channel) + " " + (nick) + " " + (setat) + "\r\n"
 // #define RPL_MOTD(client, sentence)                                   ":" SERVERNAME " 372 " + (client) + " " + (sentence) + "\r\n"
-// #define ERR_UMODEUNKNOWNFLAG(client)                                 ":" SERVERNAME " 501 " + (client) + " :Unknown MODE flag" + "\r\n"
 // #define ERR_INVALIDMODEPARAM(client, target, modechar, parameter)    ":" SERVERNAME " 696 " + (client) + " " + (target) + " " + (modechar) + " " + " You must specify a parameter for the key mode. Syntax: " + (parameter) + "\r\n"
 // #define RPL_LIST(client, channel, nb_users, topic)                   ":" SERVERNAME " 322 " + (client) + " " + (channel) + " " + (nb_users) + " :" + (topic) + "\r\n"
 // #define RPL_LISTSTART(client)                                        ":" SERVERNAME " 321 " + (client) + " Channel :Users Name" + "\r\n"
