@@ -45,7 +45,6 @@ std::string stringUpper(const std::string &_str)
 
     for (std::string::size_type i = 0; i < _str.size(); ++i)
         upper[i] = ::toupper(_str[i]);
-
 	return(upper);
 }
 
@@ -178,20 +177,24 @@ void Server::handlIncomeConnections()
 	}
 }
 
-void operatorFlag(Client &client, Channel &channel, bool sign, std::vector<std::string> args)
+void operatorFlag(Client &client, chnMapIt &channel, bool sign, std::vector<std::string> args)
 {
 	if (sign)
 	{
-		if (args.empty())
-			return ;//reply client already operator
-		if (!channel.isClientExist(args[0]))
-			return ; //reply client dosen't exist
+		if (args.empty()){
+			replyTo(client.getSocket(), ERR_NONICKNAMEGIVEN(client.getNickname()));
+			return ;
+		}
+		if (!channel->second.isClientExist(args[0])){
+			replyTo(client.getSocket(), ERR_USERNOTINCHANNEL(client.getNickname(), args[0], channel->first));
+			return ;
+		}
 		else{
-			std::map<std::string, Client> it = channel.getUsers();
+			std::map<std::string, Client> it = channel->second.getUsers();
 			if ((it.find(args[0])) != it.end())
 				return ; //reply client already operator
 			else{	
-				channel.addOperator(it[args[0]]);
+				channel->second.addOperator(it[args[0]]);
 				args.erase(args.begin());
 				//reply client is now operator
 			}
@@ -200,14 +203,16 @@ void operatorFlag(Client &client, Channel &channel, bool sign, std::vector<std::
 	else{
 		if (args.empty())
 			return ;//reply client already operator
-		if (!channel.isClientExist(args[0]))
+		if (!channel->second.isClientExist(args[0]))
 			return ; //reply client dosen't exist
 		else{
-			std::map<std::string, Client> it = channel.getUsers();
-			if ((it.find(args[0])) == it.end())
+			std::map<std::string, Client> it = channel->second.getUsers();
+			if ((it.find(args[0])) == it.end()){
+				replyTo(client.getSocket(), ERR_CHANOPRIVSNEEDED(client.getNickname(), args[0]));
 				return ; //reply client is not an operator
+			}
 			else {	
-				channel.removeOperator(it[args[0]]);
+				channel->second.removeOperator(it[args[0]]);
 				args.erase(args.begin());
 				//reply client is now just a user
 			}
@@ -273,17 +278,25 @@ void Server::modeCommand(std::vector<std::string> fields, Client &client){
 	bool sign = false;
 	std::vector<std::string> args;
 	int idx;
-
+	
 	if (fields[0].empty())
-		return ; //reply no  channel name given
+		replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "MODE"));
 	chnMapIt it = _channels.find(fields[0]);
-	if (it == _channels.end())
-		return ; //reply channel dosen't exist
-	if (!it->second.isClientExist(client.getNickname()))
-		return ;  //reply user not on the channel
-	if (fields.size() == 2){
+	if (it == _channels.end()){
+		replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(client.getNickname(), fields[0]));
+		return ;
+	}
+	if (!it->second.isClientExist(client.getNickname())){
+		replyTo(client.getSocket(), ERR_USERNOTINCHANNEL(client.getNickname(), client.getNickname(), it->first));
+		return ;
+	}
+	if (fields.size() == 1){
 		//display channel mode
 		return ; 
+	}
+	if (!it->second.isOperator(client.getNickname())){
+		replyTo(client.getSocket(), ERR_CHANOPRIVSNEEDED(client.getNickname(), it->first));
+		return ;
 	}
 	for(int i = 2; i < fields.size(); i++)
 		if (!fields[i].empty())
@@ -297,13 +310,13 @@ void Server::modeCommand(std::vector<std::string> fields, Client &client){
 			sign = false;
 			continue;
 		}
-		if (fields[1][i] == 'o') operatorFlag(client, it->second, sign, args);
+		if (fields[1][i] == 'o') operatorFlag(client, it, sign, args);
 		else if (fields[1][i] == 'k') keyWordFlag(it->second, sign, args);
 		else if (fields[1][i] == 'i') invetOnlyFlag(it->second, sign);
 		else if (fields[1][i] == 'l') limitFlag(it->second, sign, args);
 		else if (fields[1][i] == 't') topicFlag(it->second, sign, args);
-		// else
-		// 	 //reply unknown mode flag
+		else
+			 replyTo(client.getSocket(), ERR_UMODEUNKNOWNFLAG(client.getNickname()));
 	}
 }
 
