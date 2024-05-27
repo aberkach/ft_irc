@@ -95,7 +95,7 @@
 #define ERR_PASSWDMISMATCH                                  ":" SERVERNAME " 464 Guest :Password incorrect\r\n"
 #define ERR_FIRSTCOMMAND                                    ":" SERVERNAME " 465 Guest :Server is expecting 'PASS <password>' first\r\n" // recheck 
 
-#define ERR_USERNOTINCHANNEL(client, nickname, channel)     ":" SERVERNAME " 441 " + (client) + " " + (nickname) + " " + (channel) + " :They aren't on that channel\r\n"
+// #define ERR_USERNOTINCHANNEL(client, nickname, channel)     ":" SERVERNAME " 441 " + (client) + " " + (nickname) + " " + (channel) + " :They aren't on that channel\r\n"
 #define ERR_NOTONCHANNEL(client, channel)                   ":" SERVERNAME " 442 " + (client) + " " + (channel) + " :You're not on that channel\r\n"
 #define ERR_ALREADYINCHANNEL(client, nick, channel)         ":" SERVERNAME " 443 " + (client) + " " + (nick) + " " + (channel) + " :is already on channel\r\n"
 #define ERR_BADCHANNELKEY(client, channel)                  ":" SERVERNAME " 475 " + (client) + " " + (channel) + " :Cannot join channel (+k)\r\n"
@@ -104,9 +104,9 @@
 #define ERR_UMODEUNKNOWNFLAG(client)                        ":" SERVERNAME " 501 " + (client) + " :Unknown MODE flag" + "\r\n"
 #define ERR_CHANNELISFULL(client, channel)                  ":" SERVERNAME " 471 " + (client) + " " + (channel) + ": Cannot channel (+l)\r\n"
 #define ERR_USERNOTINCHANNEL(client, nick, channel)         ":" SERVERNAME " 441 " + (client) + " " + (nick) + " " + (channel) + ": They aren't on that\r\n"
-#define ERR_NONICKNAMEGIVEN(client)                         ":" SERVERNAME " 431 " + (client) + ": No nickname given\r\n"
+// #define ERR_NONICKNAMEGIVEN(client)                         ":" SERVERNAME " 431 " + (client) + ": No nickname given\r\n"
 #define ERR_INVITEONLYCHAN(client, channel)                 ":" SERVERMODE " 431 " + (client) + " " + (channel) + ":Cannot join channel (+i)\r\n"
-#define ERR_CHANOPRIVSNEEDED(client, channel)               ":" SERVERNAME " 481 " + (client) + " :You're not channel operator\r\n"
+// #define ERR_CHANOPRIVSNEEDED(client, channel)               ":" SERVERNAME " 481 " + (client) + " :You're not channel operator\r\n"
 
 
 

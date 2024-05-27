@@ -6,7 +6,7 @@
 /*   By: yamajid <yamajid@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/05/12 16:32:18 by yamajid          ###   ########.fr       */
+/*   Updated: 2024/05/20 18:04:17 by yamajid          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,7 +171,7 @@ void Channel::removeUser(Client &client)
             break;
         }
     }
-    if (isOperator(client))
+    if (isOperator(client.getNickname()))
     {
         for (std::vector<Client>::iterator it = _chanOps.begin(); it != _chanOps.end(); it++)
         {
