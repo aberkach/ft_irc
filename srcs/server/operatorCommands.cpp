@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   operatorCommands.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yamajid <yamajid@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 23:33:20 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/25 22:42:45 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/05/20 18:06:55 by yamajid          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ void Server::topicCommand (std::vector<std::string> &fields, Client &client) {
                 replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(clientHost, chnName));
                 return;
             }
-            if (chnIt->second.isOperator(client)) {
+            if (chnIt->second.isOperator(client.getNickname())) {
                 topic = fields[1];
                 chnIt->second.setTopic(topic);
                 std::string clintHost = inet_ntoa(client.getAddr().sin_addr);
@@ -133,7 +133,7 @@ void Server::kickCommand (std::vector<std::string> &fields, Client &client) {
             replyTo(client.getSocket(), ERR_NOTONCHANNEL(client.getNickname(), chnName));
             return;
         }
-        if (joinedChnIt->second.isOperator(client)) {
+        if (joinedChnIt->second.isOperator(client.getNickname())) {
             for (size_t i = 0; i < usersBeKicked.size(); i++)
             {
                 if (joinedChnIt->second.isClientExist(usersBeKicked[i]))
