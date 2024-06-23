@@ -178,37 +178,26 @@ void operatorFlag(Client &client, chnMapIt &channel, bool sign, std::vector<std:
 {
 	if (sign)
 	{
-		if (args.empty()){
-			std::cout << "empty name opartor" << std::endl;
-			replyTo(client.getSocket(), ERR_NONICKNAMEGIVEN(client.getNickname()));
-			return ;
-		}
 		std::map<std::string, Client> it = channel->second.getUsers();
-		if ((it.find(args[0])) == it.end()){
+		if (it.find(args[0]) == it.end()){
 			replyTo(client.getSocket(), ERR_USERNOTINCHANNEL(client.getNickname(), args[0], channel->first));
-			std::cout << "client does't exist" << std::endl;
-			return ; //reply client already operator
 		}
 		else{	
 			channel->second.addOperator(it[args[0]]);
-			std::cout << "user now is operator" << std::endl;
 			args.erase(args.begin());
-			//reply client is now operator
+			replyTo(client.getSocket(), RPL_YOUREOPER(client.getNickname()));
 		}
 	}
 	else{
-		if (args.empty())
-			return ;//reply client already operator
 		std::map<std::string, Client> it = channel->second.getUsers();
 		if ((it.find(args[0])) == it.end()){
 			replyTo(client.getSocket(), ERR_USERNOTINCHANNEL(client.getNickname(), args[0], channel->first));
-			return ; //reply client is not an operator
+			return ;
 		}
 		else {	
 			channel->second.removeOperator(it[args[0]]);
 			args.erase(args.begin());
 			//reply client is now just a user
-			std::cout << "operator removes from list" << std::endl;
 		}
 	}
 }
@@ -217,31 +206,23 @@ void	keyWordFlag(Channel &channel, bool sign, std::vector<std::string>& args)
 {
 	if (sign)
 	{
-		if (args.empty()){
-			std::cout << "no key given" << std::endl;
-			return ;//reply no key given
-		}
 		channel.setKey(args[0]);
 		args.erase(args.begin());
-		std::cout << "key : " << channel.getKey() << std::endl;
 		//reply key is now set
 	}
-	else{
+	else
 		channel.setKey("");
 		//reply key is now removed
-	}
 }
 
 void invetOnlyFlag(Channel &channel, bool sign)
 {
-	if (sign){
+	if (sign)
 		channel.setIsInviteOnly(true);
 		//reply channel is now invite only
-	}
-	else{
+	else
 		channel.setIsInviteOnly(false);
 		//reply channel is now not invite only
-	}
 }
 
 void limitFlag(Channel &channel, bool sign, std::vector<std::string>& args)
@@ -258,12 +239,10 @@ void limitFlag(Channel &channel, bool sign, std::vector<std::string>& args)
 		}
 		channel.setMaxUsers(limit);
 		args.erase(args.begin());
-		std::cout << "limit set to :" << limit << std::endl;
 		//reply limit is now set
 	}
 	else{
 		channel.setMaxUsers(0);
-		std::cout << "no limit" << std::endl;
 		//reply limit is now removed
 	}
 }
@@ -273,6 +252,47 @@ void topicFlag(Channel &channel, bool sign, std::vector<std::string> args)
 	(void)channel;
 	(void)sign;
 	(void)args;
+}
+
+int check_flag_string(std::string flags){
+	if (flags[0] != '+' && flags[0] != '-')
+		return 1;
+	for (size_t i = 0; i < flags.size(); i++)
+		if (flags[i] != 'k' && flags[i] != 'o' && flags[i] != 'i' && flags[i] != 'l' && flags[i] != 't' && flags[i] != '+' && flags[i] != '-')
+			return 1;
+	return 0;
+}
+
+int check_params(std::vector<std::string> args, std::string flags){
+	bool sign = false;
+	size_t count = 0;
+	for(size_t i = 0; i < flags.size(); i++){
+		if (flags[i] == '+')
+			sign = true;
+		else if (flags[i] == '-')
+			sign = false;
+		if (flags[i] == 'o')
+			count++;
+		else if (flags[i] == 'k' && sign == true)
+			count++;
+		else if (flags[i] == 'l' && sign == true)
+			count++;
+	}
+	if (count != args.size())
+		return 1;
+	return 0;
+}
+
+void display_channel_mode(Channel channel, Client &client){
+	std::string str;
+	str += "+";
+	if (channel.getIsInviteOnly() == true)
+		str += "i";
+	if (!channel.getKey().empty())
+		str += "k";
+	if (channel.getMaxUsers() != 0)
+		str += "l";
+	replyTo(client.getSocket(), RPL_CHANNELMODEIS(client.getNickname(), channel.getName(), str));
 }
 
 void Server::modeCommand(std::vector<std::string> fields, Client &client){
@@ -291,22 +311,26 @@ void Server::modeCommand(std::vector<std::string> fields, Client &client){
 		return ;
 	}
 	if (fields.size() == 1){
-		//display channel mode
+		display_channel_mode(it->second, client);
 		return ; 
 	}
 	if (!it->second.isOperator(client.getNickname())){
 		replyTo(client.getSocket(), ERR_CHANOPRIVSNEEDED(client.getNickname(), it->first));
 		return ;
 	}
-	int j = 0;
-	for(size_t i = 2; i < fields.size(); i++){
-		if (!fields[i].empty()){
-			args.push_back(fields[i]);
-			std::cout << args[j] << std::endl;
-			j++;
-		}
+	if (check_flag_string(fields[1]) == 1){
+		replyTo(client.getSocket(), ERR_UNKNOWNMODE(client.getNickname()));
+		return ;
 	}
-	for(size_t i = 0; i < fields[1].size(); i++){
+	for(size_t i = 2; i < fields.size(); i++)
+		if (!fields[i].empty())
+			args.push_back(fields[i]);
+	if (check_params(args, fields[1]) == 1){
+		replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "MODE"));
+		return ;
+	}
+	size_t i = 0;
+	for(; i < fields[1].size(); i++){
 		if (fields[1][i] == '+'){
 			sign = true;
 			i++;
@@ -325,9 +349,9 @@ void Server::modeCommand(std::vector<std::string> fields, Client &client){
 			limitFlag(it->second, sign, args);
 		else if (fields[1][i] == 't')
 			topicFlag(it->second, sign, args);
-		else
-			 replyTo(client.getSocket(), ERR_UMODEUNKNOWNFLAG(client.getNickname()));
 	}
+	if (i == fields.size())
+		replyTo(client.getSocket(), )
 }
 
 // mode #channel +o 

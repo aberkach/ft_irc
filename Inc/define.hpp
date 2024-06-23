@@ -101,11 +101,13 @@
 #define ERR_BADCHANNELKEY(client, channel)                  ":" SERVERNAME " 475 " + (client) + " " + (channel) + " :Cannot join channel (+k)\r\n"
 #define ERR_BADCHANMASK(channel)                            ":" SERVERNAME " 476 " + (channel) + " :Bad Channel Mask\r\n"
 //mode replys
-#define ERR_UMODEUNKNOWNFLAG(client)                        ":" SERVERNAME " 501 " + (client) + " :Unknown MODE flag" + "\r\n"
 #define ERR_CHANNELISFULL(client, channel)                  ":" SERVERNAME " 471 " + (client) + " " + (channel) + ": Cannot channel (+l)\r\n"
-#define ERR_USERNOTINCHANNEL(client, nick, channel)         ":" SERVERNAME " 441 " + (client) + " " + (nick) + " " + (channel) + ": They aren't on that\r\n"
-// #define ERR_NONICKNAMEGIVEN(client)                         ":" SERVERNAME " 431 " + (client) + ": No nickname given\r\n"
+#define ERR_USERNOTINCHANNEL(client, nick, channel)         ":" SERVERNAME " 441 " + (client) + " " + (nick) + " " + (channel) + ": They aren't on that channel\r\n"
 #define ERR_INVITEONLYCHAN(client, channel)                 ":" SERVERMODE " 431 " + (client) + " " + (channel) + ":Cannot join channel (+i)\r\n"
+#define ERR_UNKNOWNMODE(client)                             ":" SERVERNAME " 472 " + (client) + " :unknown mode char to me\r\n"
+#define RPL_YOUREOPER(client)                               ":" SERVERNAME " 381 " + (client) + ":You are now an IRC operator\r\n"
+#define RPL_CHANNELMODEIS(client, channel, params)          ":" SERVERNAME " 324 " + (client) + " " + (channel) + " " + (params) + "\r\n"
+
 // #define ERR_CHANOPRIVSNEEDED(client, channel)               ":" SERVERNAME " 481 " + (client) + " :You're not channel operator\r\n"
 
 
