@@ -14,14 +14,6 @@
 
 
 #include "../../Inc/ft_irc.hpp"
-#include "server.hpp"
-#include <cstddef>
-#include <cstdlib>
-#include <arpa/inet.h> // print ip adrss
-#include <iostream>
-#include <sys/poll.h>
-#include "../client/client.hpp"
-#include "../channel/channel.hpp"
 
 void Err(std::string msg, int exitFalg)
 {
@@ -45,6 +37,7 @@ std::string stringUpper(const std::string &_str)
 
     for (std::string::size_type i = 0; i < _str.size(); ++i)
         upper[i] = ::toupper(_str[i]);
+
 	return(upper);
 }
 
@@ -162,7 +155,6 @@ void Server::handlIncomeConnections()
 				_pollFds.resize(_pollFds.size() * 2);
 	        // Add the new client socket to the fds array and clientsFds map
 	        std::cout << "New incoming connection - " << newSck << std::endl;
-			// std::cout << client_adrs.sin_addr.s_addr << std::endl;
 	        fcntl(newSck, F_SETFL, O_NONBLOCK);
 			_pollFds[_nfds].fd = newSck;
 	        _pollFds[_nfds].events = POLLIN;
@@ -173,6 +165,7 @@ void Server::handlIncomeConnections()
 	    }
 	}
 }
+
 
 void operatorFlag(Client &client, chnMapIt &channel, bool sign, std::vector<std::string>& args)
 {
@@ -254,7 +247,7 @@ void topicFlag(Channel &channel, bool sign, std::vector<std::string> args)
 	(void)args;
 }
 
-int check_flag_string(std::string flags){
+int check_flag_string(std::string flags) {
 	if (flags[0] != '+' && flags[0] != '-')
 		return 1;
 	for (size_t i = 0; i < flags.size(); i++)
@@ -263,7 +256,7 @@ int check_flag_string(std::string flags){
 	return 0;
 }
 
-int check_params(std::vector<std::string> args, std::string flags){
+int check_params(std::vector<std::string> args, std::string flags) {
 	bool sign = false;
 	size_t count = 0;
 	for(size_t i = 0; i < flags.size(); i++){
@@ -283,7 +276,7 @@ int check_params(std::vector<std::string> args, std::string flags){
 	return 0;
 }
 
-void display_channel_mode(Channel channel, Client &client){
+void display_channel_mode(Channel channel, Client &client) {
 	std::string str;
 	str += "+";
 	if (channel.getIsInviteOnly() == true)
@@ -295,66 +288,81 @@ void display_channel_mode(Channel channel, Client &client){
 	replyTo(client.getSocket(), RPL_CHANNELMODEIS(client.getNickname(), channel.getName(), str));
 }
 
-void Server::modeCommand(std::vector<std::string> fields, Client &client){
+// mode command
+void Server::modeCommand(std::vector<std::string> fields, Client &client) {
 	bool sign = false;
 	std::vector<std::string> args;
 	
 	if (fields[0].empty())
 		replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "MODE"));
+
 	chnMapIt it = _channels.find(fields[0]);
-	if (it == _channels.end()){
+	if (it == _channels.end()) {
 		replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(client.getNickname(), fields[0]));
 		return ;
 	}
-	if (!it->second.isClientExist(client.getNickname())){
+
+	if (!it->second.isClientExist(client.getNickname())) {
 		replyTo(client.getSocket(), ERR_USERNOTINCHANNEL(client.getNickname(), client.getNickname(), it->first));
 		return ;
 	}
-	if (fields.size() == 1){
+
+	if (fields.size() == 1) {
 		display_channel_mode(it->second, client);
 		return ; 
 	}
-	if (!it->second.isOperator(client.getNickname())){
+
+	if (!it->second.isOperator(client.getNickname())) {
 		replyTo(client.getSocket(), ERR_CHANOPRIVSNEEDED(client.getNickname(), it->first));
 		return ;
 	}
-	if (check_flag_string(fields[1]) == 1){
+
+	if (check_flag_string(fields[1]) == 1) {
 		replyTo(client.getSocket(), ERR_UNKNOWNMODE(client.getNickname()));
 		return ;
 	}
+
 	for(size_t i = 2; i < fields.size(); i++)
 		if (!fields[i].empty())
 			args.push_back(fields[i]);
-	if (check_params(args, fields[1]) == 1){
+	
+	if (check_params(args, fields[1]) == 1) {
 		replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "MODE"));
 		return ;
 	}
+
 	size_t i = 0;
-	for(; i < fields[1].size(); i++){
+	for(; i < fields[1].size(); i++) {
 		if (fields[1][i] == '+'){
 			sign = true;
 			i++;
 		}
-		else if (fields[1][i] == '-'){
+
+		else if (fields[1][i] == '-') {
 			sign = false;
 			i++;
 		}
+
 		if (fields[1][i] == 'o')
 			operatorFlag(client, it, sign, args);
+		
 		else if (fields[1][i] == 'k')
 			keyWordFlag(it->second, sign, args);
+		
 		else if (fields[1][i] == 'i')
 			invetOnlyFlag(it->second, sign);
+		
 		else if (fields[1][i] == 'l')
 			limitFlag(it->second, sign, args);
+		
 		else if (fields[1][i] == 't')
 			topicFlag(it->second, sign, args);
 	}
-	if (i == fields.size())
-		replyTo(client.getSocket(), )
+	//if (i == fields.size())
+	//	replyTo(client.getSocket(), )
 }
 
-// mode #channel +o 
+// run the correct command 
 void Server::commandList(const std::string& message, std::vector<std::string> &fields, Client &user)
 {
 	std::string command(fields[0]);
@@ -398,7 +406,6 @@ void Server::commandList(const std::string& message, std::vector<std::string> &f
 		replyTo(user.getSocket(), ERR_UNKNOWNCOMMAND(user.getNickname(), command));
 }
 
-
 // Handle incoming data from clients :
 void 
 Server::handleIncomeData(int i) 
@@ -421,7 +428,7 @@ Server::handleIncomeData(int i)
 		buffer[rc] = '\0';
 		std::string rec(buffer);
 		// check if the message is valid (finished by \r\n)
-		if (rec.find("\r") == std::string::npos && rec.find_first_of("\n") == std::string::npos)
+		if (rec.find_first_of("\r") == std::string::npos && rec.find_first_of("\n") == std::string::npos)
 		{
 			_clients.find(_pollFds[i].fd)->second._clientBuffer += rec;
 			return;
@@ -434,7 +441,6 @@ Server::handleIncomeData(int i)
 		// remove the remove all spaces from the message (included \r\n)
 		rec = trimTheSpaces(rec);
 		// split the message by space
-		
 		std::vector<std::string> fields = splitBySpace(rec);
 		if (!fields.empty())
 		{
@@ -445,8 +451,7 @@ Server::handleIncomeData(int i)
 		}
 	}
 }
-// lFTmZkkDWY
-//zillow
+
 
 int Server::createServer() 
 {
