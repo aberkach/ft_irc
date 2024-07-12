@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 14:50:26 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/12 00:02:52 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/12 23:44:42 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@
 typedef std::map<std::string, Channel>::iterator chnMapIt;
 
 class Server {
+  // command dispatching mechanism
+  
   private:
         uint16_t	                      _port;
         std::string                     _password;
@@ -37,6 +39,8 @@ class Server {
         std::map<std::string, Channel>  _channels; // list of channels in the server
 
   public:
+        typedef void (Server::*CommandHandler)(std::vector<std::string>&, Client&);
+        std::map<std::string, CommandHandler> _commands;
         Server(void);
         Server(uint16_t port, char *password);
 
@@ -47,24 +51,21 @@ class Server {
         void  handlIncomeConnections();
         void  handleIncomeData(int i);
 
-        void commandList(const std::string& message, std::vector<std::string> &fields, Client &cling);
-        // find client 
-
-        // void updateFileDescrior(int *ng);
+        void commandRunner(std::vector<std::string> &fields, Client &cling);
 
         ~Server();
 
       private:
-        void  passCommand(const std::vector<std::string> &fields, Client &user);
-        void  nickCommand(const std::vector<std::string> &fields, Client &user);
-        void  userCommand(const std::string& message, const std::vector<std::string> &fields, Client &user);
+        void  passCommand(std::vector<std::string> &fields, Client &client);
+        void  nickCommand(std::vector<std::string> &fields, Client &client);
+        void  userCommand(std::vector<std::string> &fields, Client &client);
         void  joinCommand(std::vector<std::string> &fields, Client &client);
         bool  createChannel(std::string &chnName, std::vector<std::string> &keys, Client &client);
         void  processTheJoinArgs(std::vector<std::string> &channels , std::vector<std::string> &keys, Client &client);
         bool  joinChannel(std::string &chnName, std::vector<std::string> &keys, Client &client, chnMapIt &);
         bool  privmsgChannel(std::string &chnName, std::vector<std::string> &keys, Client &client, chnMapIt &);
         
-        void  privmsgCommand(const std::string& message, std::vector<std::string> &fields, Client &user);
+        void  privmsgCommand(std::vector<std::string> &fields, Client &user);
 
         // operators methods :
 
@@ -74,9 +75,10 @@ class Server {
         void quitCommand(std::vector<std::string> &fields, Client &client);
         void partCommand(std::vector<std::string> &fields, Client &client);
         void listCommand(std::vector<std::string> &fields, Client &client);
-        void modeCommand(std::vector<std::string> vector, Client &client);
+        void modeCommand(std::vector<std::string> &fields, Client &client);
         size_t countUsersInChannel(std::string &chnName);
 };
+
 
 std::vector<std::string> splitBySpace(std::string str);
 std::vector<std::string> splitByDelim(std::string str, char delim);
