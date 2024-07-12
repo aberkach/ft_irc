@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yamajid <yamajid@student.42.fr>            +#+  +:+       +#+        */
+/*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 14:50:26 by abberkac          #+#    #+#             */
-/*   Updated: 2024/05/15 20:52:41 by yamajid          ###   ########.fr       */
+/*   Updated: 2024/07/12 00:02:52 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ class Server {
         void partCommand(std::vector<std::string> &fields, Client &client);
         void listCommand(std::vector<std::string> &fields, Client &client);
         void modeCommand(std::vector<std::string> vector, Client &client);
-
+        size_t countUsersInChannel(std::string &chnName);
 };
 
 std::vector<std::string> splitBySpace(std::string str);

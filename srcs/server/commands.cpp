@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:19:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/04/27 21:05:46 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/12 00:06:14 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,9 +139,17 @@ bool Server::joinChannel(std::string &chnName, std::vector<std::string> &keys, C
                 if (keys[0] == chnIt->second.getKey())
                 {
                     // add the client to the channel
+                    if (chnIt->second.getIsInviteOnly() == true)
+                    {
+                        if (chnIt->second.isInvited(client))
+                            chnIt->second.removeInvite(client);
+                        else
+                        {
+                            replyTo(client.getSocket(), ERR_INVITEONLYCHAN(client.getNickname(), chnName));
+                            return false;
+                        }
+                    }
                     chnIt->second.addUser(client);
-                    if (chnIt->second.isInvited(client))
-                        chnIt->second.removeInvite(client);
                     keys.erase(keys.begin());
                 }
                 // if the key is incorrect
@@ -157,14 +165,22 @@ bool Server::joinChannel(std::string &chnName, std::vector<std::string> &keys, C
             else
             {
                 // if the channel has no key, add the client to the channel
-                if (chnIt->second.getKey() == "")
-                    chnIt->second.addUser(client);
-                else
+                if (chnIt->second.getIsInviteOnly() == true)
                 {
-                    // here we send an error message to the client to inform him that the channel has a key
-                    replyTo(client.getSocket(), ERR_BADCHANNELKEY(client.getNickname(), chnName));
+                    if (chnIt->second.isInvited(client))
+                        chnIt->second.removeInvite(client);
+                    else
+                    {
+                        replyTo(client.getSocket(), ERR_INVITEONLYCHAN(client.getNickname(), chnName));
+                        return false;
+                    }
+                }
+                else if (Server::countUsersInChannel(chnName) >= chnIt->second.getMaxUsers())
+                {
+                    replyTo(client.getSocket(), ERR_CHANNELISFULL(client.getNickname(), chnName));
                     return false;
                 }
+                chnIt->second.addUser(client);
             }
         }
         // here we send a message to the client to inform him that he joined the channel and broadcast the message to the other users in the channel
@@ -197,6 +213,7 @@ bool Server::createChannel(std::string &chnName, std::vector<std::string> &keys,
             // here we send an error message to the client to inform him that the key is incorrect
             keys.erase(keys.begin());
             _channels.erase(chnName);
+            // shouldn't send the error message to the client !!!!!!!!!!
             replyTo(client.getSocket(), ERR_BADCHANNELKEY(client.getNickname(), chnName));
             return false;
         }
@@ -238,7 +255,7 @@ void Server::processTheJoinArgs(std::vector<std::string> &channels , std::vector
                 std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
                 chnIt = _channels.find(chnName);
                 
-
+                // here we send a message to the client to inform him that he joined the channel and broadcast the message to the other users in the channel
                 for (std::map<std::string, Client>::iterator it = chnIt->second.getUsers().begin(); it != chnIt->second.getUsers().end(); it++)
                 {
                     std::string usersList = chnIt->second.getChannelUsersInString();
@@ -247,10 +264,11 @@ void Server::processTheJoinArgs(std::vector<std::string> &channels , std::vector
                     replyTo(client.getSocket(), RPL_ENDOFNAMES(chnIt->second.getUserName(it->first), chnName));
                 }
             }
-
-            // join the channel
-            if (!joinChannel(chnName, keys, client, chnIt))
-                continue;
+            // join the existing channel
+            else {   
+                if (!joinChannel(chnName, keys, client, chnIt))
+                    continue;
+            }
         }
     }
 }

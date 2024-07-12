@@ -103,7 +103,7 @@
 //mode replys
 #define ERR_CHANNELISFULL(client, channel)                  ":" SERVERNAME " 471 " + (client) + " " + (channel) + ": Cannot channel (+l)\r\n"
 #define ERR_USERNOTINCHANNEL(client, nick, channel)         ":" SERVERNAME " 441 " + (client) + " " + (nick) + " " + (channel) + ": They aren't on that channel\r\n"
-#define ERR_INVITEONLYCHAN(client, channel)                 ":" SERVERMODE " 431 " + (client) + " " + (channel) + ":Cannot join channel (+i)\r\n"
+#define ERR_INVITEONLYCHAN(client, channel)                 ":" SERVERNAME " 473 " + (client) + " " + (channel) + ":Cannot join channel (+i)\r\n"
 #define ERR_UNKNOWNMODE(client)                             ":" SERVERNAME " 472 " + (client) + " :unknown mode char to me\r\n"
 #define RPL_YOUREOPER(client)                               ":" SERVERNAME " 381 " + (client) + ":You are now an IRC operator\r\n"
 #define RPL_CHANNELMODEIS(client, channel, params)          ":" SERVERNAME " 324 " + (client) + " " + (channel) + " " + (params) + "\r\n"
@@ -162,7 +162,7 @@
 #define RPL_ENDOFNAMES(client, channel)                                 ":" SERVERNAME " 366 " + (client) + " " + (channel) + " :End of /NAMES list" + "\r\n"
 
 
-#define RPL_INVITING(inviting, invited, channel)                        ":" SERVERNAME " 341 " + inviting + " " + invited + " " + channel + " :Inviting " + invited + " to " + channel + "\r\n"
+#define RPL_INVITING(inviting, invited, channel)                        ":" SERVERNAME " 341 " + inviting + " inviting " + invited + " to " + channel + "\r\n"
 #define RPL_INVITED(nick, username, clienthostname, invited, channel) ":" + nick + "!" + username + "@" + clienthostname + " INVITE " + invited + " :" + channel + "\r\n"
 #define QUIT_MSG(nickname, username, ipaddr, reason)        ":" + (nickname) + "!" + (username) + "@" + (ipaddr) + " QUIT :Client Quit" + (reason) + "\r\n"
 #define PART_MSG(nickname, username, ipaddr, channel, reason)         ":" + (nickname) + "!" + (username) + "@" + (ipaddr) + " PART " + (channel) + " " + (reason) + "\r\n"
@@ -187,7 +187,7 @@
 // #define RPL_WHOREPLY(client, channel, username, hostname, servername, nickname, mode, realname)     ":" SERVERNAME " 352 " + (client) + " " + (channel) + " " + (username) + " " + (hostname) + " " + (servername) + " " + (nickname) + " " + (mode) + " " + (realname) + "\r\n"
 
 // #define PART_MSG(nickname, username, ipaddr, channel, reason)         ":" + (nickname) + "!" + (username) + "@" + ipaddr + " PART " + (channel) + " " + (reason) + "\r\n"
-// #define ERR_INVITEONLYCHAN(client, channel)                           ":" SERVERNAME " 473 " + (client) + " " + (channel) + " :Cannot join channel (+i)" + "\r\n"
+// #define ERR_INVITEONLYCHAN(client, channel)                           ":" SERVERNAME " ç " + (client) + " " + (channel) + " :Cannot join channel (+i)" + "\r\n"
 // #define ERR_UNKNOWNMODE(client, modechar)                             ":" SERVERNAME " 472 " + (client) + " " + (modechar) + " :is unknown mode char to me" + "\r\n"
 // #define ERR_CHANNELISFULL(client, channel)                            ":" SERVERNAME " 471 " + (client) + " " + (channel) + " :Cannot join channel (+l)" + "\r\n"
 // #define ERR_KEYALREADYSET(client, channel)                            ":" SERVERNAME " 467 " + (client) + " " + (channel) + " :Channel key already set" + "\r\n"

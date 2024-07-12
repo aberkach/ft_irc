@@ -13,7 +13,11 @@
 /* ************************************************************************** */
 
 
+#include "server.hpp"
 #include "../../Inc/ft_irc.hpp"
+#include <cstddef>
+#include <string>
+#include <sys/poll.h>
 
 void Err(std::string msg, int exitFalg)
 {
@@ -136,6 +140,15 @@ Server::Server(uint16_t port, char *password) : _port(port), _password(password)
 	_pollFds[0].revents = 0;
 }
 
+size_t Server::countUsersInChannel(std::string &chnName)
+{
+	chnMapIt it = _channels.find(chnName);
+	if (it == _channels.end())
+		return 0;
+	return it->second.getUsers().size();
+}
+
+
 // Handle incoming connections:
 void Server::handlIncomeConnections() 
 {
@@ -181,9 +194,9 @@ void operatorFlag(Client &client, chnMapIt &channel, bool sign, std::vector<std:
 			replyTo(client.getSocket(), RPL_YOUREOPER(client.getNickname()));
 		}
 	}
-	else{
+	else {
 		std::map<std::string, Client> it = channel->second.getUsers();
-		if ((it.find(args[0])) == it.end()){
+		if ((it.find(args[0])) == it.end()) {
 			replyTo(client.getSocket(), ERR_USERNOTINCHANNEL(client.getNickname(), args[0], channel->first));
 			return ;
 		}
@@ -242,9 +255,11 @@ void limitFlag(Channel &channel, bool sign, std::vector<std::string>& args)
 
 void topicFlag(Channel &channel, bool sign, std::vector<std::string> args)
 {
-	(void)channel;
-	(void)sign;
-	(void)args;
+	(void) args;
+	if (sign)
+		channel.setTopicFlag(true);
+	else
+		channel.setTopicFlag(false);
 }
 
 int check_flag_string(std::string flags) {
@@ -287,6 +302,12 @@ void display_channel_mode(Channel channel, Client &client) {
 		str += "l";
 	replyTo(client.getSocket(), RPL_CHANNELMODEIS(client.getNickname(), channel.getName(), str));
 }
+
+// ----------------------- to do -----------------------
+
+// need to check the mode in the channel
+
+// -----------------------------------------------------
 
 // mode command
 void Server::modeCommand(std::vector<std::string> fields, Client &client) {
@@ -418,7 +439,15 @@ Server::handleIncomeData(int i)
 		Err("recv() failed", 0);
 	else if (rc == 0) {
 		std::cout << "Connection closed" << std::endl;
-		// Remove closed client from fds array and clientsFds map
+		// Remove closed client from fds array and clientsFds map)
+		for (std::map<std::string, Channel>::iterator it = _channels.begin(); it != _channels.end(); it++)
+		{
+			Client client = _clients.find(_pollFds[i].fd)->second;
+			std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
+			std::string quitMessage = QUIT_MSG(client.getNickname(), client.getUsername(), clientHost, "Forced quit");			
+			it->second.broadCast(quitMessage, _pollFds[i].fd);
+			it->second.removeUser(_clients.find(_pollFds[i].fd)->second);
+		}
 		_clients.erase(_pollFds[i].fd);
 		close(_pollFds[i].fd);
 		_pollFds[i].fd = -1;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yamajid <yamajid@student.42.fr>            +#+  +:+       +#+        */
+/*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/05/20 18:04:17 by yamajid          ###   ########.fr       */
+/*   Updated: 2024/07/12 01:15:54 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,16 @@ std::string Channel::getTopic() const
 void Channel::setTopic(std::string topic)
 {
     _topic = topic;
+}
+
+bool Channel::getTopicFlag() const
+{
+    return _topicFlag;
+}
+
+void Channel::setTopicFlag(bool topicFlag)
+{
+    _topicFlag = topicFlag;
 }
 
 std::vector<Client> Channel::getOperator(){
