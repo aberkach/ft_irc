@@ -15,9 +15,11 @@
 
 #include "server.hpp"
 #include "../../Inc/ft_irc.hpp"
+#include <array>
 #include <cstddef>
 #include <string>
 #include <sys/poll.h>
+#include <vector>
 
 void Err(std::string msg, int exitFalg)
 {
@@ -25,8 +27,6 @@ void Err(std::string msg, int exitFalg)
 	if (exitFalg)
 		exit(1);
 }
-
-
 
 std::string trimTheSpaces(const std::string& str)
 {
@@ -140,6 +140,21 @@ Server::Server(uint16_t port, char *password) : _port(port), _password(password)
 	_pollFds[0].fd = _listen_sd;
 	_pollFds[0].events = POLLIN;
 	_pollFds[0].revents = 0;
+
+	// Initialize the commands map
+
+	_commands["PASS"] = &Server::passCommand; 
+	_commands["NICK"] = &Server::nickCommand;
+	_commands["USER"] = &Server::userCommand;
+	_commands["PRIVMSG"] = &Server::privmsgCommand;
+	_commands["JOIN"] = &Server::joinCommand;
+	_commands["QUIT"] = &Server::quitCommand;
+	_commands["KICK"] = &Server::kickCommand;
+	_commands["TOPIC"] = &Server::topicCommand;
+	_commands["INVITE"] = &Server::inviteCommand;
+	_commands["PART"] = &Server::partCommand;
+	_commands["LIST"] = &Server::listCommand;
+	_commands["MODE"] = &Server::modeCommand;
 }
 
 size_t Server::countUsersInChannel(std::string &chnName)
@@ -312,7 +327,7 @@ void display_channel_mode(Channel channel, Client &client) {
 // -----------------------------------------------------
 
 // mode command
-void Server::modeCommand(std::vector<std::string> fields, Client &client) {
+void Server::modeCommand(std::vector<std::string> &fields, Client &client) {
 	bool sign = false;
 	std::vector<std::string> args;
 	
@@ -386,45 +401,20 @@ void Server::modeCommand(std::vector<std::string> fields, Client &client) {
 }
 
 // run the correct command 
-void Server::commandList(const std::string& message, std::vector<std::string> &fields, Client &user)
+void Server::commandRunner(std::vector<std::string> &fields, Client &user)
 {
 	std::string command(fields[0]);
 	fields.erase(fields.begin());
 
 
-	if (command.empty())
-		return;
-	else if (command == "PASS")
-		passCommand(fields, user);
-	else if (command == "NICK")
-		nickCommand(fields, user);
-	else if (command == "USER")
-		userCommand(message, fields, user);
-	else if (command == "PRIVMSG")
-		privmsgCommand(message, fields, user);
-	else if (command == "JOIN")
-		joinCommand(fields, user);
-	else if (command == "QUIT")
-		quitCommand(fields, user);
-	else if (command == "KICK")
-		kickCommand(fields, user);
-	else if (command == "PONG")
+	if (_commands.find(command) != _commands.end())
+		(this->*_commands[command])(fields, user);
+	else if (command == "PING")
 	{
 		if (!fields.empty())
 			replyTo(user.getSocket(), fields[0]);
 		replyTo(user.getSocket(), ERR_NEEDMOREPARAMS(user.getNickname(), command));
 	}
-	else if (command == "TOPIC") {
-		topicCommand(fields, user);
-	}
-	else if (command == "PART")
-		partCommand(fields, user);
-	else if (command == "LIST")
-		listCommand(fields, user);
-	else if (command == "INVITE")
-		inviteCommand(fields, user);
-	else if (command == "MODE")
-		modeCommand(fields, user);
 	else
 		replyTo(user.getSocket(), ERR_UNKNOWNCOMMAND(user.getNickname(), command));
 }
@@ -476,7 +466,7 @@ Server::handleIncomeData(int i)
 		if (!fields.empty())
 		{
 			fields[0] = stringUpper(fields[0]);
-			commandList(rec ,fields, _clients.find(_pollFds[i].fd)->second);
+			commandRunner(fields, _clients.find(_pollFds[i].fd)->second);
 		
 			_clients.find(_pollFds[i].fd)->second.refStatus();
 		}

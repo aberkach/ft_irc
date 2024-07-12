@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:19:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/12 00:06:14 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/12 23:41:29 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -297,7 +297,7 @@ void Server::joinCommand(std::vector<std::string> &fields, Client &client) {
 		replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));
 }
 
-void Server::passCommand(const std::vector<std::string> &fields, Client &user)
+void Server::passCommand(std::vector<std::string> &fields, Client &user)
 {
 	if (user.getValidPass() == false)
 	{
@@ -313,7 +313,7 @@ void Server::passCommand(const std::vector<std::string> &fields, Client &user)
 }
 
 
-void Server::nickCommand(const std::vector<std::string> &fields, Client &user) // relook
+void Server::nickCommand(std::vector<std::string> &fields, Client &user) // relook
 {
 	if (user.getValidPass() == true)
 	{
@@ -343,7 +343,7 @@ void Server::nickCommand(const std::vector<std::string> &fields, Client &user) /
 		replyTo(user.getSocket(), ERR_FIRSTCOMMAND);
 }
 
-void Server::userCommand(const std::string& message, const std::vector<std::string> &fields, Client &user)
+void Server::userCommand(std::vector<std::string> &fields, Client &user)
 {
 	if (!user.getRegistered())
 	{
@@ -351,7 +351,7 @@ void Server::userCommand(const std::string& message, const std::vector<std::stri
 		{
 			if (fields.size() >= 4)
 			{
-                std::string realName = (fields[3][0] == ':') ? message.substr(message.find_first_of(":") + 1) : fields[3];
+                std::string realName = fields[3];
                 if (realName.empty())
                     replyTo(user.getSocket(), ERR_NEEDMOREPARAMS(std::string("Guest"), "USER"));
                 else if (!user.setUsername(fields[0])|| fields[1] != "0" || fields[2] != "*" || !user.setRealname(realName))
@@ -367,7 +367,7 @@ void Server::userCommand(const std::string& message, const std::vector<std::stri
 		replyTo(user.getSocket(), ERR_ALREADYREGISTERED(user.getNickname()));
 }
 
-void Server::privmsgCommand(const std::string& message, std::vector<std::string> &fields, Client &user)
+void Server::privmsgCommand(std::vector<std::string> &fields, Client &user)
 {
     if (user.getRegistered())
     {
@@ -375,7 +375,7 @@ void Server::privmsgCommand(const std::string& message, std::vector<std::string>
 			replyTo(user.getSocket(), ERR_NORECIPIENT(user.getNickname(), "PRIVMSG"));
         else if (fields.size() >= 2)
         {
-            std::string msg = (fields[1][0] == ':') ? message.substr(message.find_first_of(":") + 1) : fields[1];
+            std::string msg = fields[1];
             if (msg.empty())
                 return (replyTo(user.getSocket(), ERR_NOTEXTTOSEND(user.getNickname())));
             if (fields[0][0] == '#')
