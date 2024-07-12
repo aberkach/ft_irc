@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   operatorCommands.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yamajid <yamajid@student.42.fr>            +#+  +:+       +#+        */
+/*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 23:33:20 by abberkac          #+#    #+#             */
-/*   Updated: 2024/05/20 18:06:55 by yamajid          ###   ########.fr       */
+/*   Updated: 2024/07/12 01:25:11 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,10 @@ void Server::inviteCommand(std::vector<std::string> &fields, Client &client) {
         {
             // here we send a message to the client that has been invited
             std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
-            std::string inviteMessage = RPL_INVITED(client.getNickname(), client.getUsername(), clientHost, invitedUser, chnName);
             replyTo(client.getSocket(), RPL_INVITING(client.getNickname(), invitedUser, chnName));
+
+            
+            std::string inviteMessage = RPL_INVITED(client.getNickname(), client.getUsername(), clientHost, invitedUser, chnName);
             for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
             {
                 if (it->second.getNickname() == invitedUser)
@@ -72,7 +74,9 @@ void Server::topicCommand (std::vector<std::string> &fields, Client &client) {
                 replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(clientHost, chnName));
                 return;
             }
-            if (chnIt->second.isOperator(client.getNickname())) {
+            // if the is operator and the topic is set or the topic is not set
+            if ((chnIt->second.isOperator(client.getNickname()) \
+                && chnIt->second.getTopicFlag() == true) || chnIt->second.getTopicFlag() == false) {
                 topic = fields[1];
                 chnIt->second.setTopic(topic);
                 std::string clintHost = inet_ntoa(client.getAddr().sin_addr);
@@ -96,12 +100,10 @@ void Server::topicCommand (std::vector<std::string> &fields, Client &client) {
                 std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
                 // need to send the topic to the client
                 topic = chnIt->second.getTopic();
-                std::cout << "topic: " << topic << std::endl;
                 replyTo(client.getSocket(), RPL_TOPICSETBY(client.getNickname(), client.getUsername(), clientHost, chnName, topic));
             }
             else
                 replyTo(client.getSocket(), ERR_NOTONCHANNEL(client.getNickname(), chnName));
-                
         }
         else
             replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "TOPIC"));

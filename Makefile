@@ -7,10 +7,9 @@ CPPFLAGS := -Wall -Wextra -Wshadow -fsanitize=address
 # -g -Werror stop rendring global useless in local
 
 HEADER := ./srcs/server/server.hpp	./srcs/server/client.hpp	./srcs/tools/health.hpp	\
-		  ./srcs/Poller/Poller.hpp	./Inc/ft_irc.hpp	./Inc/define.hpp	\
-		  ./srcs/channel/channel.hpp
+			./Inc/ft_irc.hpp	./Inc/define.hpp	./srcs/channel/channel.hpp
 
-FILE := ./srcs/client/client.cpp	./srcs/server/server.cpp 		./srcs/tools/health.cpp		./srcs/Poller/Poller.cpp \
+FILE := ./srcs/client/client.cpp	./srcs/server/server.cpp 		./srcs/tools/health.cpp	 \
 		./srcs/channel/channel.cpp	./srcs/server/commands.cpp		./srcs/server/operatorCommands.cpp \
 		./srcs/main.cpp
 OBJ := $(FILE:.cpp=.o)

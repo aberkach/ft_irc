@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yamajid <yamajid@student.42.fr>            +#+  +:+       +#+        */
+/*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:32:12 by abberkac          #+#    #+#             */
-/*   Updated: 2024/05/20 18:04:29 by yamajid          ###   ########.fr       */
+/*   Updated: 2024/07/12 01:15:39 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ class Channel
       std::vector<Client>             _chanInvites; // list of invited users in the channel
       bool                           _isInviteOnly; // if the channel is invite only
       size_t                        _maxUsers; // max number of users in the channel
+      bool                          _topicFlag; // if the topic is set
   
   public:
     Channel();
@@ -46,12 +47,14 @@ class Channel
     std::map<std::string, Client> &getUsers();
     std::string &getChannelUsersInString();
     std::vector<std::string> getUsersList();
+    bool getTopicFlag() const;
 
     void setName(std::string name);
     void setTopic(std::string topic);
     void setKey(std::string key);
     void setIsInviteOnly(bool isInviteOnly);
     void setMaxUsers(size_t maxUsers);
+    void setTopicFlag(bool topicFlag);
 
     void addUser(Client &user);
 	void removeUser(Client &client);
