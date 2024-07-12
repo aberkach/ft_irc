@@ -26,6 +26,8 @@ void Err(std::string msg, int exitFalg)
 		exit(1);
 }
 
+
+
 std::string trimTheSpaces(const std::string& str)
 {
     size_t first = str.find_first_not_of(" \t\v\b\r\n");
