@@ -171,6 +171,8 @@
 #define RPL_LISTEND(client)                                          ":" SERVERNAME " 323 " + (client) + " :End of /LIST" + "\r\n"
 // #define ERR_NORECIPENT(client, command)                              ":" SERVERNAME " 411 " + (client) + " :No recipient given " + (command) + "\r\n"
 
+#define RPL_WHOISOPERATOR(client)                                   ":" SERVERNAME " 313 " + (client) + " " + " :is channel operator" + "\r\n"
+
 // #define RPL_CREATIONTIME(client, channel, creation_time)             ":" SERVERNAME " 329 " + (client) + " " + (channel) + " " + (creation_time) + "\r\n"
 // #define RPL_ENDOFINVITELIST(client)                                  ":" SERVERNAME " 337 " + " :End of /INVITE list\r\n"
 // #define RPL_CHANNELMODEIS(client, channel, modestring, modargument)  ":" SERVERNAME " 324 " + (client) + " "+ (channel) + " " +(modestring) + " " + (modargument) + "\r\n"
@@ -188,7 +190,6 @@
 
 // #define PART_MSG(nickname, username, ipaddr, channel, reason)         ":" + (nickname) + "!" + (username) + "@" + ipaddr + " PART " + (channel) + " " + (reason) + "\r\n"
 // #define ERR_INVITEONLYCHAN(client, channel)                           ":" SERVERNAME " ç " + (client) + " " + (channel) + " :Cannot join channel (+i)" + "\r\n"
-// #define ERR_UNKNOWNMODE(client, modechar)                             ":" SERVERNAME " 472 " + (client) + " " + (modechar) + " :is unknown mode char to me" + "\r\n"
 // #define ERR_CHANNELISFULL(client, channel)                            ":" SERVERNAME " 471 " + (client) + " " + (channel) + " :Cannot join channel (+l)" + "\r\n"
 // #define ERR_KEYALREADYSET(client, channel)                            ":" SERVERNAME " 467 " + (client) + " " + (channel) + " :Channel key already set" + "\r\n"
 // #define ERR_ONEOUS(client, wrongnick)                                 ":" SERVERNAME " 432 " + (client) + " " + (wrongnick) + " :Erroneous Nickname" + "\r\n"
