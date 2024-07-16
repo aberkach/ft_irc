@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 14:50:26 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/12 23:44:42 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/16 03:26:32 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,8 @@ class Server {
   // command dispatching mechanism
   
   private:
-        uint16_t	                      _port;
+        uint16_t	                    _port;
+		static bool						_signal;
         std::string                     _password;
         int                             _listen_sd;
         struct sockaddr_in              _addr;
@@ -39,6 +40,7 @@ class Server {
         std::map<std::string, Channel>  _channels; // list of channels in the server
 
   public:
+
         typedef void (Server::*CommandHandler)(std::vector<std::string>&, Client&);
         std::map<std::string, CommandHandler> _commands;
         Server(void);
@@ -47,7 +49,9 @@ class Server {
         unsigned int  getPort() const { return _port; }
         std::string   getPassword() const { return _password; }
 
-        int   createServer();
+        void   createServer();
+		static void  sigHandler(int sigNumber);
+		void  cleanUp();
         void  handlIncomeConnections();
         void  handleIncomeData(int i);
 
