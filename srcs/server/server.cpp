@@ -21,6 +21,8 @@
 #include <sys/poll.h>
 #include <vector>
 
+bool Server::_signal = false;
+
 void Err(std::string msg, int exitFalg)
 {
 	std::cerr << msg << std::endl;
@@ -96,10 +98,11 @@ std::vector<std::string> splitByDelim(std::string str, char delim)
     return tokens;
 }
 
+
 // parameterized constructor : initialize the server socket and set the port number
 Server::Server(uint16_t port, char *password) : _port(port), _password(password)
 {
-	_pollFds.resize(1500);
+	_pollFds.resize(30);
 	_listen_sd = socket(AF_INET, SOCK_STREAM, 0); // Create a TCP socket
 	if (_listen_sd < 0)
 		Err("socket() failed", 1);
@@ -155,6 +158,28 @@ Server::Server(uint16_t port, char *password) : _port(port), _password(password)
 	_commands["PART"] = &Server::partCommand;
 	_commands["LIST"] = &Server::listCommand;
 	_commands["MODE"] = &Server::modeCommand;
+}
+
+
+void	Server::sigHandler(int sigNumber)
+{
+	(void)sigNumber;
+	Server::_signal = true;
+	std::cout << std::endl;
+}
+
+void Server::cleanUp()
+{
+	for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
+	{
+		std::cout << "Closing socket " << it->first << std::endl;
+		close(it->first);
+	}
+	if (_listen_sd > 0)
+	{
+		std::cout << "Closing server socket " << _listen_sd << std::endl;
+		close(_listen_sd);
+	}
 }
 
 size_t Server::countUsersInChannel(std::string &chnName)
@@ -444,7 +469,7 @@ Server::handleIncomeData(int i)
 }
 
 
-int Server::createServer() 
+void Server::createServer() 
 {
 	int		current_size;
 	int		rc;
@@ -456,6 +481,9 @@ int Server::createServer()
 	    // Wait for events on monitored file descriptors
 	    rc = poll(_pollFds.data(), _nfds, 0);
 
+		// Check if the server is shutting down by signal
+		if (Server::_signal)
+			throw std::runtime_error("Server is shutting down");
 	    // If poll failed or timeout occurred, continue to the next iteration
 	    if (rc == 0)
 	        continue;
