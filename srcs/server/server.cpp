@@ -139,13 +139,11 @@ Server::Server(uint16_t port, char *password) : _port(port), _password(password)
 	}
 	
 	// Initialize the fds array with the server socket
-	// memset(_pollFds, 0 , sizeof(_pollFds));
 	_pollFds[0].fd = _listen_sd;
 	_pollFds[0].events = POLLIN;
 	_pollFds[0].revents = 0;
 
 	// Initialize the commands map
-
 	_commands["PASS"] = &Server::passCommand; 
 	_commands["NICK"] = &Server::nickCommand;
 	_commands["USER"] = &Server::userCommand;
@@ -177,7 +175,7 @@ void Server::cleanUp()
 	}
 	if (_listen_sd > 0)
 	{
-		std::cout << "Closing server socket " << _listen_sd << std::endl;
+		std::cout << "Closing server socket" << std::endl;
 		close(_listen_sd);
 	}
 }
@@ -444,10 +442,11 @@ Server::handleIncomeData(int i)
 		buffer[rc] = '\0';
 		std::string rec(buffer);
 		// check if the message is valid (finished by \r\n)
-		if (rec.find_first_of("\r") == std::string::npos && rec.find_first_of("\n") == std::string::npos)
+		if (rec.find_first_of("\r") == std::string::npos || rec.find_first_of("\n") == std::string::npos)
 		{
+			std::cout << "hello" << std::endl;
 			_clients.find(_pollFds[i].fd)->second._clientBuffer += rec;
-			return;
+			return ;
 		}
 		else
 		{
@@ -468,7 +467,6 @@ Server::handleIncomeData(int i)
 	}
 }
 
-
 void Server::createServer() 
 {
 	int		current_size;
@@ -478,19 +476,11 @@ void Server::createServer()
 	// Start listening for incoming connections
 	std::cout << "server is running : " << std::endl;
 	while (true) {
-	    // Wait for events on monitored file descriptors
-	    rc = poll(_pollFds.data(), _nfds, 0);
-
 		// Check if the server is shutting down by signal
 		if (Server::_signal)
 			throw std::runtime_error("Server is shutting down");
-	    // If poll failed or timeout occurred, continue to the next iteration
-	    if (rc == 0)
-	        continue;
-		if (rc < 0) {
-	        perror("  poll() failed");
-	        continue;
-	    }
+	    if (poll(&_pollFds[0], _pollFds.size(), -1) == -1)
+	        throw std::runtime_error("poll() failed");
 		for (size_t i = 0; i < _nfds; i++) {
 			if (_pollFds[i].revents & POLLIN) 
 			{

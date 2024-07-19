@@ -6,11 +6,11 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:19:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/12 23:41:29 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/19 06:17:57 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "server.hpp"
+#include "../server/server.hpp"
 #include "../channel/channel.hpp"
 #include "../client/client.hpp"
 #include <cstddef>

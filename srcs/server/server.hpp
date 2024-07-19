@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 14:50:26 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/16 03:26:32 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/19 04:23:19 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ class Server {
   // command dispatching mechanism
   
   private:
-        uint16_t	                    _port;
+        uint16_t						_port;
 		static bool						_signal;
         std::string                     _password;
         int                             _listen_sd;
