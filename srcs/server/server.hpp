@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 14:50:26 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/19 04:23:19 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/21 23:32:41 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,8 @@ class Server {
         size_t countUsersInChannel(std::string &chnName);
 };
 
-
+void Err(std::string msg, int exitFalg);
+std::string trimTheSpaces(const std::string& str);
 std::vector<std::string> splitBySpace(std::string str);
 std::vector<std::string> splitByDelim(std::string str, char delim);
 std::string stringUpper(const std::string &_str);
