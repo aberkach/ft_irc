@@ -9,9 +9,10 @@ CPPFLAGS := -Wall -Wextra -Wshadow -fsanitize=address
 HEADER := ./srcs/server/server.hpp	./srcs/server/client.hpp	./srcs/tools/health.hpp	\
 			./Inc/ft_irc.hpp	./Inc/define.hpp	./srcs/channel/channel.hpp
 
-FILE := ./srcs/client/client.cpp	./srcs/server/server.cpp 		./srcs/tools/health.cpp	 \
-		./srcs/channel/channel.cpp	./srcs/commands/commands.cpp		./srcs/commands/operatorCommands.cpp \
-		./srcs/main.cpp
+FILE := ./srcs/client/client.cpp	./srcs/server/server.cpp 	./srcs/server/utils.cpp	./srcs/tools/health.cpp	 \
+		./srcs/channel/channel.cpp	./srcs/commands/additionalCommands.cpp		./srcs/commands/channelOpsCommands.cpp \
+		./srcs/commands/joinCommand.cpp			./srcs/commands/authenticationCommands.cpp		./srcs/commands/modeCommand.cpp \
+		./srcs/main.cpp 
 OBJ := $(FILE:.cpp=.o)
 
 M = MAKE_PUSH

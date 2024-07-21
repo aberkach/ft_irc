@@ -23,82 +23,6 @@
 
 bool Server::_signal = false;
 
-void Err(std::string msg, int exitFalg)
-{
-	std::cerr << msg << std::endl;
-	if (exitFalg)
-		exit(1);
-}
-
-std::string trimTheSpaces(const std::string& str)
-{
-    size_t first = str.find_first_not_of(" \t\v\b\r\n");
-    if (std::string::npos == first)
-        return str;
-    size_t last = str.find_last_not_of(" \t\v\b\r\n");
-    return str.substr(first, (last - first + 1));
-}
-
-std::string stringUpper(const std::string &_str)
-{
-	std::string upper(_str);
-
-    for (std::string::size_type i = 0; i < _str.size(); ++i)
-        upper[i] = ::toupper(_str[i]);
-
-	return(upper);
-}
-
-
-std::vector<std::string> splitBySpace(std::string str)
-{
-    // split the string by the delim
-    std::vector<std::string> tokens;
-    std::string token;
-
-	bool isTwoPoints = false;
-	for (size_t i = 0; i < str.length(); i++)
-    {
-		if (str[i] == ' ' && isTwoPoints == false)
-		{
-			if (token.empty())
-				continue;
-			tokens.push_back(token);
-			token.clear();
-		}
-		else if (str[i] == ':' && isTwoPoints == false)
-			isTwoPoints = true;
-		else
-            token += str[i];
-    }
-	tokens.push_back(token);
-    return tokens;
-}
-
-std::vector<std::string> splitByDelim(std::string str, char delim)
-{
-    // split the string by the delim
-    std::vector<std::string> tokens;
-    std::string token;
-
-    for (size_t i = 0; i < str.length(); i++)
-    {
-        if (str[i] == delim)
-        {
-			// skip the delim
-			if (token.empty())
-				continue;
-            tokens.push_back(token);
-            token.clear();
-        }
-        else
-            token += str[i];
-    }
-	tokens.push_back(token);
-    return tokens;
-}
-
-
 // parameterized constructor : initialize the server socket and set the port number
 Server::Server(uint16_t port, char *password) : _port(port), _password(password)
 {
@@ -159,27 +83,6 @@ Server::Server(uint16_t port, char *password) : _port(port), _password(password)
 }
 
 
-void	Server::sigHandler(int sigNumber)
-{
-	(void)sigNumber;
-	Server::_signal = true;
-	std::cout << std::endl;
-}
-
-void Server::cleanUp()
-{
-	for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
-	{
-		std::cout << "Closing socket " << it->first << std::endl;
-		close(it->first);
-	}
-	if (_listen_sd > 0)
-	{
-		std::cout << "Closing server socket" << std::endl;
-		close(_listen_sd);
-	}
-}
-
 size_t Server::countUsersInChannel(std::string &chnName)
 {
 	chnMapIt it = _channels.find(chnName);
@@ -219,179 +122,6 @@ void Server::handlIncomeConnections()
 	}
 }
 
-void topicFlag(Channel &channel, bool sign, std::vector<std::string> args)
-{
-	(void) args;
-	if (sign)
-		channel.setTopicFlag(true);
-	else
-		channel.setTopicFlag(false);
-}
-
-void operatorFlag(Client &client, chnMapIt &channel, bool sign, std::vector<std::string>& args)
-{
-	std::map<std::string, Client> it = channel->second.getUsers();
-	if (sign)
-	{
-		if (it.find(args[0]) == it.end())
-			replyTo(client.getSocket(), ERR_USERNOTINCHANNEL(client.getNickname(), args[0], channel->first));
-		else if (channel->second.isOperator(args[0]))
-			replyTo(client.getSocket(), RPL_WHOISOPERATOR(args[0]));
-		else{	
-			channel->second.addOperator(it[args[0]]);
-			args.erase(args.begin());
-			replyTo(client.getSocket(), RPL_YOUREOPER(client.getNickname()));
-		}
-	}
-	else{
-		if ((it.find(args[0])) == it.end())
-			replyTo(client.getSocket(), ERR_USERNOTINCHANNEL(client.getNickname(), args[0], channel->first));
-		else {	
-			channel->second.removeOperator(it[args[0]]);
-			args.erase(args.begin()); //reply client is now just a user
-		}
-	}
-}
-
-void	keyWordFlag(Channel &channel, bool sign, std::vector<std::string>& args)
-{
-	if (sign)
-	{
-		channel.setKey(args[0]);
-		args.erase(args.begin()); //reply key is  set
-	}
-	else
-		channel.setKey(""); //reply key is  removed
-}
-
-void invetOnlyFlag(Channel &channel, bool sign)
-{
-	if (sign)
-		channel.setIsInviteOnly(true); //reply channel is now invite only
-	else
-		channel.setIsInviteOnly(false); //reply channel is now not invite only
-}
-
-void limitFlag(Channel &channel, bool sign, std::vector<std::string>& args)
-{
-	if (sign)
-	{
-		std::stringstream  ss(args[0]);
-		size_t limit;
-		if (!(ss >> limit) || !ss.eof()){
-			args.erase(args.begin());
-			return ; //reply limit must be a number
-		}
-		channel.setMaxUsers(limit);
-		args.erase(args.begin());
-		//reply limit is now set
-	}
-	else{
-		channel.setMaxUsers(0);
-		//reply limit is now removed
-	}
-}
-
-
-int check_flag_string(std::string flags){
-	if (flags[0] != '+' && flags[0] != '-')
-		return 1;
-	for (size_t i = 0; i < flags.size(); i++){
-		for (size_t j = i + 1; j < flags.size(); j++)
-			if ((flags[i] == flags[j] && i != j) || 
-				(flags[i] != 'k' && flags[i] != 'o' && flags[i] != 'i' && flags[i] != 'l' && flags[i] != 't' && flags[i] != '+' && flags[i] != '-'))
-				return 1;
-	}
-	return 0;
-}
-
-int check_params(std::vector<std::string> args, std::string flags){
-	bool sign = false;
-	size_t count = 0;
-	for(size_t i = 0; i < flags.size(); i++){
-		if (flags[i] == '+')
-			sign = true;
-		else if (flags[i] == '-')
-			sign = false;
-		if (flags[i] == 'o')
-			count++;
-		else if (flags[i] == 'k' && sign == true)
-			count++;
-		else if (flags[i] == 'l' && sign == true)
-			count++;
-	}
-	if (count != args.size())
-		return 1;
-	return 0;
-}
-
-void display_channel_mode(Channel channel, Client &client){
-	std::string str;
-	str += "+";
-	if (channel.getIsInviteOnly() == true)
-		str += "i";
-	if (!channel.getKey().empty())
-		str += "k";
-	if (channel.getMaxUsers() != 0)
-		str += "l";
-	if (!channel.getTopic().empty())
-		str += "t";
-	replyTo(client.getSocket(), RPL_CHANNELMODEIS(client.getNickname(), channel.getName(), str));
-}
-
-std::string get_host(struct sockaddr_in &addr)
-{
-	std::stringstream ss;
-    ss << inet_ntoa(addr.sin_addr);
-    return ss.str();
-}
-
-void Server::modeCommand(std::vector<std::string> &fields, Client &client){
-	bool sign = false;
-	std::vector<std::string> args;
-	
-	if (fields[0].empty())
-		replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "MODE"));
-	chnMapIt it = _channels.find(fields[0]);
-	if (it == _channels.end()){
-		replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(client.getNickname(), fields[0]));
-		return ;
-	}
-	if (!it->second.isClientExist(client.getNickname())){
-		replyTo(client.getSocket(), ERR_USERNOTINCHANNEL(client.getNickname(), client.getNickname(), it->first));
-		return ;
-	}
-	if (fields.size() == 1){
-		display_channel_mode(it->second, client);
-		return ; 
-	}
-	if (!it->second.isOperator(client.getNickname())){
-		replyTo(client.getSocket(), ERR_CHANOPRIVSNEEDED(client.getNickname(), it->first));
-		return ;
-	}
-	if (check_flag_string(fields[1]) == 1){
-		replyTo(client.getSocket(), ERR_UNKNOWNMODE(client.getNickname()));
-		return ;
-	}
-	for(size_t i = 2; i < fields.size(); i++)
-		if (!fields[i].empty())
-			args.push_back(fields[i]);
-	if (check_params(args, fields[1]) == 1){
-		replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "MODE"));
-		return ;
-	}
-	size_t i = 0;
-	for(; i < fields[1].size(); i++){
-		if (fields[1][i] == '+') sign = true;
-		else if (fields[1][i] == '-') sign = false;
-		else if (fields[1][i] == 'o') operatorFlag(client, it, sign, args);
-		else if (fields[1][i] == 'k') keyWordFlag(it->second, sign, args);
-		else if (fields[1][i] == 'i') invetOnlyFlag(it->second, sign);
-		else if (fields[1][i] == 'l') limitFlag(it->second, sign, args);
-		else if (fields[1][i] == 't') topicFlag(it->second, sign, args);
-	}
-	// replyTo(client.getSocket(), MODE_SET(client.getNickname(), client.getUsername(), get_host(_addr) ,it->first, fields[1]));
-}
 
 // run the correct command 
 void Server::commandRunner(std::vector<std::string> &fields, Client &user)
@@ -444,7 +174,6 @@ Server::handleIncomeData(int i)
 		// check if the message is valid (finished by \r\n)
 		if (rec.find_first_of("\r") == std::string::npos || rec.find_first_of("\n") == std::string::npos)
 		{
-			std::cout << "hello" << std::endl;
 			_clients.find(_pollFds[i].fd)->second._clientBuffer += rec;
 			return ;
 		}
@@ -470,7 +199,6 @@ Server::handleIncomeData(int i)
 void Server::createServer() 
 {
 	int		current_size;
-	int		rc;
 	_nfds = 1;
 
 	// Start listening for incoming connections
