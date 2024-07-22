@@ -1,5 +1,4 @@
 
-
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
@@ -46,9 +45,9 @@ Server::Server(uint16_t port, char *password) : _port(port), _password(password)
 	
 	// Bind the socket to the specified address and port
 	memset(&_addr, 0, sizeof(_addr));
-	_addr.sin_family = AF_INET;
-	_addr.sin_addr.s_addr = INADDR_ANY;
-	_addr.sin_port = htons(_port);
+	_addr.sin_family = AF_INET; // Address family for IPv4
+	_addr.sin_addr.s_addr = INADDR_ANY; // Listen on any IP address
+	_addr.sin_port = htons(_port); // Listen on the specified port
 
 	if (bind(_listen_sd, (struct sockaddr *)&_addr, sizeof(_addr)) < 0) {
 	    close(_listen_sd);

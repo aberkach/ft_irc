@@ -89,16 +89,17 @@
 
 #define ERR_NOTREGISTERED(nick)                             ":" SERVERNAME " 451 " + (nick) + " :You have not registered\r\n"
 
+// user responses
 #define ERR_USERFORMAT                                      ":" SERVERNAME " 460 Guest :Use format USER <username> 0 * :<realname>\r\n"
 #define ERR_NEEDMOREPARAMS(nick, command)                   ":" SERVERNAME " 461 " + (nick) + " " + (command) + " :Not enough parameters\r\n"
 #define ERR_ALREADYREGISTERED(nick)                         ":" SERVERNAME " 462 " + (nick) + " :You may not reregister\r\n"
 #define ERR_PASSWDMISMATCH                                  ":" SERVERNAME " 464 Guest :Password incorrect\r\n"
 #define ERR_FIRSTCOMMAND                                    ":" SERVERNAME " 465 Guest :Server is expecting 'PASS <password>' first\r\n" // recheck 
 
-// #define ERR_USERNOTINCHANNEL(client, nickname, channel)     ":" SERVERNAME " 441 " + (client) + " " + (nickname) + " " + (channel) + " :They aren't on that channel\r\n"
+// channel responses
 #define ERR_NOTONCHANNEL(client, channel)                   ":" SERVERNAME " 442 " + (client) + " " + (channel) + " :You're not on that channel\r\n"
 #define ERR_ALREADYINCHANNEL(client, nick, channel)         ":" SERVERNAME " 443 " + (client) + " " + (nick) + " " + (channel) + " :is already on channel\r\n"
-#define ERR_BADCHANNELKEY(client, channel)                  ":" SERVERNAME " 475 " + (client) + " " + (channel) + " :Cannot join channel (+k)\r\n"
+#define ERR_BADCHANNELKEY(client, channel)                  ":" SERVERNAME " 475 " + (client) + " " + (channel) + " :wrong channel key (+k)\r\n"
 #define ERR_BADCHANMASK(channel)                            ":" SERVERNAME " 476 " + (channel) + " :Bad Channel Mask\r\n"
 //mode replys
 #define ERR_CHANNELISFULL(client, channel)                  ":" SERVERNAME " 471 " + (client) + " " + (channel) + ": Cannot channel (+l)\r\n"
@@ -107,103 +108,52 @@
 #define ERR_UNKNOWNMODE(client)                             ":" SERVERNAME " 472 " + (client) + " :unknown mode char to me\r\n"
 #define RPL_YOUREOPER(client)                               ":" SERVERNAME " 381 " + (client) + ":You are now an IRC operator\r\n"
 #define RPL_CHANNELMODEIS(client, channel, params)          ":" SERVERNAME " 324 " + (client) + " " + (channel) + " " + (params) + "\r\n"
+#define MODE_SET(client_nick, client_username, host, channel, modes) ":" + (client_nick) + "!" + (client_username) + "@" + (host)+ " " + (channel) + " MODE " + " " + (modes) + "\r\n"
 
-// #define ERR_CHANOPRIVSNEEDED(client, channel)               ":" SERVERNAME " 481 " + (client) + " :You're not channel operator\r\n"
+// key responses
+#define ERR_INVALIDKEY (client, channel)                      ":" SERVERNAME " 525 " + (client) + " " + (channel) + " :Key is not well-formed\r\n"
 
 
-
-// #define ERR_INVALIDKEY (525) : if the operator is trying to set a key that is not valid with mode +k 
+// operator responses
 #define ERR_CHANOPRIVSNEEDED(client, channel)                           ":" SERVERNAME " 482 " + (client) + " " + (channel) + " :You're not channel operator\r\n"
-// need more things to add when the user is joined the channel successfully
-// #define RPL_NOTOPIC(client, channel)                                    ":" SERVERNAME " 331 " + (client) + " " + (channel) + " :No topic is set\r\n"
-// #define RPL_TOPIC(client, channel, topic)                               ":" SERVERNAME " 332 " + (client) + " " + (channel) + " :" + (topic) + "\r\n"
-#define RPL_KICK(kicker, username, host, channel, targetuser, reason)   ":" + (kicker) + "!" + (username) + "@" + (host) + " KICK " + (channel) + " " + (targetuser) + " :" + (reason) + "\r\n"
-
-#define RPL_NAMREPLY(clients, channelname, nick)              ":" SERVERNAME " 353 " + (nick) + " = " + (channelname) + " :" + (clients) + "\r\n"
-#define RPL_ENDOFNAMES(client, channel)                       ":" SERVERNAME " 366 " + (client) + " " + (channel) + " :End of /NAMES list" + "\r\n"
-#define INVITE_MSG(client, ipaddr, channel, invited)          ":" SERVERNAME " " + (client) + " !~ " + (ipaddr) + " INVITE " + (channel) + " " + (invited) + "\r\n"
-// #define    
-
-
-// #define ERR_NORECIPENT(client, command)                              ":" SERVERNAME " 411 " + (client) + " :No recipient given " + (command) + "\r\n"
-
-// #define RPL_CREATIONTIME(client, channel, creation_time)             ":" SERVERNAME " 329 " + (client) + " " + (channel) + " " + (creation_time) + "\r\n"
-// #define RPL_ENDOFINVITELIST(client)                                  ":" SERVERNAME " 337 " + " :End of /INVITE list\r\n"
-// #define RPL_CHANNELMODEIS(client, channel, modestring, modargument)  ":" SERVERNAME " 324 " + (client) + " "+ (channel) + " " +(modestring) + " " + (modargument) + "\r\n"
-// #define RPL_INVITING(client, nick, channel)                          ":" SERVERNAME " 341 " + (client) + " " + (nick) + " " + (channel) + "\r\n"
-// #define RPL_TOPICWHOTIME(client, channel, nick, setat)               ":" SERVERNAME " 333 " + (client) + " " + (channel) + " " + (nick) + " " + (setat) + "\r\n"
-// #define RPL_MOTD(client, sentence)                                   ":" SERVERNAME " 372 " + (client) + " " + (sentence) + "\r\n"
-// #define ERR_INVALIDMODEPARAM(client, target, modechar, parameter)    ":" SERVERNAME " 696 " + (client) + " " + (target) + " " + (modechar) + " " + " You must specify a parameter for the key mode. Syntax: " + (parameter) + "\r\n"
-// #define RPL_LIST(client, channel, nb_users, topic)                   ":" SERVERNAME " 322 " + (client) + " " + (channel) + " " + (nb_users) + " :" + (topic) + "\r\n"
-// #define RPL_LISTSTART(client)                                        ":" SERVERNAME " 321 " + (client) + " Channel :Users Name" + "\r\n"
-// #define RPL_LISTEND(client)                                          ":" SERVERNAME " 323 " + (client) + " :End of /LIST" + "\r\n"
-// #define ERR_NOORIGIN(client)                                         ":" SERVERNAME " 409 " + (client) + " :No origin specified" + "\r\n"
-
-// #define RPL_WHOREPLY(client, channel, username, hostname, servername, nickname, mode, realname)     ":" SERVERNAME " 352 " + (client) + " " + (channel) + " " + (username) + " " + (hostname) + " " + (servername) + " " + (nickname) + " " + (mode) + " " + (realname) + "\r\n"
-
-
-// ping | pong
-// #define PONG(client, server)                             "PONG " + (client) + " :" + (server) + "\r\n"
-// #define PING(server)                                     "PING " + (server) + "\r\n"
-
-
-// #define ERR_INVALIDKEY (525) : if the operator is trying to set a key that is not valid with mode +k 
-#define ERR_CHANOPRIVSNEEDED(client, channel)                           ":" SERVERNAME " 482 " + (client) + " " + (channel) + " :You're not channel operator\r\n"
-// need more things to add when the user is joined the channel successfully
+#define RPL_WHOISOPERATOR(client)                                   ":" SERVERNAME " 313 " + (client) + " " + " :is channel operator" + "\r\n"
+// join responses
 #define RPL_JOIN(nick, username, channelname, ipaddress)                ":" + (nick) + "!" + (username) + "@" + (ipaddress) + " JOIN " + (channelname) + "\r\n"
-
+#define RPL_NAMREPLY(clients, channelname, nick)                        ":" SERVERNAME " 353 " + (nick) + " = " + (channelname) + " :" + (clients) + "\r\n"
+#define RPL_ENDOFNAMES(client, channel)                                 ":" SERVERNAME " 366 " + (client) + " " + (channel) + " :End of /NAMES list" + "\r\n"
+// topic responses
 #define RPL_NOTOPIC(client, channel)                                    ":" SERVERNAME " 331 " + (client) + " " + (channel) + " :No topic is set\r\n"
 #define RPL_TOPICSETBY(nickname, username, ipaddr, channel, topic)      ":" + (nickname) + "!" + (username) + "@" + (ipaddr) + " TOPIC " + channel + " :" + (topic) + "\r\n"
 #define RPL_TOPIC(client, channel, topic)                               ":" SERVERNAME " 332 " + (client) + " " + (channel) + " :" + (topic) + "\r\n"
-
+// kick responses
 #define RPL_KICK(kicker, username, host, channel, targetuser, reason)   ":" + (kicker) + "!" + (username) + "@" + (host) + " KICK " + (channel) + " " + (targetuser) + " :" + (reason) + "\r\n"
-
-#define RPL_NAMREPLY(clients, channelname, nick)                        ":" SERVERNAME " 353 " + (nick) + " = " + (channelname) + " :" + (clients) + "\r\n"
-#define RPL_ENDOFNAMES(client, channel)                                 ":" SERVERNAME " 366 " + (client) + " " + (channel) + " :End of /NAMES list" + "\r\n"
-
-
+// invite responses
 #define RPL_INVITING(inviting, invited, channel)                        ":" SERVERNAME " 341 " + inviting + " inviting " + invited + " to " + channel + "\r\n"
 #define RPL_INVITED(nick, username, clienthostname, invited, channel) ":" + nick + "!" + username + "@" + clienthostname + " INVITE " + invited + " :" + channel + "\r\n"
+#define INVITE_MSG(client, ipaddr, channel, invited)          ":" SERVERNAME " " + (client) + " !~ " + (ipaddr) + " INVITE " + (channel) + " " + (invited) + "\r\n"
+// quit responses
 #define QUIT_MSG(nickname, username, ipaddr, reason)        ":" + (nickname) + "!" + (username) + "@" + (ipaddr) + " QUIT :Client Quit" + (reason) + "\r\n"
+// part responses
 #define PART_MSG(nickname, username, ipaddr, channel, reason)         ":" + (nickname) + "!" + (username) + "@" + (ipaddr) + " PART " + (channel) + " " + (reason) + "\r\n"
+// list responses
 #define RPL_LISTSTART(client)                                        ":" SERVERNAME " 321 " + (client) + " Channel :Users Name" + "\r\n"
 #define LIST_MSG(client, channel, nb_users, topic)                   ":" SERVERNAME " 322 " + (client) + " " + (channel) + " " + (nb_users) + " :" + (topic) + "\r\n"
 #define RPL_LISTEND(client)                                          ":" SERVERNAME " 323 " + (client) + " :End of /LIST" + "\r\n"
-// #define ERR_NORECIPENT(client, command)                              ":" SERVERNAME " 411 " + (client) + " :No recipient given " + (command) + "\r\n"
 
-#define RPL_WHOISOPERATOR(client)                                   ":" SERVERNAME " 313 " + (client) + " " + " :is channel operator" + "\r\n"
 
-// #define RPL_CREATIONTIME(client, channel, creation_time)             ":" SERVERNAME " 329 " + (client) + " " + (channel) + " " + (creation_time) + "\r\n"
-// #define RPL_ENDOFINVITELIST(client)                                  ":" SERVERNAME " 337 " + " :End of /INVITE list\r\n"
-// #define RPL_CHANNELMODEIS(client, channel, modestring, modargument)  ":" SERVERNAME " 324 " + (client) + " "+ (channel) + " " +(modestring) + " " + (modargument) + "\r\n"
-// #define RPL_INVITING(client, nick, channel)                          ":" SERVERNAME " 341 " + (client) + " " + (nick) + " " + (channel) + "\r\n"
-// #define RPL_TOPICWHOTIME(client, channel, nick, setat)               ":" SERVERNAME " 333 " + (client) + " " + (channel) + " " + (nick) + " " + (setat) + "\r\n"
-// #define RPL_MOTD(client, sentence)                                   ":" SERVERNAME " 372 " + (client) + " " + (sentence) + "\r\n"
-// #define ERR_UMODEUNKNOWNFLAG(client)                                 ":" SERVERNAME " 501 " + (client) + " :Unknown MODE flag" + "\r\n"
-// #define ERR_INVALIDMODEPARAM(client, target, modechar, parameter)    ":" SERVERNAME " 696 " + (client) + " " + (target) + " " + (modechar) + " " + " You must specify a parameter for the key mode. Syntax: " + (parameter) + "\r\n"
-// #define RPL_LIST(client, channel, nb_users, topic)                   ":" SERVERNAME " 322 " + (client) + " " + (channel) + " " + (nb_users) + " :" + (topic) + "\r\n"
-// #define RPL_LISTSTART(client)                                        ":" SERVERNAME " 321 " + (client) + " Channel :Users Name" + "\r\n"
-// #define RPL_LISTEND(client)                                          ":" SERVERNAME " 323 " + (client) + " :End of /LIST" + "\r\n"
-// #define ERR_NOORIGIN(client)                                         ":" SERVERNAME " 409 " + (client) + " :No origin specified" + "\r\n"
-
-// #define RPL_WHOREPLY(client, channel, username, hostname, servername, nickname, mode, realname)     ":" SERVERNAME " 352 " + (client) + " " + (channel) + " " + (username) + " " + (hostname) + " " + (servername) + " " + (nickname) + " " + (mode) + " " + (realname) + "\r\n"
-
-// #define PART_MSG(nickname, username, ipaddr, channel, reason)         ":" + (nickname) + "!" + (username) + "@" + ipaddr + " PART " + (channel) + " " + (reason) + "\r\n"
-// #define ERR_INVITEONLYCHAN(client, channel)                           ":" SERVERNAME " ç " + (client) + " " + (channel) + " :Cannot join channel (+i)" + "\r\n"
-// #define ERR_CHANNELISFULL(client, channel)                            ":" SERVERNAME " 471 " + (client) + " " + (channel) + " :Cannot join channel (+l)" + "\r\n"
-// #define ERR_KEYALREADYSET(client, channel)                            ":" SERVERNAME " 467 " + (client) + " " + (channel) + " :Channel key already set" + "\r\n"
-// #define ERR_ONEOUS(client, wrongnick)                                 ":" SERVERNAME " 432 " + (client) + " " + (wrongnick) + " :Erroneous Nickname" + "\r\n"
-
+#define ERR_INVALIDMODEPARAM(client, target, modechar, parameter)    ":" SERVERNAME " 696 " + (client) + " " + (target) + " " + (modechar) + " " + " You must specify a parameter for the key mode. Syntax: " + (parameter) + "\r\n"
+// this user when the pong msg is empty
+#define ERR_NOORIGIN(client)                                         ":" SERVERNAME " 409 " + (client) + " :No origin specified" + "\r\n"
+// ping | pong
+// #define PONG(client, server)                             "PONG " + (client) + " :" + (server) + "\r\n"
+// #define PING(server)                                     "PING " + (server) + "\r\n"
 // #define ERROR_MSG(reason)                                             ":" SERVERNAME " " + (reason) + "\r\n"
-// #define RPL_ENDOFWHO(client)                                          ":" SERVERNAME " 315 " + (client) + " :End of /WHO list" + "\r\n"
-// #define RPL_NICK(client, username,ipaddr, newnick)                    ":" + (client) + "!" + (username) + "@"+ (ipaddr) + " NICK :"+(newnick) + "\r\n"
 // #define MODE_MSG(client, username,ipaddr, channel,added_mode, target) ":" + (client) + "!" + (username) +"@" + (ipaddr) + " MODE " + (channel) + " " +(added_mode) +  target + "\r\n"
 // #define MODE_MSG_2(client, username,ipaddr, channel,added_mode)       ":" + (client) + "!" + (username) +"@" + (ipaddr) + " MODE " + (channel) + " " +(added_mode) + "\r\n"
-// #define NOTICE(client, username, ipaddr, target, message)             ":" + (client) + "!" + (username) + "@" + (ipaddr) + " NOTICE " + (target) + " :" + (message) + "\r\n"
 // #define TOPIC_MSG(client, username, ipaddr, channel, topic)           ":" + (client) + "!" + (username) + "@" + (ipaddr) + " TOPIC " + (channel) + " :" + (topic) + "\r\n"
+// #define RPL_CREATIONTIME(client, channel, creation_time)             ":" SERVERNAME " 329 " + (client) + " " + (channel) + " " + (creation_time) + "\r\n"
+// #define RPL_TOPICWHOTIME(client, channel, nick, setat)               ":" SERVERNAME " 333 " + (client) + " " + (channel) + " " + (nick) + " " + (setat) + "\r\n"
+// #define RPL_MOTD(client, sentence)                                   ":" SERVERNAME " 372 " + (client) + " " + (sentence) + "\r\n"
 
-// debuging macro
-// #ifndef DEBUG__
-// #define DEBUG__ 
 
 #endif 
