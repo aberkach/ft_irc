@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 23:25:07 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/21 23:26:35 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/22 01:21:25 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,7 +98,7 @@ int check_flag_string(std::string flags){
 		for (size_t j = i + 1; j < flags.size(); j++)
 			if ((flags[i] == flags[j] && i != j) || 
 				(flags[i] != 'k' && flags[i] != 'o' && flags[i] != 'i' && flags[i] != 'l' && flags[i] != 't' && flags[i] != '+' && flags[i] != '-'))
-				return 1;
+					return 1;
 	}
 	return 0;
 }
@@ -188,5 +188,5 @@ void Server::modeCommand(std::vector<std::string> &fields, Client &client){
 		else if (fields[1][i] == 'l') limitFlag(it->second, sign, args);
 		else if (fields[1][i] == 't') topicFlag(it->second, sign, args);
 	}
-	// replyTo(client.getSocket(), MODE_SET(client.getNickname(), client.getUsername(), get_host(_addr) ,it->first, fields[1]));
+	replyTo(client.getSocket(), MODE_SET(client.getNickname(), client.getUsername(), get_host(_addr) ,it->first, fields[1]));
 }
