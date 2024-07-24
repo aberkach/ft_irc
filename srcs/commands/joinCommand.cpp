@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 22:29:46 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/24 23:47:32 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/24 23:50:50 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,10 +182,8 @@ void Server::joinCommand(const std::vector<std::string> &fields, Client &client)
     	{
     	    // split the channels and keys by comma
     	    channels = splitByDelim(fields[0], ',');
-            std::cout << "size ch: " << channels.size() << std::endl;
             if (fields.size() > 1)
     	        keys = splitByDelim(fields[1], ',');
-            std::cout << "size k: " << keys.size() << std::endl;
     	    // process the channels and keys
     	    processTheJoinArgs(channels, keys, client);
     	}
