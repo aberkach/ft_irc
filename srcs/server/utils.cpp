@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 23:27:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/24 23:41:46 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/24 23:50:54 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,8 +79,6 @@ std::vector<std::string> splitByDelim(const std::string &str, char delim) {
     while (std::getline(ss, token, delim)) { // Read tokens until a delimiter is found
         tokens.push_back(token);
     }
-
-	std::cout << "tokens size: " << tokens.size() << std::endl;
     return tokens;
 }
 
