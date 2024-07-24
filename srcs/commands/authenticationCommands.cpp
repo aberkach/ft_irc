@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   authentication.cpp                                 :+:      :+:    :+:   */
+/*   authenticationCommands.cpp                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 22:25:38 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/21 22:27:09 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/24 05:40:30 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,6 +112,8 @@ void Server::privmsgCommand(std::vector<std::string> &fields, Client &user)
             {
                 for (std::map<int, Client>::const_iterator it = _clients.begin() ; it != _clients.end(); ++it)
                 {
+					std::cout << it->second.getNickname() << " = ";
+					std::cout << fields[0] << std::endl;
                     if (stringUpper(it->second.getNickname()) == stringUpper(fields[0]))
                         return (replyTo(it->second.getSocket(), PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), it->second.getNickname(), msg)));
                 }
