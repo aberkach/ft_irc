@@ -1,5 +1,7 @@
 #include "client.hpp"
 #include <arpa/inet.h> // print ip adrss
+#include <string>
+#include <stdlib.h>
 #include "../channel/channel.hpp"
 
 #define NICKLEN 10 // maybe warn about these ?
@@ -165,13 +167,14 @@ Client::refStatus(void)
     if (_registered == false && _validPass == true && !_nickName.empty() && !_userName.empty() && !_realName.empty())
     {
         _registered = true;
-        char *host = inet_ntoa(_addr.sin_addr);
+        std::string host = inet_ntoa(_addr.sin_addr);
         replyTo(_socket, RPL_WELCOME(_nickName, _userName, host));
         replyTo(_socket, RPL_YOURHOST(_nickName, host, std::to_string(ntohs(_addr.sin_port))));
         replyTo(_socket, RPL_CREATED(_nickName, getTime()));
         replyTo(_socket, RPL_MYINFO(_nickName));
         replyTo(_socket, RPL_ISUPPORT(_nickName));
     }
+    std::cout << "Client registered" << std::endl;
 };
 
 Client::~Client(void)

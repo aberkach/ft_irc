@@ -215,8 +215,9 @@ Server::handleIncomeData(int i)
 		{
 			fields[0] = stringUpper(fields[0]);
 			commandRunner(fields, _clients.find(_pollFds[i].fd)->second);
-		
-			_clients.find(_pollFds[i].fd)->second.refStatus();
+
+			if (_clients.find(_pollFds[i].fd)->first > 0)
+				_clients.find(_pollFds[i].fd)->second.refStatus();
 		}
 	}
 }
