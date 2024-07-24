@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:19:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/24 02:44:18 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/24 20:46:03 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 
 // list command
 
-void Server::listCommand (std::vector<std::string> &fields, Client &client)
+void Server::listCommand (const std::vector<std::string> &fields, Client &client)
 {
     if (client.getRegistered() == false)
     {
@@ -53,7 +53,7 @@ void Server::listCommand (std::vector<std::string> &fields, Client &client)
 
 
 // part command
-void Server::partCommand (std::vector<std::string> &fields, Client &client)
+void Server::partCommand (const std::vector<std::string> &fields, Client &client)
 {
     if (client.getRegistered())
     {
@@ -92,7 +92,7 @@ void Server::partCommand (std::vector<std::string> &fields, Client &client)
 }
 
 // quit command
-void Server::quitCommand(std::vector<std::string> &fields, Client &client)
+void Server::quitCommand(const std::vector<std::string> &fields, Client &client)
 {
     if (client.getRegistered())
     {
