@@ -55,7 +55,7 @@ Server::Server(uint16_t port, char *password) : _port(port), _password(password)
 	}
 
 	// Start listening for incoming connections
-	if (listen(_listen_sd, 128) < 0) {
+	if (listen(_listen_sd, 10) < 0) {
 	    perror("listen() failed");
 	    close(_listen_sd);
 	    exit(-1);
@@ -81,15 +81,41 @@ Server::Server(uint16_t port, char *password) : _port(port), _password(password)
 	_commands["MODE"] = &Server::modeCommand;
 }
 
-
-size_t Server::countUsersInChannel(std::string &chnName)
+// create the server and handle the incoming connections and data
+void Server::createServer() 
 {
-	chnMapIt it = _channels.find(chnName);
-	if (it == _channels.end())
-		return 0;
-	return it->second.getUsers().size();
-}
+	int		current_size;
+	_nfds = 1;
 
+	// Start listening for incoming connections
+	std::cout << "server is running : " << std::endl;
+	while (true) {
+		// Check if the server is shutting down by signal
+		if (Server::_signal)
+			throw std::runtime_error("Server is shutting down");
+	    if (poll(&_pollFds[0], _pollFds.size(), -1) == -1)
+	        throw std::runtime_error("poll() failed");
+		for (size_t i = 0; i < _nfds; i++) {
+			if (_pollFds[i].revents & POLLIN) 
+			{
+	    		// Check for incoming connection on the server socket
+				if (_pollFds[i].fd == _listen_sd)
+					handlIncomeConnections();
+				else
+					handleIncomeData(i);
+			}
+	    }
+	    // Compact the fds array to remove closed client sockets
+	    current_size = 0;
+	    for (size_t i = 0; i < _nfds; i++) {
+	        if (_pollFds[i].fd >= 0) {
+	            _pollFds[current_size] = _pollFds[i];
+	            current_size++;
+	        }
+	    }
+	    _nfds = current_size;
+	}
+}
 
 // Handle incoming connections:
 void Server::handlIncomeConnections() 
@@ -192,42 +218,6 @@ Server::handleIncomeData(int i)
 		
 			_clients.find(_pollFds[i].fd)->second.refStatus();
 		}
-	}
-}
-
-void Server::createServer() 
-{
-	int		current_size;
-	_nfds = 1;
-
-	// Start listening for incoming connections
-	std::cout << "server is running : " << std::endl;
-	while (true) {
-		// Check if the server is shutting down by signal
-		if (Server::_signal)
-			throw std::runtime_error("Server is shutting down");
-	    if (poll(&_pollFds[0], _pollFds.size(), -1) == -1)
-	        throw std::runtime_error("poll() failed");
-		for (size_t i = 0; i < _nfds; i++) {
-			if (_pollFds[i].revents & POLLIN) 
-			{
-	    		// Check for incoming connection on the server socket
-				if (_pollFds[i].fd == _listen_sd)
-					handlIncomeConnections();
-				else
-					handleIncomeData(i);
-			}
-	    }
-	
-	    // Compact the fds array to remove closed client sockets
-	    current_size = 0;
-	    for (size_t i = 0; i < _nfds; i++) {
-	        if (_pollFds[i].fd >= 0) {
-	            _pollFds[current_size] = _pollFds[i];
-	            current_size++;
-	        }
-	    }
-	    _nfds = current_size;
 	}
 }
 
