@@ -6,8 +6,8 @@
       "type": "lldb",
       "request": "launch",
       "args": [],
-      "cwd": "/Users/abberkac/Desktop/IRC/srcs/server",
-      "program": "/Users/abberkac/Desktop/IRC/srcs/server/build/Debug/outDebug"
+      "cwd": "/Users/abberkac/Desktop/IRC/bonus/include/bot",
+      "program": "/Users/abberkac/Desktop/IRC/bonus/include/bot/build/Debug/outDebug"
     }
   ]
 }

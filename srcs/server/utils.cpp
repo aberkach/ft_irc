@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 23:27:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/23 22:13:45 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/24 05:46:31 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,11 @@
 #include "../../Inc/ft_irc.hpp"
 #include <array>
 #include <cstddef>
+#include <cstdio>
 #include <string>
 #include <sys/poll.h>
 #include <vector>
-
+#include <sstream>
 
 void Err(std::string msg, int exitFalg)
 {
@@ -26,14 +27,15 @@ void Err(std::string msg, int exitFalg)
 		exit(1);
 }
 
-std::string trimTheSpaces(const std::string& str)
+std::string
+trimTheSpaces(const std::string& str)
 {
-    size_t first = str.find_first_not_of(" \t\v\b\r\n");
-    if (std::string::npos == first)
-        return str;
-    size_t last = str.find_last_not_of(" \t\v\b\r\n");
-    return str.substr(first, (last - first + 1));
-}
+    size_t first = str.find_first_not_of(" \t\r\n");
+    if (first == std::string::npos)
+        return "";
+    size_t last = str.find_last_not_of(" \t\r\n");
+    return str.substr(first, last - first + 1);
+};
 
 std::string stringUpper(const std::string &_str)
 {
@@ -46,30 +48,52 @@ std::string stringUpper(const std::string &_str)
 }
 
 
-std::vector<std::string> splitBySpace(std::string str)
-{
-    // split the string by the delim
-    std::vector<std::string> tokens;
-    std::string token;
+// std::vector<std::string> splitBySpace(std::string str)
+// {
+//     // split the string by the delim
+//     std::vector<std::string> tokens;
+//     std::string token;
 
-	bool isTwoPoints = false;
-	for (size_t i = 0; i < str.length(); i++)
-    {
-		if (str[i] == ' ' && isTwoPoints == false)
-		{
-			if (token.empty())
-				continue;
-			tokens.push_back(token);
-			token.clear();
+// 	bool isTwoPoints = false;
+// 	for (size_t i = 0; i < str.length(); i++)
+//     {
+// 		if (str[i] == ' ' && isTwoPoints == false)
+// 		{
+// 			if (token.empty())
+// 				continue;
+// 			tokens.push_back(token);
+// 			token.clear();
+// 		}
+// 		else if (str[i] == ':' && isTwoPoints == false)
+// 			isTwoPoints = true;
+// 		else
+//             token += str[i];
+//     }
+// 	tokens.push_back(token);
+//     return tokens;
+// }
+
+std::vector<std::string> splitBySpace(const std::string &str)
+{
+    std::string part;
+    std::vector<std::string> parts;
+    std::istringstream iss(str);
+
+    while (iss >> part) {
+  
+		if (!part.empty() && part[0] == ':') {
+			std::string reset;
+			part.erase(part.begin());
+			getline(iss, reset);
+			part += reset;
+			parts.push_back(part);
+			return parts;
 		}
-		else if (str[i] == ':' && isTwoPoints == false)
-			isTwoPoints = true;
-		else
-            token += str[i];
+        parts.push_back(part);
     }
-	tokens.push_back(token);
-    return tokens;
-}
+
+    return parts;
+};
 
 std::vector<std::string> splitByDelim(std::string str, char delim)
 {

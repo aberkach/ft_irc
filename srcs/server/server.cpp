@@ -209,8 +209,13 @@ Server::handleIncomeData(int i)
 		}
 		// remove the remove all spaces from the message (included \r\n)
 		rec = trimTheSpaces(rec);
+		std::cout << YELLOW "rec = " << rec << RESET << std::endl;
 		// split the message by space
 		std::vector<std::string> fields = splitBySpace(rec);
+		std::cout << RED;
+		for (size_t i = 0; i < fields.size(); i++)
+			std::cout << "fields[" << i << "] = " << fields[i] << std::endl;
+		std::cout << RESET;
 		if (!fields.empty())
 		{
 			fields[0] = stringUpper(fields[0]);
