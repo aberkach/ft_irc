@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 23:27:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/21 23:47:00 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/23 22:13:45 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,4 +113,12 @@ void Server::cleanUp()
 		std::cout << "Closing server socket" << std::endl;
 		close(_listen_sd);
 	}
+}
+
+size_t Server::countUsersInChannel(std::string &chnName)
+{
+	chnMapIt it = _channels.find(chnName);
+	if (it == _channels.end())
+		return 0;
+	return it->second.getUsers().size();
 }
