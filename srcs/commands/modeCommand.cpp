@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 23:25:07 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/22 01:21:25 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/24 20:52:52 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ void invetOnlyFlag(Channel &channel, bool sign)
 		channel.setIsInviteOnly(false); //reply channel is now not invite only
 }
 
-void limitFlag(Channel &channel, bool sign, std::vector<std::string>& args)
+void limitFlag(Channel &channel, bool sign, std::vector<std::string> &args)
 {
 	if (sign)
 	{
@@ -91,7 +91,7 @@ void limitFlag(Channel &channel, bool sign, std::vector<std::string>& args)
 }
 
 
-int check_flag_string(std::string flags){
+int check_flag_string(const std::string &flags){
 	if (flags[0] != '+' && flags[0] != '-')
 		return 1;
 	for (size_t i = 0; i < flags.size(); i++){
@@ -103,7 +103,7 @@ int check_flag_string(std::string flags){
 	return 0;
 }
 
-int check_params(std::vector<std::string> args, std::string flags){
+int check_params(const std::vector<std::string> &args, const std::string &flags){
 	bool sign = false;
 	size_t count = 0;
 	for(size_t i = 0; i < flags.size(); i++){
@@ -123,7 +123,7 @@ int check_params(std::vector<std::string> args, std::string flags){
 	return 0;
 }
 
-void display_channel_mode(Channel channel, Client &client){
+void display_channel_mode(const Channel &channel, const Client &client){
 	std::string str;
 	str += "+";
 	if (channel.getIsInviteOnly() == true)
@@ -137,14 +137,14 @@ void display_channel_mode(Channel channel, Client &client){
 	replyTo(client.getSocket(), RPL_CHANNELMODEIS(client.getNickname(), channel.getName(), str));
 }
 
-std::string get_host(struct sockaddr_in &addr)
+std::string get_host(const struct sockaddr_in &addr)
 {
 	std::stringstream ss;
     ss << inet_ntoa(addr.sin_addr);
     return ss.str();
 }
 
-void Server::modeCommand(std::vector<std::string> &fields, Client &client){
+void Server::modeCommand(const std::vector<std::string> &fields, Client &client){
 	bool sign = false;
 	std::vector<std::string> args;
 	

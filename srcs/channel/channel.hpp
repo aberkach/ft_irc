@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:32:12 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/12 01:15:39 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/24 23:17:25 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,30 +43,29 @@ class Channel
     size_t getMaxUsers() const;
 
 	Client &getUser(std::string &nickName);
-    std::string getUserName(std::string clientName);
-    std::map<std::string, Client> &getUsers();
+    std::string getUserName(const std::string &clientName);
+    std::map<std::string, Client> &getUsers() ;
     std::string &getChannelUsersInString();
-    std::vector<std::string> getUsersList();
     bool getTopicFlag() const;
 
-    void setName(std::string name);
-    void setTopic(std::string topic);
-    void setKey(std::string key);
+    void setName(const std::string &name);
+    void setTopic(const std::string &topic);
+    void setKey(const std::string &key);
     void setIsInviteOnly(bool isInviteOnly);
     void setMaxUsers(size_t maxUsers);
     void setTopicFlag(bool topicFlag);
 
     void addUser(Client &user);
 	void removeUser(Client &client);
-    bool isClientExist(std::string nickName);
-	void addOperator(Client &op);
-    void removeOperator(Client &op);
-	bool isOperator(std::string nickName);
+    bool isClientExist(const std::string &nickName);
+	void addOperator(const Client &op);
+    void removeOperator(const Client &op);
+	bool isOperator(const std::string &nickName);
     std::vector<Client> getOperator();
 
-    void addInvite(Client &invited);
-    bool isInvited(Client &invited);
-    void removeInvite(Client &invited);
+    void addInvite(const Client &invited);
+    bool isInvited(const Client &invited);
+    void removeInvite(const Client &invited);
 
-    void broadCast(std::string msg, int excludedFd);
+    void broadCast(const std::string &msg, int excludedFd);
 };

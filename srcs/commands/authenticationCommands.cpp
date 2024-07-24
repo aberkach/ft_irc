@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 22:25:38 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/24 05:40:30 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/24 20:50:49 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #include <string>
 #include <vector>
 
-void Server::passCommand(std::vector<std::string> &fields, Client &user)
+void Server::passCommand(const std::vector<std::string> &fields, Client &user)
 {
 	if (user.getValidPass() == false)
 	{
@@ -34,7 +34,7 @@ void Server::passCommand(std::vector<std::string> &fields, Client &user)
 }
 
 
-void Server::nickCommand(std::vector<std::string> &fields, Client &user) // relook
+void Server::nickCommand(const std::vector<std::string> &fields, Client &user) // relook
 {
 	if (user.getValidPass() == true)
 	{
@@ -64,7 +64,7 @@ void Server::nickCommand(std::vector<std::string> &fields, Client &user) // relo
 		replyTo(user.getSocket(), ERR_FIRSTCOMMAND);
 }
 
-void Server::userCommand(std::vector<std::string> &fields, Client &user)
+void Server::userCommand(const std::vector<std::string> &fields, Client &user)
 {
 	if (!user.getRegistered())
 	{
@@ -88,7 +88,7 @@ void Server::userCommand(std::vector<std::string> &fields, Client &user)
 		replyTo(user.getSocket(), ERR_ALREADYREGISTERED(user.getNickname()));
 }
 
-void Server::privmsgCommand(std::vector<std::string> &fields, Client &user)
+void Server::privmsgCommand(const std::vector<std::string> &fields, Client &user)
 {
     if (user.getRegistered())
     {

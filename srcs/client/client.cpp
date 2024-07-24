@@ -10,7 +10,7 @@
 
 
 /// TOOLS
-inline void replyTo(int socket, std::string buffer)
+inline void replyTo(int socket, const std::string &buffer)
 {
     send(socket, buffer.c_str() , buffer.size() , 0);
 };

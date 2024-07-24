@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/12 01:15:54 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/24 23:19:10 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ Channel::~Channel()
 //     *this = src;
 // }
 
-void Channel::removeOperator(Client &op)
+void Channel::removeOperator(const Client &op)
 {
     for (std::vector<Client>::iterator it = _chanOps.begin(); it != _chanOps.end(); it++)
     {
@@ -79,7 +79,7 @@ std::string Channel::getTopic() const
     return _topic;
 }
 
-void Channel::setTopic(std::string topic)
+void Channel::setTopic(const std::string &topic)
 {
     _topic = topic;
 }
@@ -108,7 +108,7 @@ std::map<std::string, Client> &Channel::getUsers()
     return _users;
 }
 
-std::string Channel::getUserName(std::string clientName)    
+std::string Channel::getUserName(const std::string &clientName)    
 {
     for (std::map<std::string, Client>::const_iterator it = _users.begin(); it != _users.end(); it++)
     {
@@ -132,26 +132,18 @@ std::string &Channel::getChannelUsersInString()
     return *users;
 }
 
-std::vector<std::string> Channel::getUsersList()
-{
-    std::vector<std::string> usersList;
-    for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); it++)
-        usersList.push_back(it->first);
-    return usersList;
-}
-
-void Channel::setName(std::string name)
+void Channel::setName(const std::string &name)
 {
     _name = name;
 }
 
 
-void Channel::setKey(std::string key)
+void Channel::setKey(const std::string &key)
 {
     _key = key;
 }
 
-bool Channel::isClientExist(std::string nickName)
+bool Channel::isClientExist(const std::string &nickName)
 {
     for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); it++)
     {
@@ -194,14 +186,14 @@ void Channel::removeUser(Client &client)
     }
 }
 
-void Channel::addOperator(Client &op)
+void Channel::addOperator(const Client &op)
 {
     // op.setChannel(_name, *this);
     _users.insert(std::pair<std::string, Client>('@' + op.getNickname(), op));
     _chanOps.insert(_chanOps.begin(), Client(op));
 }
 
-bool Channel::isOperator(std::string nickName)
+bool Channel::isOperator(const std::string &nickName)
 {
     for (std::vector<Client>::iterator it = _chanOps.begin(); it != _chanOps.end(); it++)
     {
@@ -212,12 +204,12 @@ bool Channel::isOperator(std::string nickName)
 }
 
 
-void Channel::addInvite(Client &invited)
+void Channel::addInvite(const Client &invited)
 {
     _chanInvites.insert(_chanInvites.begin(), Client(invited));
 }
 
-bool Channel::isInvited(Client &invited)
+bool Channel::isInvited(const Client &invited)
 {
     for (std::vector<Client>::iterator it = _chanInvites.begin(); it != _chanInvites.end(); it++)
     {
@@ -227,7 +219,7 @@ bool Channel::isInvited(Client &invited)
     return false;
 }
 
-void Channel::removeInvite(Client &invited)
+void Channel::removeInvite(const Client &invited)
 {
     for (std::vector<Client>::iterator it = _chanInvites.begin(); it != _chanInvites.end(); it++)
     {
@@ -239,9 +231,9 @@ void Channel::removeInvite(Client &invited)
     }
 }
 
-void replyTo(int socket, std::string buffer); // FORWARD DEC WILL CHANGE LATTER
+void replyTo(int socket, const std::string &buffer); // FORWARD DEC WILL CHANGE LATTER
 
-void Channel::broadCast(std::string msg, int excludedFd)
+void Channel::broadCast(const std::string &msg, int excludedFd)
 {
     for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); ++it)
     {

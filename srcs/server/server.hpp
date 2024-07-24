@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 14:50:26 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/24 05:21:41 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/24 23:22:41 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ class Server {
 
   public:
 
-        typedef void (Server::*CommandHandler)(std::vector<std::string>&, Client&);
+        typedef void (Server::*CommandHandler)(const std::vector<std::string>&, Client&);
         std::map<std::string, CommandHandler> _commands;
         Server(void);
         Server(uint16_t port, char *password);
@@ -60,36 +60,36 @@ class Server {
         ~Server();
 
       private:
-        void  passCommand(std::vector<std::string> &fields, Client &client);
-        void  nickCommand(std::vector<std::string> &fields, Client &client);
-        void  userCommand(std::vector<std::string> &fields, Client &client);
-        void  joinCommand(std::vector<std::string> &fields, Client &client);
-        bool  createChannel(std::string &chnName, std::vector<std::string> &keys, Client &client);
-        void  processTheJoinArgs(std::vector<std::string> &channels , std::vector<std::string> &keys, Client &client);
-        bool  joinChannel(std::string &chnName, std::vector<std::string> &keys, Client &client, chnMapIt &);
-        bool  privmsgChannel(std::string &chnName, std::vector<std::string> &keys, Client &client, chnMapIt &);
+        void  passCommand(const std::vector<std::string> &fields, Client &client);
+        void  nickCommand(const std::vector<std::string> &fields, Client &client);
+        void  userCommand(const std::vector<std::string> &fields, Client &client);
+        void  joinCommand(const std::vector<std::string> &fields, Client &client);
+        bool  createChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client);
+        void  processTheJoinArgs(const std::vector<std::string> &channels , std::vector<std::string> &keys, Client &client);
+        bool  joinChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client, const chnMapIt &chnIt);
+        bool  privmsgChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client, const chnMapIt &chnIt);
         
-        void  privmsgCommand(std::vector<std::string> &fields, Client &user);
+        void  privmsgCommand(const std::vector<std::string> &fields, Client &user);
 
         // operators methods :
 
-        void kickCommand(std::vector<std::string> &fields, Client &client);
-        void topicCommand(std::vector<std::string> &fields, Client &client);
-        void inviteCommand(std::vector<std::string> &fields, Client &client);
-        void quitCommand(std::vector<std::string> &fields, Client &client);
-        void partCommand(std::vector<std::string> &fields, Client &client);
-        void listCommand(std::vector<std::string> &fields, Client &client);
-        void modeCommand(std::vector<std::string> &fields, Client &client);
-        size_t countUsersInChannel(std::string &chnName);
+        void kickCommand(const std::vector<std::string> &fields, Client &client);
+        void topicCommand(const std::vector<std::string> &fields, Client &client);
+        void inviteCommand(const std::vector<std::string> &fields, Client &client);
+        void quitCommand(const std::vector<std::string> &fields, Client &client);
+        void partCommand(const std::vector<std::string> &fields, Client &client);
+        void listCommand(const std::vector<std::string> &fields, Client &client);
+        void modeCommand(const std::vector<std::string> &fields, Client &client);
+        size_t countUsersInChannel(const std::string &chnName);
 };
 
-void Err(std::string msg, int exitFalg);
+void Err(const std::string &msg, int exitFalg);
 std::string trimTheSpaces(const std::string& str);
 std::vector<std::string> splitBySpace(const std::string &str);
-std::vector<std::string> splitByDelim(std::string str, char delim);
+std::vector<std::string> splitByDelim(const std::string &str, char delim);
 std::string stringUpper(const std::string &_str);
 
-inline void replyTo(int socket, std::string buffer) {
+inline void replyTo(int socket, const std::string &buffer) {
 	send(socket, buffer.c_str(), buffer.size(), 0);
 }
 

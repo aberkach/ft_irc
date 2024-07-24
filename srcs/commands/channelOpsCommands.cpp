@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 23:33:20 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/21 23:36:17 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/24 20:49:49 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include "../channel/channel.hpp"
 
 // invite command
-void Server::inviteCommand(std::vector<std::string> &fields, Client &client) {
+void Server::inviteCommand(const std::vector<std::string> &fields, Client &client) {
     if (fields.size() < 2) {
         replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "INVITE"));
         return;
@@ -58,7 +58,7 @@ void Server::inviteCommand(std::vector<std::string> &fields, Client &client) {
 
 // topic command 
 
-void Server::topicCommand (std::vector<std::string> &fields, Client &client) {
+void Server::topicCommand (const std::vector<std::string> &fields, Client &client) {
         
     if (client.getRegistered() == true) {
         std::string chnName = fields[0];
@@ -114,7 +114,7 @@ void Server::topicCommand (std::vector<std::string> &fields, Client &client) {
 
 
 // kick command
-void Server::kickCommand (std::vector<std::string> &fields, Client &client) {
+void Server::kickCommand (const std::vector<std::string> &fields, Client &client) {
     if (client.getRegistered()) {
         
         if (fields.size() < 2) {

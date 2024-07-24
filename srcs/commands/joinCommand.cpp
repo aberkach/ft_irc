@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 22:29:46 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/21 22:30:11 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/24 23:47:32 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #include <string>
 #include <vector>
 
-bool Server::joinChannel(std::string &chnName, std::vector<std::string> &keys, Client &client, chnMapIt &chnIt) {
+bool Server::joinChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client, const chnMapIt &chnIt) {
     // if the channel already exist, check if the client is already in the channel
     if (chnIt != _channels.end())
     {
@@ -71,6 +71,7 @@ bool Server::joinChannel(std::string &chnName, std::vector<std::string> &keys, C
                         return false;
                     }
                 }
+                // check if the channel is full
                 else if (Server::countUsersInChannel(chnName) >= chnIt->second.getMaxUsers())
                 {
                     replyTo(client.getSocket(), ERR_CHANNELISFULL(client.getNickname(), chnName));
@@ -97,7 +98,7 @@ bool Server::joinChannel(std::string &chnName, std::vector<std::string> &keys, C
     return true;
 }
 
-bool Server::createChannel(std::string &chnName, std::vector<std::string> &keys, Client &client) {
+bool Server::createChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client) {
     // create a new channel
     _channels.insert(std::pair<std::string, Channel>(chnName, Channel(chnName)));
     // check if the channel has a key
@@ -123,7 +124,7 @@ bool Server::createChannel(std::string &chnName, std::vector<std::string> &keys,
     return true;
 }
 
-void Server::processTheJoinArgs(std::vector<std::string> &channels , std::vector<std::string> &keys, Client &client)
+void Server::processTheJoinArgs(const std::vector<std::string> &channels , std::vector<std::string> &keys, Client &client)
 {
     for (size_t i = 0; i < channels.size(); i++)
     {
@@ -169,7 +170,7 @@ void Server::processTheJoinArgs(std::vector<std::string> &channels , std::vector
     }
 }
 
-void Server::joinCommand(std::vector<std::string> &fields, Client &client) {
+void Server::joinCommand(const std::vector<std::string> &fields, Client &client) {
 
     std::vector<std::string> channels;
     std::vector<std::string> keys;
@@ -181,7 +182,10 @@ void Server::joinCommand(std::vector<std::string> &fields, Client &client) {
     	{
     	    // split the channels and keys by comma
     	    channels = splitByDelim(fields[0], ',');
-    	    keys = splitByDelim(fields[1], ',');
+            std::cout << "size ch: " << channels.size() << std::endl;
+            if (fields.size() > 1)
+    	        keys = splitByDelim(fields[1], ',');
+            std::cout << "size k: " << keys.size() << std::endl;
     	    // process the channels and keys
     	    processTheJoinArgs(channels, keys, client);
     	}
