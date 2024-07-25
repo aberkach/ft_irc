@@ -9,13 +9,14 @@ int main(int ac, char **av) {
             Bot agent;
 
             agent.startBot(port);
-            agent.authenticate(av[2]);
+            (ac == 2) ? agent.authenticate("") : agent.authenticate(av[2]);
+
             agent.listenForCommand();
 
         } catch (std::exception &e) {
-            std::cerr << e.what() << std::endl;
-            return -10;
+            std::cerr << RED << e.what() << std::endl;
+            return port;
         }
     }
-    return port;
+    return 1;
 };
