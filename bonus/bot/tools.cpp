@@ -137,19 +137,19 @@ valid_port(char *port_arg) throw()
 {
     size_t i;
 
-    std::cout << port_arg << std::endl;
+    std::cout << "Port :" << port_arg << std::endl;
     for (i = 0; port_arg[i] ;i++)
     {
         if (!isdigit(port_arg[i]) || i > 5)
         {
-            std::cerr << "Error: Port range between 1024 && 65535." << std::endl; 
+            std::cerr << "ERROR: Port range between 1024 && 65535." << std::endl; 
             return 1;
         }
     }
     uint32_t port = atoi(port_arg);
     if (1024 > port || 65535 < port)
     {
-        std::cerr << "Error: Port range between 1024 && 65535." << std::endl; 
+        std::cerr << "ERROR: Port range between 1024 && 65535." << std::endl; 
         return 1;
     }
     return port;
@@ -158,19 +158,20 @@ valid_port(char *port_arg) throw()
 uint16_t
 arg_checker(int ac, char **av) throw()
 {
+    uint16_t port;
+    
+    std::cerr << RED;
     switch (ac)
     {
         case 2 :
-            std::cerr <<"ERROR: "  "IRC Bot missing argument <password>" << std::endl;
-            return 1;
+            std::cout << YELLOW "WARNING: IRC Bot missing argument <password> its set to null" RESET << std::endl;
+            break;
         case 3 :
-            uint16_t port;
-
-            if (!(port = valid_port(av[1])))
-                return 1;
-            return port;
         default :
-            std::cerr << "ERROR: "  "IRC Bot requare 2 arguments. \n"  "try ./bot <port> <password>" << std::endl;
+            std::cerr << "ERROR: IRC Bot requare 2 arguments password can be empty. \n"  "try ./ircbot <port> <password>" << std::endl;
             return 1;
     }
+    if (!(port = valid_port(av[1])))
+        return 2;
+    return port;
 };
