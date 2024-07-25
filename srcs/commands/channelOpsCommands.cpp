@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 23:33:20 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/24 20:49:49 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/25 06:33:59 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,6 @@ void Server::topicCommand (const std::vector<std::string> &fields, Client &clien
         std::string topic;
         // if the client wants to change the topic of the channel
         if(fields.size() > 1) {
-            topic = fields[1];
             // check if the client is operator of the channel
             chnMapIt chnIt = _channels.find(chnName);
             if (chnIt == _channels.end())
@@ -79,6 +78,7 @@ void Server::topicCommand (const std::vector<std::string> &fields, Client &clien
                 && chnIt->second.getTopicFlag() == true) || chnIt->second.getTopicFlag() == false) {
                 topic = fields[1];
                 chnIt->second.setTopic(topic);
+                chnIt->second.setTopicFlag(true);
                 std::string clintHost = inet_ntoa(client.getAddr().sin_addr);
                 chnIt->second.broadCast(RPL_TOPICSETBY(client.getNickname(), client.getUsername(), clintHost, chnName, chnIt->second.getTopic()), -1);
             }

@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 14:50:26 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/24 23:22:41 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/25 05:09:01 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ class Server {
         void  joinCommand(const std::vector<std::string> &fields, Client &client);
         bool  createChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client);
         void  processTheJoinArgs(const std::vector<std::string> &channels , std::vector<std::string> &keys, Client &client);
-        bool  joinChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client, const chnMapIt &chnIt);
+        bool  joinExistChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client, const chnMapIt &chnIt);
         bool  privmsgChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client, const chnMapIt &chnIt);
         
         void  privmsgCommand(const std::vector<std::string> &fields, Client &user);
@@ -88,7 +88,7 @@ std::string trimTheSpaces(const std::string& str);
 std::vector<std::string> splitBySpace(const std::string &str);
 std::vector<std::string> splitByDelim(const std::string &str, char delim);
 std::string stringUpper(const std::string &_str);
-
+void display_channel_mode(const Channel &channel, const Client &client);
 inline void replyTo(int socket, const std::string &buffer) {
 	send(socket, buffer.c_str(), buffer.size(), 0);
 }
