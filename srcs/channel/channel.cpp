@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/24 23:19:10 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/25 05:43:32 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <string>
 #include "../client/client.hpp"
 
-Channel::Channel() : _name("default"), _topic("default"), _key("default")
+Channel::Channel() : _name(""), _topic(""), _key(""), _isInviteOnly(false), _maxUsers(0), _topicFlag(false)
 {
 }
 
@@ -26,10 +26,6 @@ Channel::~Channel()
 {
 }
 
-// Channel::Channel(const Channel &src)
-// {
-//     *this = src;
-// }
 
 void Channel::removeOperator(const Client &op)
 {
@@ -130,6 +126,18 @@ std::string &Channel::getChannelUsersInString()
         *users += " ";
     }
     return *users;
+}
+
+std::string Channel::getChannelModes()
+{
+    std::string modes;
+    if (_isInviteOnly)
+        modes += "i";
+    if (_topicFlag)
+        modes += "t";
+    if (_maxUsers > 0)
+        modes += "l";
+    return modes;
 }
 
 void Channel::setName(const std::string &name)

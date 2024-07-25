@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:32:12 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/24 23:17:25 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/25 00:09:43 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ class Channel
     std::string getKey() const;
     bool getIsInviteOnly() const;
     size_t getMaxUsers() const;
+    std::string getChannelModes();
 
 	Client &getUser(std::string &nickName);
     std::string getUserName(const std::string &clientName);

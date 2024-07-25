@@ -168,8 +168,7 @@ void Server::commandRunner(std::vector<std::string> &fields, Client &user)
 }
 
 // Handle incoming data from clients :
-void 
-Server::handleIncomeData(int i) 
+void Server::handleIncomeData(int i) 
 {
 	char buffer[2048] = {0};
 	int rc;
@@ -215,9 +214,6 @@ Server::handleIncomeData(int i)
 		{
 			fields[0] = stringUpper(fields[0]);
 			commandRunner(fields, _clients.find(_pollFds[i].fd)->second);
-
-			if (_clients.find(_pollFds[i].fd)->first > 0)
-				_clients.find(_pollFds[i].fd)->second.refStatus();
 		}
 	}
 }

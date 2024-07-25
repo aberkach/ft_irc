@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 22:29:46 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/24 23:50:50 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/25 06:31:19 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #include <string>
 #include <vector>
 
-bool Server::joinChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client, const chnMapIt &chnIt) {
+bool Server::joinExistChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client, const chnMapIt &chnIt) {
     // if the channel already exist, check if the client is already in the channel
     if (chnIt != _channels.end())
     {
@@ -72,7 +72,7 @@ bool Server::joinChannel(const std::string &chnName, std::vector<std::string> &k
                     }
                 }
                 // check if the channel is full
-                else if (Server::countUsersInChannel(chnName) >= chnIt->second.getMaxUsers())
+                else if (Server::countUsersInChannel(chnName) >= chnIt->second.getMaxUsers() && chnIt->second.getMaxUsers() != 0)
                 {
                     replyTo(client.getSocket(), ERR_CHANNELISFULL(client.getNickname(), chnName));
                     return false;
@@ -89,11 +89,16 @@ bool Server::joinChannel(const std::string &chnName, std::vector<std::string> &k
             // this replies to the client with the list of users in the channel and topic of the channel
             if (it->first == client.getNickname())
             {
-                replyTo(client.getSocket(), RPL_TOPIC(chnIt->second.getUserName(client.getNickname()), chnName, chnIt->second.getTopic()));
+                
                 replyTo(client.getSocket(), RPL_NAMREPLY(usersList, chnName, chnIt->second.getUserName(client.getNickname())));
                 replyTo(client.getSocket(), RPL_ENDOFNAMES(chnIt->second.getUserName(client.getNickname()), chnName));
+                std::cout << "topic flag: " << chnIt->second.getTopicFlag() << std::endl;
+                if (chnIt->second.getTopicFlag())
+                    replyTo(client.getSocket(), RPL_TOPIC(chnIt->second.getUserName(client.getNickname()), chnName, chnIt->second.getTopic()));
             }
         }
+        
+        // display_channel_mode(chnIt->second, client);
     }
     return true;
 }
@@ -101,6 +106,8 @@ bool Server::joinChannel(const std::string &chnName, std::vector<std::string> &k
 bool Server::createChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client) {
     // create a new channel
     _channels.insert(std::pair<std::string, Channel>(chnName, Channel(chnName)));
+    chnMapIt chnIt = _channels.find(chnName);
+    chnIt->second.setMaxUsers(0);
     // check if the channel has a key
     if (keys.size() > 0)
     {
@@ -163,7 +170,7 @@ void Server::processTheJoinArgs(const std::vector<std::string> &channels , std::
             }
             // join the existing channel
             else {   
-                if (!joinChannel(chnName, keys, client, chnIt))
+                if (!joinExistChannel(chnName, keys, client, chnIt))
                     continue;
             }
         }

@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:19:40 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/24 20:46:03 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/25 07:18:15 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,8 +112,8 @@ void Server::quitCommand(const std::vector<std::string> &fields, Client &client)
             }
         }
         std::map<int, Client>::iterator it =  _clients.find(client.getSocket());
-        close(it->first);
         // remove the client from the clients map
+        close(it->first);
         if (it != _clients.end())
             _clients.erase(it);
     }

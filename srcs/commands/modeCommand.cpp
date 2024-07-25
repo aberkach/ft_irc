@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 23:25:07 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/24 20:52:52 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/25 05:20:20 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,7 +131,10 @@ void display_channel_mode(const Channel &channel, const Client &client){
 	if (!channel.getKey().empty())
 		str += "k";
 	if (channel.getMaxUsers() != 0)
+	{
+		std::cout << "max users: " << channel.getMaxUsers() << std::endl;
 		str += "l";
+	}
 	if (!channel.getTopic().empty())
 		str += "t";
 	replyTo(client.getSocket(), RPL_CHANNELMODEIS(client.getNickname(), channel.getName(), str));

@@ -167,7 +167,6 @@ Client::refStatus(void)
     if (_registered == false && _validPass == true && !_nickName.empty() && !_userName.empty() && !_realName.empty())
     {
         _registered = true;
-        std::cout << "Client " << _nickName << " is now registered" << std::endl;
         std::string host = inet_ntoa(_addr.sin_addr);
         replyTo(_socket, RPL_WELCOME(_nickName, _userName, host));
         replyTo(_socket, RPL_YOURHOST(_nickName, host, std::to_string(ntohs(_addr.sin_port))));
