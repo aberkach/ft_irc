@@ -7,14 +7,14 @@ Bot::Bot(void)
     std::cout << "whats ur server Nickname master :";
     getline(std::cin, master);
     if(master.empty()) // or has spaces
-        throw (std::invalid_argument("Nickname cant be empty nor have eny spaces in it."));
+        throw (std::invalid_argument( "ERROR: Nickname cant be empty nor have eny spaces in it."));
 
     std::cout << YELLOW "your Nickname is :" << master << RESET << std::endl;
     masters.push_back(master);
     std::cout << "Do you want to continue? [Y/n] ";
     getline(std::cin, master);
     if (master.empty() || (master != "Y" && master != "y"))
-        throw (std::invalid_argument(BOT ": Quit." ));
+        throw (std::invalid_argument( "ERROR: " BOT ": Quit." ));
 
     std::cout << "Do u have an API_KEY from api.openweathermap.org? [Y/n] ";
     if (getline(std::cin, master) && !master.empty() && (master == "Y" || master == "y"))   // optimize this
@@ -22,18 +22,18 @@ Bot::Bot(void)
         std::cout << "API_KEY :";
         getline(std::cin, master);
         if(master.empty()) { // or has spaces
-            std::cout << "API_KEY cant be empty nor have eny spaces in it." << std::endl;
-            std::cout << "API will be set to null u can configure it later." << std::endl; // info
+            std::cout << YELLOW "API_KEY cant be empty nor have eny spaces in it." << std::endl;
+            std::cout << "API will be set to null u can configure it later." RESET << std::endl; // info
             this->API_KEY = "\0";
         } else 
             this->API_KEY = master;
     } else {
-        std::cout << "API will be set to null u can configure it later." << std::endl; // info
+        std::cout << YELLOW "API will be set to null u can configure it later." RESET << std::endl; // info
         this->API_KEY = "\0";
     }
 
     if ((this->irc_sock = createTCPSock()) == -1)
-        throw (std::invalid_argument("failed to create socket."));
+        throw (std::invalid_argument( "ERROR: Failed to create socket."));
 
     commandList["PING"] = &Bot::pongCommand;
     commandList["JOIN"] = &Bot::welcomeMsg;
@@ -131,26 +131,26 @@ Bot::startBot(uint16_t port)
 {
     std::string answer;
 
-    std::cout << "connect using :\n     1 - using LOCALHOST.\n     2 - using ip address.\n     3 - using domain name.\n" << std::endl; // hardcoded for now 
+    std::cout << YELLOW "connect using :\n     1 - using LOCALHOST.\n     2 - using ip address.\n     3 - using domain name.\n" RESET << std::endl; // hardcoded for now 
     std::cout << "Answer [1/2/3] ";
 
     getline(std::cin, answer);
     if (answer == "1") {
         if (!connectSockByIp(this->irc_sock, LOCALHOST, port))
-            throw (std::invalid_argument("couldnt connect to socket address."));
+            throw (std::invalid_argument( "ERROR: " RED "Couldnt connect to socket address." RESET));
     } else if (answer == "2") {
         std::cout << "Irc Server ip: ";
         getline(std::cin, answer);
         if (!connectSockByIp(this->irc_sock, answer.c_str(), port))
-            throw (std::invalid_argument("couldnt connect to socket address."));
+            throw (std::invalid_argument( "ERROR: " RED "Couldnt connect to socket address." RESET));
     } else if (answer == "3") {
         std::cout << "Irc server name: ";
         getline(std::cin, answer);
         if (!connectSockByName(this->irc_sock, answer.c_str(), port))
-            throw (std::invalid_argument("couldnt connect to socket address."));
+            throw (std::invalid_argument( "ERROR: " RED "Couldnt connect to socket address." RESET));
     } else {
         close(this->irc_sock);
-        throw (std::invalid_argument("Only [1/2/3] are allowed."));
+        throw (std::invalid_argument( "ERROR: " RED "Only [1/2/3] are allowed." RESET));
     }
 };
 
