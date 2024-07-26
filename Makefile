@@ -1,19 +1,30 @@
+################################### IRC ###################################
 
 EXE := ircserv
+BEXE := ircbot
 
-CPP := c++ -std=c++98
+CPP := c++
 
-CPPFLAGS := -Wall -Wextra -Wshadow -fsanitize=address
-# -g -Werror stop rendring global useless in local
+CPPFLAGS := -g -Wall -Wextra -Wshadow -fsanitize=address
+# -Werror
 
-HEADER := ./srcs/server/server.hpp	./srcs/server/client.hpp	./srcs/tools/health.hpp	\
-			./Inc/ft_irc.hpp	./Inc/define.hpp	./srcs/channel/channel.hpp
+################################### SRCS ###################################
+# HEADER := ./srcs/server/server.hpp		 ./srcs/server/client.hpp					  ./srcs/tools/health.hpp			     \
+		#   ./Inc/ft_irc.hpp				 ./Inc/define.hpp							  ./srcs/channel/channel.hpp
+FILES := ./srcs/client/client.cpp		 ./srcs/server/server.cpp 					  ./srcs/server/utils.cpp				 \
+		./srcs/channel/channel.cpp		 ./srcs/commands/additionalCommands.cpp		  ./srcs/commands/channelOpsCommands.cpp \
+		./srcs/commands/joinCommand.cpp	 ./srcs/commands/authenticationCommands.cpp	  ./srcs/commands/modeCommand.cpp 		 \
+		./srcs/tools/health.cpp			 ./srcs/main.cpp 
 
-FILE := ./srcs/client/client.cpp	./srcs/server/server.cpp 	./srcs/server/utils.cpp	./srcs/tools/health.cpp	 \
-		./srcs/channel/channel.cpp	./srcs/commands/additionalCommands.cpp		./srcs/commands/channelOpsCommands.cpp \
-		./srcs/commands/joinCommand.cpp			./srcs/commands/authenticationCommands.cpp		./srcs/commands/modeCommand.cpp \
-		./srcs/main.cpp 
-OBJ := $(FILE:.cpp=.o)
+# BHEADER := ./bonus/include/defines.hpp 	./bonus/Inc/ircBot.hpp 	 ./bonus/bot/bot.hpp 
+BFILES :=  ./bonus/bot/bot.cpp 		./bonus/bot/commands.cpp ./bonus/bot/tools.cpp ./bonus/main.cpp
+
+#############################################################################
+
+OBJ := $(FILES:.cpp=.o)
+
+BOBJ := $(BFILES:.cpp=.o)
+
 
 M = MAKE_PUSH
 
@@ -21,21 +32,26 @@ M = MAKE_PUSH
 
 all : $(EXE)
 
+bonus : $(BEXE)
+
 $(EXE): $(OBJ)
 	$(CPP) $(CPPFLAGS) $(OBJ)  -o $(EXE)
 
-%.o: %.cpp $(HEADER)
+$(BEXE): $(BOBJ)
+	$(CPP) $(CPPFLAGS) $(BOBJ) -o $(BEXE)
+
+%.o: %.cpp
 	$(CPP) $(CPPFLAGS) -c -o $@ $<
 
 clean :
-	rm -rf $(OBJ)
+	rm -rf $(BOBJ) $(OBJ) 
 
 fclean : clean
-	rm -rf $(EXE)
+	rm -rf $(EXE) $(BEXE)
 
 re: fclean all
 
-push:
+push: fclean
 	git add .
 	git status
 	git commit -m "$(M)"
@@ -43,4 +59,4 @@ push:
 
 ##############################################################################
 
-.PHONY: all clean fclean re push
+.PHONY:  clean fclean re push bonus

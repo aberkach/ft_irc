@@ -44,7 +44,6 @@
 #define EVENT_WRITE 1 << 1
 #define EVENT_RW (EVENT_WRITE | EVENT_READ)
 
-#define HEADER " ██▓ ██▀███  ▄████▄       ██████ ▓█████  ██▀███   ██▒   █▓▓█████  ██▀███  \n▓██▒▓██ ▒ ██▒██▀ ▀█     ▒██    ▒ ▓█   ▀ ▓██ ▒ ██▒▓██░   █▒▓█   ▀ ▓██ ▒ ██▒\n▒██▒▓██ ░▄█ ▒▓█    ▄    ░ ▓██▄   ▒███   ▓██ ░▄█ ▒ ▓██  █▒░▒███   ▓██ ░▄█ ▒\n░██░▒██▀▀█▄ ▒▓▓▄ ▄██▒     ▒   ██▒▒▓█  ▄ ▒██▀▀█▄    ▒██ █░░▒▓█  ▄ ▒██▀▀█▄  \n░██░░██▓ ▒██▒ ▓███▀ ░   ▒██████▒▒░▒████▒░██▓ ▒██▒   ▒▀█░  ░▒████▒░██▓ ▒██▒\n░▓  ░ ▒▓ ░▒▓░ ░▒ ▒  ░   ▒ ▒▓▒ ▒ ░░░ ▒░ ░░ ▒▓ ░▒▓░   ░ ▐░  ░░ ▒░ ░░ ▒▓ ░▒▓░\n ▒ ░  ░▒ ░ ▒░ ░  ▒      ░ ░▒  ░ ░ ░ ░  ░  ░▒ ░ ▒░   ░ ░░   ░ ░  ░  ░▒ ░ ▒░\n ▒ ░  ░░   ░░           ░  ░  ░     ░     ░░   ░      ░░     ░     ░░   ░ \n ░     ░    ░ ░               ░     ░  ░   ░           ░     ░  ░   ░     " + "\r\n"
 
 #define SERVERNAME             "Irc_42.chat"
 #define VERSION                "1.2.3"
@@ -55,6 +54,7 @@
 
 #define COMMANDS "CHANTYPES=#"
 
+// 001
 #define NOTE0  ":" SERVERNAME " NOTICE Guest :** Looking up your hostname...\r\n"
 #define NOTE1  ":" SERVERNAME " NOTICE Guest :** Couldn't look up your hostname\r\n"
 #define NOTE2  ":" SERVERNAME " NOTICE Guest :** You are connected to the server as 'Guest', You have to authenticate to use this server\r\n"
@@ -64,6 +64,17 @@
 #define NOTE6  "                            USER <username> 0 * :<realname>\r\n"
 #define NOTE7  ":" SERVERNAME " NOTICE Guest :** NICKLEN" CNICKLEN " USERLEN=" CUSERLEN " REALLEN=" CREALLEN " characters\n"\
                "                            if u pass the token, the value will be truncated to fit the server needs\r\n"
+// 005
+// :irc.mzima.net 251 asddasdas          :There are 3671 users and 5887 invisible on 17 servers
+// :irc.mzima.net 252 asddasdas 81       :IRC Operators online
+// :irc.mzima.net 254 asddasdas 6173     :channels formed
+// :irc.mzima.net 255 asddasdas          :I have 439 clients and 1 servers
+// :irc.mzima.net 265 asddasdas 439 1478 :Current local users 439, max 1478
+// :irc.mzima.net 375 asddasdas :- irc.mzima.net Message of the Day -
+// 372 message of the dat
+#define HEADER " ██▓ ██▀███  ▄████▄       ██████ ▓█████  ██▀███   ██▒   █▓▓█████  ██▀███  \n▓██▒▓██ ▒ ██▒██▀ ▀█     ▒██    ▒ ▓█   ▀ ▓██ ▒ ██▒▓██░   █▒▓█   ▀ ▓██ ▒ ██▒\n▒██▒▓██ ░▄█ ▒▓█    ▄    ░ ▓██▄   ▒███   ▓██ ░▄█ ▒ ▓██  █▒░▒███   ▓██ ░▄█ ▒\n░██░▒██▀▀█▄ ▒▓▓▄ ▄██▒     ▒   ██▒▒▓█  ▄ ▒██▀▀█▄    ▒██ █░░▒▓█  ▄ ▒██▀▀█▄  \n░██░░██▓ ▒██▒ ▓███▀ ░   ▒██████▒▒░▒████▒░██▓ ▒██▒   ▒▀█░  ░▒████▒░██▓ ▒██▒\n░▓  ░ ▒▓ ░▒▓░ ░▒ ▒  ░   ▒ ▒▓▒ ▒ ░░░ ▒░ ░░ ▒▓ ░▒▓░   ░ ▐░  ░░ ▒░ ░░ ▒▓ ░▒▓░\n ▒ ░  ░▒ ░ ▒░ ░  ▒      ░ ░▒  ░ ░ ░ ░  ░  ░▒ ░ ▒░   ░ ░░   ░ ░  ░  ░▒ ░ ▒░\n ▒ ░  ░░   ░░           ░  ░  ░     ░     ░░   ░      ░░     ░     ░░   ░ \n ░     ░    ░ ░               ░     ░  ░   ░           ░     ░  ░   ░     " + "\r\n"
+// :irc.mzima.net 376 asddasdas :End of /MOTD command.
+// :MZdrone!raphidae@mz.dronemon PRIVMSG asddasdas :VERSION
 
 // add header signature in the welcome msg + some info
 #define RPL_WELCOME(nick, user, host)                       ":" SERVERNAME " 001 " + (nick) + " :Welcome to the internet relay chat Network, " + (nick) + "[!" + (user) + "@" + (host) + "]\r\n"

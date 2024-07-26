@@ -49,22 +49,23 @@ Bot::Bot(void)
 void
 Bot::authenticate(std::string password) const
 {
-    std::string message;
+    std::string response;
+    std::string commands[3] = {
+                                "PASS " + password,
+                                "NICK " BOT,
+                                "USER " BOT " 0 * : " BOT,
+                              };
 
     if (password.empty())
         password = "NAN";
 
-    message = "PASS " + password;
-
-    sendit(this->irc_sock, message);
-
-    message = "NICK " BOT;
-    usleep(200);
-    sendit(this->irc_sock, message);
-
-    message = "USER " BOT " 0 * : " BOT;
-    usleep(200);
-    sendit(this->irc_sock, message);
+    for (int i = 0; i <= 2; i++) {
+        sendit(this->irc_sock, commands[i]);
+        usleep(200);
+        if ((response = recvit(this->irc_sock)) == "")
+            continue;
+        logger(response);
+    }
 };
 
 void
@@ -91,15 +92,17 @@ Bot::listenForCommand(void)
 {
     while (true) {
         std::string message;
-        if ((message = revcit(this->irc_sock)) == "")
+        if ((message = recvit(this->irc_sock)) == "")
             continue;
 
+        std::cout << message << std::endl;
         message = trimTheSpaces(message);
         std::vector<std::string> fields = splitMessage(message);
 
         if (!fields.empty()) {
-            logger(message);
 
+            std::cout << message << std::endl;
+            
             if (fields[0] == "PING") {
                 (this->*commandList[fields[0]])(fields);
             } else if (fields.size() > 1 && commandList.find(fields[1]) != commandList.end()) {

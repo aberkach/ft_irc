@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 22:25:38 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/25 07:17:24 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/26 05:01:14 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ void Server::passCommand(const std::vector<std::string> &fields, Client &user)
 	}
 	else
 		replyTo(user.getSocket(), ERR_ALREADYREGISTERED(user.getNickname()));
-	_clients[user.getSocket()].refStatus();
 }
 
 
