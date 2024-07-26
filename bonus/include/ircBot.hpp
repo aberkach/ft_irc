@@ -28,7 +28,7 @@ int                         createTCPSock(void) throw();
 bool                        connectSockByIp(int socket, const char *ip_addr, int port);
 bool                        connectSockByName(int socket, const char *hostbyname, int port) throw();
 void                        sendit(int sock, std::string& msg);
-std::string                 revcit(int sock);
+std::string                 recvit(int sock);
 std::string                 jsonValue(const std::string& json, const std::string& key) throw();
 
 #endif

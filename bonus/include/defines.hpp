@@ -2,7 +2,7 @@
 #define DEFINES_HPP
 
 // Settings:
-#define BOT "elgarodumomento"
+#define BOT "procs"
 #define LOCALHOST "127.0.0.1"
 
 // Colors:

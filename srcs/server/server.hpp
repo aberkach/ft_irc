@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 14:50:26 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/25 05:09:01 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/26 05:28:40 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,7 @@ class Server {
         void listCommand(const std::vector<std::string> &fields, Client &client);
         void modeCommand(const std::vector<std::string> &fields, Client &client);
         size_t countUsersInChannel(const std::string &chnName);
+        std::vector<std::string> getBuffers(const std::string &buffer);
 };
 
 void Err(const std::string &msg, int exitFalg);

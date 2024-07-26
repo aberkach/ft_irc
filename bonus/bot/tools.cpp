@@ -61,6 +61,7 @@ sendit(int sock, std::string& msg)
         close(sock);
         throw (std::invalid_argument("Error: send failed."));
     }
+    usleep(200);
 };
 
 std::string
@@ -84,7 +85,7 @@ jsonValue(const std::string& json, const std::string& key) throw()
 };
 
 std::string
-revcit(int sock)
+recvit(int sock)
 {
     int bytes = 0;
     char BUFFER[4096];
@@ -137,19 +138,19 @@ valid_port(char *port_arg) throw()
 {
     size_t i;
 
-    std::cout << "Port :" << port_arg << std::endl;
+    std::cout << YELLOW "Port :" << port_arg << RESET << std::endl;
     for (i = 0; port_arg[i] ;i++)
     {
         if (!isdigit(port_arg[i]) || i > 5)
         {
-            std::cerr << "ERROR: Port range between 1024 && 65535." << std::endl; 
+            std::cerr << RED "Error: Port range between 1024 && 65535." RESET << std::endl; 
             return 1;
         }
     }
     uint32_t port = atoi(port_arg);
     if (1024 > port || 65535 < port)
     {
-        std::cerr << "ERROR: Port range between 1024 && 65535." << std::endl; 
+        std::cerr << RED "Error: Port range between 1024 && 65535." RESET << std::endl; 
         return 1;
     }
     return port;
@@ -160,15 +161,15 @@ arg_checker(int ac, char **av) throw()
 {
     uint16_t port;
     
-    std::cerr << RED;
     switch (ac)
     {
         case 2 :
             std::cout << YELLOW "WARNING: IRC Bot missing argument <password> its set to null" RESET << std::endl;
             break;
         case 3 :
+            break;
         default :
-            std::cerr << "ERROR: IRC Bot requare 2 arguments password can be empty. \n"  "try ./ircbot <port> <password>" << std::endl;
+            std::cerr << RED "Error: IRC Bot requare 2 arguments password can be empty. \n"  "try ./ircbot <port> <password>" RESET << std::endl;
             return 1;
     }
     if (!(port = valid_port(av[1])))

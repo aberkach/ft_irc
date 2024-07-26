@@ -16,6 +16,7 @@
 #include "../../Inc/ft_irc.hpp"
 #include <array>
 #include <cstddef>
+#include <iostream>
 #include <string>
 #include <sys/poll.h>
 #include <vector>
@@ -25,7 +26,7 @@ bool Server::_signal = false;
 // parameterized constructor : initialize the server socket and set the port number
 Server::Server(uint16_t port, char *password) : _port(port), _password(password)
 {
-	_pollFds.resize(30);
+	_pollFds.resize(1);
 	_listen_sd = socket(AF_INET, SOCK_STREAM, 0); // Create a TCP socket
 	if (_listen_sd < 0)
 		Err("socket() failed", 1);
@@ -86,6 +87,7 @@ void Server::createServer()
 {
 	int		current_size;
 	_nfds = 1;
+	int rc = 0;
 
 	// Start listening for incoming connections
 	std::cout << "server is running : " << std::endl;
@@ -93,7 +95,8 @@ void Server::createServer()
 		// Check if the server is shutting down by signal
 		if (Server::_signal)
 			throw std::runtime_error("Server is shutting down");
-	    if (poll(&_pollFds[0], _pollFds.size(), -1) == -1)
+		rc = poll(&_pollFds[0], _pollFds.size(), 0);
+	    if (rc < 0)
 	        throw std::runtime_error("poll() failed");
 		for (size_t i = 0; i < _nfds; i++) {
 			if (_pollFds[i].revents & POLLIN) 
@@ -128,7 +131,7 @@ void Server::handlIncomeConnections()
 
 		int newSck = accept(_listen_sd, (struct sockaddr *)&client_adrs, &sock_len);
 	    if (newSck < 0)
-	        perror("  accept() failed");
+	        perror("accept() failed");
 		
 	    else {
 			// Resize the fds array if it's full
@@ -167,13 +170,34 @@ void Server::commandRunner(std::vector<std::string> &fields, Client &user)
 		replyTo(user.getSocket(), ERR_UNKNOWNCOMMAND(user.getNickname(), command));
 }
 
+std::vector<std::string>
+Server::getBuffers(const std::string &buffer) {
+    std::vector<std::string> messages;
+    std::string::size_type start = 0, end = 0;
+
+	while ((end = buffer.find_first_of('\n',start)) != std::string::npos) {
+		while (buffer[end] && buffer[end] == '\n')
+			end++;
+		std::string message = buffer.substr(start, end - start);
+		messages.push_back(message);
+		start = end;
+	}
+
+    if (start < buffer.length()) {
+        messages.push_back(buffer.substr(start));
+    }
+
+    return messages;
+};
+
 // Handle incoming data from clients :
-void Server::handleIncomeData(int i) 
+void 
+Server::handleIncomeData(int i) 
 {
-	char buffer[2048] = {0};
+	char buffer[4096] = {0};
 	int rc;
 
-	rc = recv(_pollFds[i].fd, buffer, sizeof(buffer), 0);
+	rc = recv(_pollFds[i].fd, buffer, sizeof(buffer) - 1, 0);
 	if (rc < 0)
 		Err("recv() failed", 0);
 	else if (rc == 0) {
@@ -195,25 +219,32 @@ void Server::handleIncomeData(int i)
 		// here we handle the message
 		buffer[rc] = '\0';
 		std::string rec(buffer);
-		// check if the message is valid (finished by \r\n)
-		if (rec.find_first_of("\r") == std::string::npos || rec.find_first_of("\n") == std::string::npos)
-		{
+		std::replace(rec.begin(), rec.end(), '\r', '\n');
+
+		if (rec.find_first_of('\n') == std::string::npos) {
 			_clients.find(_pollFds[i].fd)->second._clientBuffer += rec;
-			return ;
+			return;
 		}
 		else
 		{
 			rec = _clients.find(_pollFds[i].fd)->second._clientBuffer + rec;
 			_clients.find(_pollFds[i].fd)->second._clientBuffer.clear();
 		}
-		// remove the remove all spaces from the message (included \r\n)
-		rec = trimTheSpaces(rec);
-		// split the message by space
-		std::vector<std::string> fields = splitBySpace(rec);
-		if (!fields.empty())
-		{
-			fields[0] = stringUpper(fields[0]);
-			commandRunner(fields, _clients.find(_pollFds[i].fd)->second);
+		// // remove the remove all spaces from the message (included \r\n)
+		std::vector<std::string> messages = getBuffers(rec);
+		for (std::vector<std::string>::iterator it = messages.begin(); it != messages.end(); ++it) {
+			if ((*it = trimTheSpaces(*it)) == "")
+				return;
+
+			std::cout << GREEN << *it << RESET << std::endl;
+
+			// split the message by space
+			std::vector<std::string> fields = splitBySpace(*it);
+			if (!fields.empty())
+			{
+				fields[0] = stringUpper(fields[0]);
+				commandRunner(fields, _clients.find(_pollFds[i].fd)->second);
+			}
 		}
 	}
 }
