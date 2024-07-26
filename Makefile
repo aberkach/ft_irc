@@ -5,7 +5,7 @@ BEXE := ircbot
 
 CPP := c++
 
-CPPFLAGS := -g -Wall -Wextra -Wshadow -fsanitize=address
+CPPFLAGS := -Wall -Wextra -Wshadow -fsanitize=address -g
 # -Werror
 
 ################################### SRCS ###################################
@@ -44,7 +44,7 @@ $(BEXE): $(BOBJ)
 	$(CPP) $(CPPFLAGS) -c -o $@ $<
 
 clean :
-	rm -rf $(BOBJ) $(OBJ) 
+	rm -rf $(BOBJ) $(OBJ) $(
 
 fclean : clean
 	rm -rf $(EXE) $(BEXE)

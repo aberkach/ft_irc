@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/25 05:43:32 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/26 06:33:44 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,16 +116,16 @@ std::string Channel::getUserName(const std::string &clientName)
     return "User not found";
 }
 
-std::string &Channel::getChannelUsersInString()
+std::string Channel::getChannelUsersInString()
 {
-    std::string *users = new std::string();
+    std::string users;
     
     for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); it++)
     {
-        *users += it->first;
-        *users += " ";
+        users += it->first;
+        users += " ";
     }
-    return *users;
+    return users;
 }
 
 std::string Channel::getChannelModes()
