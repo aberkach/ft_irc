@@ -91,12 +91,12 @@ void Server::createServer()
 
 	// Start listening for incoming connections
 	std::cout << "server is running : " << std::endl;
-	while (true) {
+	while (_signal == false) {
 		// Check if the server is shutting down by signal
 		if (Server::_signal)
 			throw std::runtime_error("Server is shutting down");
 		rc = poll(&_pollFds[0], _pollFds.size(), 0);
-	    if (rc < 0)
+	    if (rc < 0 && _signal == false)
 	        throw std::runtime_error("poll() failed");
 		for (size_t i = 0; i < _nfds; i++) {
 			if (_pollFds[i].revents & POLLIN) 
@@ -131,22 +131,20 @@ void Server::handlIncomeConnections()
 
 		int newSck = accept(_listen_sd, (struct sockaddr *)&client_adrs, &sock_len);
 	    if (newSck < 0)
-	        perror("accept() failed");
-		
-	    else {
-			// Resize the fds array if it's full
-			if (_nfds >= _pollFds.size())
-				_pollFds.resize(_pollFds.size() * 2);
-	        // Add the new client socket to the fds array and clientsFds map
-	        std::cout << "New incoming connection - " << newSck << std::endl;
-	        fcntl(newSck, F_SETFL, O_NONBLOCK);
-			_pollFds[_nfds].fd = newSck;
-	        _pollFds[_nfds].events = POLLIN;
-			_pollFds[_nfds].revents = 0;
-			// Add the new client to the clients map
-	        _clients.insert(std::pair<int, Client>(newSck, Client(newSck, client_adrs)));
-	        _nfds++;
-	    }
+	        Err("accept() failed", 0);
+		// Resize the fds array if it's full
+		if (_nfds >= _pollFds.size())
+			_pollFds.resize(_pollFds.size() + 2);
+	    // Add the new client socket to the fds array and clientsFds map
+	    std::cout << GREEN << "New incoming connection : " << YELLOW <<  newSck << RESET << std::endl;
+	    if (fcntl(newSck, F_SETFL, O_NONBLOCK))
+			Err("fcntl() failed", 0);
+		_pollFds[_nfds].fd = newSck;
+	    _pollFds[_nfds].events = POLLIN;
+		_pollFds[_nfds].revents = 0;
+		// Add the new client to the clients map
+	    _clients.insert(std::pair<int, Client>(newSck, Client(newSck, client_adrs)));
+	    _nfds++;
 	}
 }
 
@@ -201,7 +199,7 @@ Server::handleIncomeData(int i)
 	if (rc < 0)
 		Err("recv() failed", 0);
 	else if (rc == 0) {
-		std::cout << "Connection closed" << std::endl;
+		std::cout << RED << "Connection closed For : " << YELLOW << _pollFds[i].fd << RESET << std::endl;
 		// Remove closed client from fds array and clientsFds map)
 		for (std::map<std::string, Channel>::iterator it = _channels.begin(); it != _channels.end(); it++)
 		{
@@ -236,7 +234,7 @@ Server::handleIncomeData(int i)
 			if ((*it = trimTheSpaces(*it)) == "")
 				return;
 
-			std::cout << GREEN << *it << RESET << std::endl;
+			// std::cout << GREEN << *it << RESET << std::endl;
 
 			// split the message by space
 			std::vector<std::string> fields = splitBySpace(*it);
