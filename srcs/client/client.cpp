@@ -35,14 +35,7 @@ Client::Client(void): _socket(-1) , _registered(false) , _validPass(false) ,
 Client::Client(int socket, struct sockaddr_in &addr) : _socket(socket) , _registered(false) , _validPass(false) , 
     _nickName(""), _userName(""), _realName("")
 {
-    replyTo(_socket, NOTE0);
-    replyTo(_socket, NOTE1);
-    replyTo(_socket, NOTE2);
-    replyTo(_socket, NOTE3);
-    replyTo(_socket, NOTE4);
-    replyTo(_socket, NOTE5);
-    replyTo(_socket, NOTE6);
-    replyTo(_socket, NOTE7);
+    replyTo(_socket, AUTH);
     memset(&_addr, 0, sizeof(_addr));
     memmove(&_addr, &addr, sizeof(_addr));
 };
@@ -162,10 +155,12 @@ sockaddr_in Client::getAddr(void) const
 
 
 void 
-Client::refStatus(void)
+Client::refStatus(uint countCli)
 {
+
     if (_registered == false && _validPass == true && !_nickName.empty() && !_userName.empty() && !_realName.empty())
     {
+        std::string count = std::to_string(countCli);
         _registered = true;
         std::string host = inet_ntoa(_addr.sin_addr);
         replyTo(_socket, RPL_WELCOME(_nickName, _userName, host));
@@ -173,6 +168,11 @@ Client::refStatus(void)
         replyTo(_socket, RPL_CREATED(_nickName, getTime()));
         replyTo(_socket, RPL_MYINFO(_nickName));
         replyTo(_socket, RPL_ISUPPORT(_nickName));
+        replyTo(_socket, RPL_LUSERME(_nickName, count));
+        replyTo(_socket, RPL_LOCALUSERS(_nickName, count));
+        replyTo(_socket, RPL_MOTDSTART(_nickName));
+        replyTo(_socket, RPL_MOTD(_nickName));
+        replyTo(_socket, RPL_ENDOFMOTD(_nickName));
     }
 };
 

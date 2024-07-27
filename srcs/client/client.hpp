@@ -48,7 +48,7 @@ class Client
 
         // void removeChannel(std::string &chnName);
 
-        void refStatus(void);
+        void refStatus(uint countCli);
 
         ~Client(void);
 };

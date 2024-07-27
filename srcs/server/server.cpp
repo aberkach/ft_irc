@@ -20,28 +20,29 @@
 #include <string>
 #include <sys/poll.h>
 #include <vector>
+#include <algorithm>
 
 bool Server::_signal = false;
 
 // parameterized constructor : initialize the server socket and set the port number
-Server::Server(uint16_t port, char *password) : _port(port), _password(password)
+Server::Server(uint16_t port, char *password) : _countCli(0), _port(port), _password(password)
 {
 	_pollFds.resize(1);
 	_listen_sd = socket(AF_INET, SOCK_STREAM, 0); // Create a TCP socket
 	if (_listen_sd < 0)
-		Err("socket() failed", 1);
+		throw std::runtime_error("socket() failed");
 
 	// Set socket option to allow address reuse
 	int on = 1;
 	if (setsockopt(_listen_sd, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on)) < 0) {
 	    close(_listen_sd);
-		Err("setsockopt() failed", 1);
+		throw std::runtime_error("setsockopt() failed");
 	}
 	
 	// Set socket to non-blocking mode
 	if (fcntl(_listen_sd, F_SETFL, O_NONBLOCK) < 0) {
 	    close(_listen_sd);
-		Err("fcntl() failed", 1);
+		throw std::runtime_error("fcntl() for the server is failed");
 	}
 	
 	// Bind the socket to the specified address and port
@@ -52,15 +53,12 @@ Server::Server(uint16_t port, char *password) : _port(port), _password(password)
 
 	if (bind(_listen_sd, (struct sockaddr *)&_addr, sizeof(_addr)) < 0) {
 	    close(_listen_sd);
-		Err("bind() failed", 1);
+		throw std::runtime_error("bind() failed");
 	}
 
 	// Start listening for incoming connections
-	if (listen(_listen_sd, 10) < 0) {
-	    perror("listen() failed");
-	    close(_listen_sd);
-	    exit(-1);
-	}
+	if (listen(_listen_sd, 10) < 0) 
+		throw std::runtime_error("listen() failed");
 	
 	// Initialize the fds array with the server socket
 	_pollFds[0].fd = _listen_sd;
@@ -71,6 +69,9 @@ Server::Server(uint16_t port, char *password) : _port(port), _password(password)
 	_commands["PASS"] = &Server::passCommand;
 	_commands["NICK"] = &Server::nickCommand;
 	_commands["USER"] = &Server::userCommand;
+	_commands["PING"] = &Server::pingCommad;
+	_commands["PONG"] = &Server::pongCommad;
+	_commands["WHOIS"] = &Server::whoisCommad;
 	_commands["PRIVMSG"] = &Server::privmsgCommand;
 	_commands["JOIN"] = &Server::joinCommand;
 	_commands["QUIT"] = &Server::quitCommand;
@@ -98,7 +99,7 @@ void Server::createServer()
 		// Check if the server is shutting down by signal
 		if (Server::_signal)
 			throw std::runtime_error("Server is shutting down");
-		rc = poll(&_pollFds[0], _pollFds.size(), 0);
+		rc = poll(&_pollFds[0], _pollFds.size(), -1);
 	    if (rc < 0 && _signal == false)
 	        throw std::runtime_error("poll() failed");
 		for (size_t i = 0; i < _nfds; i++) {
@@ -134,20 +135,26 @@ void Server::handlIncomeConnections()
 
 		int newSck = accept(_listen_sd, (struct sockaddr *)&client_adrs, &sock_len);
 	    if (newSck < 0)
-	        Err("accept() failed", 0);
-		// Resize the fds array if it's full
-		if (_nfds >= _pollFds.size())
-			_pollFds.resize(_pollFds.size() + 2);
-	    // Add the new client socket to the fds array and clientsFds map
-	    std::cout << GREEN << "New incoming connection : " << YELLOW <<  newSck << RESET << std::endl;
-	    if (fcntl(newSck, F_SETFL, O_NONBLOCK))
-			Err("fcntl() failed", 0);
-		_pollFds[_nfds].fd = newSck;
-	    _pollFds[_nfds].events = POLLIN;
-		_pollFds[_nfds].revents = 0;
-		// Add the new client to the clients map
-	    _clients.insert(std::pair<int, Client>(newSck, Client(newSck, client_adrs)));
-	    _nfds++;
+	        Err("accept() failed");
+		
+	    else {
+			// Resize the fds array if it's full
+			if (_nfds >= _pollFds.size())
+				_pollFds.resize(_pollFds.size() + 2);
+	        // Add the new client socket to the fds array and clientsFds map
+	        std::cout << GREEN << "New incoming connection : " << YELLOW <<  newSck << RESET << std::endl;
+	        if (fcntl(newSck, F_SETFL, O_NONBLOCK))
+				Err("fcntl() for the client is failed");
+	        _pollFds[_nfds].fd = newSck;
+	        _pollFds[_nfds].events = POLLIN;
+			_pollFds[_nfds].fd = newSck;
+	        _pollFds[_nfds].events = POLLIN;
+			_pollFds[_nfds].revents = 0;
+			// Add the new client to the clients map
+	        _clients.insert(std::pair<int, Client>(newSck, Client(newSck, client_adrs)));
+	        _nfds++;
+			_countCli++;
+	    }
 	}
 }
 
@@ -158,15 +165,8 @@ void Server::commandRunner(std::vector<std::string> &fields, Client &user)
 	std::string command(fields[0]);
 	fields.erase(fields.begin());
 
-
 	if (_commands.find(command) != _commands.end())
 		(this->*_commands[command])(fields, user);
-	else if (command == "PING")
-	{
-		if (!fields.empty())
-			replyTo(user.getSocket(), fields[0]);
-		replyTo(user.getSocket(), ERR_NEEDMOREPARAMS(user.getNickname(), command));
-	}
 	else
 		replyTo(user.getSocket(), ERR_UNKNOWNCOMMAND(user.getNickname(), command));
 }
@@ -200,7 +200,7 @@ Server::handleIncomeData(int i)
 
 	rc = recv(_pollFds[i].fd, buffer, sizeof(buffer) - 1, 0);
 	if (rc < 0)
-		Err("recv() failed", 0);
+		Err("recv() failed");
 	else if (rc == 0) {
 		std::cout << RED << "Connection closed For : " << YELLOW << _pollFds[i].fd << RESET << std::endl;
 		// Remove closed client from fds array and clientsFds map)
@@ -215,6 +215,7 @@ Server::handleIncomeData(int i)
 		_clients.erase(_pollFds[i].fd);
 		close(_pollFds[i].fd);
 		_pollFds[i].fd = -1;
+		_countCli--;
 	}
 	else {
 		// here we handle the message
@@ -236,9 +237,6 @@ Server::handleIncomeData(int i)
 		for (std::vector<std::string>::iterator it = messages.begin(); it != messages.end(); ++it) {
 			if ((*it = trimTheSpaces(*it)) == "")
 				return;
-
-			// std::cout << GREEN << *it << RESET << std::endl;
-
 			// split the message by space
 			std::vector<std::string> fields = splitBySpace(*it);
 			if (!fields.empty())

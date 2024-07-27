@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 23:27:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/27 05:07:36 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/27 07:17:23 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,9 @@
 #include <vector>
 #include <sstream>
 
-void Err(const std::string &msg, int exitFalg)
+void Err(const std::string &msg)
 {
 	std::cerr << msg << std::endl;
-	if (exitFalg)
-		exit(1);
 }
 
 std::string

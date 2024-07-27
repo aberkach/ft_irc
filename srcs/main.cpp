@@ -1,3 +1,14 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/07/27 06:22:34 by abberkac          #+#    #+#             */
+/*   Updated: 2024/07/27 07:27:07 by abberkac         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "../Inc/ft_irc.hpp"
 #include "server/server.hpp"
@@ -6,7 +17,6 @@
 int main(int ac, char **av)
 {
     uint16_t port;
-
     if ((port = health::arg_checker(ac ,av)) != 1)
     {
         Server srv(port, av[2]);

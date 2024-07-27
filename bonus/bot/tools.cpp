@@ -56,12 +56,16 @@ void
 sendit(int sock, std::string& msg)
 {
     msg += "\r\n";
+    // generat random time interval so i wont get insta banned
+    srand(time(0));
+    uint random_ms = 250 + rand() % (500 - 250 + 1);
+
     // __LOG(msg, BLUE);
     if (send(sock, msg.c_str(), msg.length(), 0) == -1 ) {
         close(sock);
         throw (std::invalid_argument("Error: send failed."));
     }
-    usleep(200);
+    usleep(random_ms);
 };
 
 std::string
@@ -175,4 +179,14 @@ arg_checker(int ac, char **av) throw()
     if (!(port = valid_port(av[1])))
         return 2;
     return port;
+};
+
+std::vector<std::string> splitByDelim(const std::string &str, char delim) {
+    std::vector<std::string> tokens;
+    std::stringstream ss(str);
+    std::string token;
+
+    while (std::getline(ss, token, delim))
+        tokens.push_back(token);
+    return tokens;
 };
