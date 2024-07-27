@@ -22,10 +22,11 @@
 #include <sstream>
 #include <arpa/inet.h>
 
+typedef std::map<std::string, Channel>::iterator chnMapIt;
+
 class Server {  
   private:
         typedef std::map<int, Client>::iterator clientIt;
-        typedef std::map<std::string, Channel>::iterator chnMapIt;
         typedef void (Server::*CommandHandler)(const std::vector<std::string>&, Client&);
 
 		    static bool						                _signal;
