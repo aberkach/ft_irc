@@ -49,6 +49,7 @@ Bot::Bot(void)
 void
 Bot::authenticate(std::string password) const
 {
+    int i = 0;
     std::string response;
     std::string commands[3] = {
                                 "PASS " + password,
@@ -57,32 +58,36 @@ Bot::authenticate(std::string password) const
                               };
 
     if (password.empty())
-        password = "NAN";
+        i++;
 
-    for (int i = 0; i <= 2; i++) {
+    for (; i <= 2; i++) {
         sendit(this->irc_sock, commands[i]);
-        usleep(200);
         if ((response = recvit(this->irc_sock)) == "")
             continue;
         logger(response);
     }
+    sleep(1);
+    logger(recvit(this->irc_sock));
 };
 
 void
 Bot::logger(const std::string &message) const
 {
     int code;
-    std::string output;
+    std::string output[2];
     std::istringstream stream(message);
 
-    stream >> output;
+    stream >> output[0];
     stream >> code;
+    stream >> output[1];
 
     if __FATAL(code) {
         close(this->irc_sock);
         throw (std::invalid_argument(message));
-    } else if __NONFATAL(code)
-        __LOG(message, YELLOW)
+    } else if __NONFATAL(output[0]) {
+        output[0] == "PONG " + output[1];
+        sendit(this->irc_sock, output[0]);
+    }
     else
         __LOG(message, GREEN)
 };
@@ -102,7 +107,7 @@ Bot::listenForCommand(void)
         if (!fields.empty()) {
 
             std::cout << message << std::endl;
-            
+
             if (fields[0] == "PING") {
                 (this->*commandList[fields[0]])(fields);
             } else if (fields.size() > 1 && commandList.find(fields[1]) != commandList.end()) {

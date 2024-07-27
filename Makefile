@@ -44,7 +44,7 @@ $(BEXE): $(BOBJ)
 	$(CPP) $(CPPFLAGS) -c -o $@ $<
 
 clean :
-	rm -rf $(BOBJ) $(OBJ) 
+	rm -rf $(BOBJ) $(OBJ)
 
 fclean : clean
 	rm -rf $(EXE) $(BEXE)
