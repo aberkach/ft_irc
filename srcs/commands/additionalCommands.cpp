@@ -42,7 +42,7 @@ Server::pongCommad (const std::vector<std::string> &fields, Client &client)
 void
 Server::whoisCommad (const std::vector<std::string> &fields, Client &client)
 {
-
+    
 };
 
 // list command
