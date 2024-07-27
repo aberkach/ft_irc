@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 23:27:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/24 23:50:54 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/27 05:07:36 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,11 +91,13 @@ void	Server::sigHandler(int sigNumber)
 
 void Server::cleanUp()
 {
-	for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
+	for (size_t i = 0; i < _nfds; i++)
 	{
-		std::cout << "Closing socket " << it->first << std::endl;
-		close(it->first);
+		close(_pollFds[i].fd);
+		_pollFds[i].fd = -1;
 	}
+	_clients.clear();
+	_channels.clear();
 	if (_listen_sd > 0)
 	{
 		std::cout << "Closing server socket" << std::endl;
