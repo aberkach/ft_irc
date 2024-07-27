@@ -89,6 +89,9 @@ void Server::createServer()
 	_nfds = 1;
 	int rc = 0;
 
+	// signal handling
+    signal(SIGINT, Server::sigHandler);
+    signal(SIGQUIT, Server::sigHandler);
 	// Start listening for incoming connections
 	std::cout << "server is running : " << std::endl;
 	while (_signal == false) {
