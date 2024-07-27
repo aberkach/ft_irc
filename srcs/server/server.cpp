@@ -20,11 +20,12 @@
 #include <string>
 #include <sys/poll.h>
 #include <vector>
+#include <algorithm>
 
 bool Server::_signal = false;
 
 // parameterized constructor : initialize the server socket and set the port number
-Server::Server(uint16_t port, char *password) : _port(port), _password(password)
+Server::Server(uint16_t port, char *password) : _countCli(0), _port(port), _password(password)
 {
 	_pollFds.resize(1);
 	_listen_sd = socket(AF_INET, SOCK_STREAM, 0); // Create a TCP socket
@@ -71,6 +72,9 @@ Server::Server(uint16_t port, char *password) : _port(port), _password(password)
 	_commands["PASS"] = &Server::passCommand;
 	_commands["NICK"] = &Server::nickCommand;
 	_commands["USER"] = &Server::userCommand;
+	_commands["PING"] = &Server::pingCommad;
+	_commands["PONG"] = &Server::pongCommad;
+	_commands["WHOIS"] = &Server::whoisCommad;
 	_commands["PRIVMSG"] = &Server::privmsgCommand;
 	_commands["JOIN"] = &Server::joinCommand;
 	_commands["QUIT"] = &Server::quitCommand;
@@ -96,8 +100,9 @@ void Server::createServer()
 		if (Server::_signal)
 			throw std::runtime_error("Server is shutting down");
 		rc = poll(&_pollFds[0], _pollFds.size(), 0);
-	    if (rc < 0)
+	    if (rc < 0) {
 	        throw std::runtime_error("poll() failed");
+		}
 		for (size_t i = 0; i < _nfds; i++) {
 			if (_pollFds[i].revents & POLLIN) 
 			{
@@ -146,6 +151,7 @@ void Server::handlIncomeConnections()
 			// Add the new client to the clients map
 	        _clients.insert(std::pair<int, Client>(newSck, Client(newSck, client_adrs)));
 	        _nfds++;
+			_countCli++;
 	    }
 	}
 }
@@ -157,15 +163,8 @@ void Server::commandRunner(std::vector<std::string> &fields, Client &user)
 	std::string command(fields[0]);
 	fields.erase(fields.begin());
 
-
 	if (_commands.find(command) != _commands.end())
 		(this->*_commands[command])(fields, user);
-	else if (command == "PING")
-	{
-		if (!fields.empty())
-			replyTo(user.getSocket(), fields[0]);
-		replyTo(user.getSocket(), ERR_NEEDMOREPARAMS(user.getNickname(), command));
-	}
 	else
 		replyTo(user.getSocket(), ERR_UNKNOWNCOMMAND(user.getNickname(), command));
 }
@@ -202,7 +201,6 @@ Server::handleIncomeData(int i)
 		Err("recv() failed", 0);
 	else if (rc == 0) {
 		std::cout << "Connection closed" << std::endl;
-		// Remove closed client from fds array and clientsFds map)
 		for (std::map<std::string, Channel>::iterator it = _channels.begin(); it != _channels.end(); it++)
 		{
 			Client client = _clients.find(_pollFds[i].fd)->second;
@@ -214,6 +212,7 @@ Server::handleIncomeData(int i)
 		_clients.erase(_pollFds[i].fd);
 		close(_pollFds[i].fd);
 		_pollFds[i].fd = -1;
+		_countCli--;
 	}
 	else {
 		// here we handle the message
@@ -235,9 +234,6 @@ Server::handleIncomeData(int i)
 		for (std::vector<std::string>::iterator it = messages.begin(); it != messages.end(); ++it) {
 			if ((*it = trimTheSpaces(*it)) == "")
 				return;
-
-			std::cout << GREEN << *it << RESET << std::endl;
-
 			// split the message by space
 			std::vector<std::string> fields = splitBySpace(*it);
 			if (!fields.empty())

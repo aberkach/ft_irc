@@ -42,12 +42,11 @@ std::string stringUpper(const std::string &_str)
 {
 	std::string upper(_str);
 
-    for (std::string::size_type i = 0; i < _str.size(); ++i)
+    for (std::string::size_type i = 0; i < _str.size(); ++i) {
         upper[i] = ::toupper(_str[i]);
-
+	}
 	return(upper);
 }
-
 
 std::vector<std::string> splitBySpace(const std::string &str)
 {

@@ -30,5 +30,6 @@ bool                        connectSockByName(int socket, const char *hostbyname
 void                        sendit(int sock, std::string& msg);
 std::string                 recvit(int sock);
 std::string                 jsonValue(const std::string& json, const std::string& key) throw();
+std::vector<std::string>    splitByDelim(const std::string &str, char delim);
 
 #endif

@@ -19,17 +19,38 @@
 #include <string>
 #include <vector>
 
-// list command
+void
+Server::pingCommad (const std::vector<std::string> &fields, Client &client)
+{
+    size_t size = fields.size();
+    if (size >= 1 && fields[0] == SERVERNAME)
+        replyTo(client.getSocket(),(client.getRegistered()) ? PONG(client.getNickname()) : PONG(std::string("Guest")));
+    else if (size >= 1)
+        replyTo(client.getSocket(), PONG(fields[0]));
+    else 
+        replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname() ,"PING"));
+};
 
+void
+Server::pongCommad (const std::vector<std::string> &fields, Client &client)
+{
+    if (client.getRegistered() == false || fields.size() >= 1)
+        return ;
+    replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname() ,"PONG"));
+};
+
+void
+Server::whoisCommad (const std::vector<std::string> &fields, Client &client)
+{
+
+};
+
+// list command
 void Server::listCommand (const std::vector<std::string> &fields, Client &client)
 {
-    if (client.getRegistered() == false)
-    {
+    if (client.getRegistered() == false) {
         replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));
-        return;
-    }
-    if (fields.size() >= 1)
-    {
+    } else if (fields.size() >= 1) {
         std::vector<std::string> chnName = splitByDelim(fields[0], ',');
         replyTo(client.getSocket(), RPL_LISTSTART(client.getNickname()));
         for (size_t i = 0; i < chnName.size(); i++)
@@ -50,7 +71,6 @@ void Server::listCommand (const std::vector<std::string> &fields, Client &client
     else
         replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "LIST"));
 }
-
 
 // part command
 void Server::partCommand (const std::vector<std::string> &fields, Client &client)
