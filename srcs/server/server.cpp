@@ -81,15 +81,16 @@ Server::Server(uint16_t port, char *password) : _countCli(0), _port(port), _pass
 	_commands["PRIVMSG"] = &Server::privmsgCommand; // working full
 	_commands["TOPIC"] = &Server::topicCommand; // working full
 	_commands["QUIT"] = &Server::quitCommand; // working full
-	_commands["PART"] = &Server::partCommand; // working full
 	_commands["LIST"] = &Server::listCommand; // working full
+	_commands["PART"] = &Server::partCommand; // working full
 
 	_commands["KICK"] = &Server::kickCommand;
+	_commands["NICK"] = &Server::nickCommand;
 	_commands["INVITE"] = &Server::inviteCommand;
-
 	_commands["JOIN"] = &Server::joinCommand;
 	_commands["MODE"] = &Server::modeCommand;
-	_commands["NICK"] = &Server::nickCommand; // nick changes might couse a prob
+	// nick changes might couse a prob
+	// need to make all channel related args lowercase
 }
 
 // create the server and handle the incoming connections and data

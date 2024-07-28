@@ -19,7 +19,6 @@
 #include <vector>
 
 // make all commands args lowercase
-
 void
 Server::passCommand(const std::vector<std::string> &fields, Client &user)
 {
@@ -41,21 +40,21 @@ Server::nickCommand(const std::vector<std::string> &fields, Client &user)
 {
 	if (user.getValidPass() == true)
 	{
-		if (fields.empty()) {
+		if (fields.empty())
+		{
 			const std::string &name = user.getNickname();
 			return (replyTo(user.getSocket(), ERR_NONICKNAMEGIVEN((name.empty()) ? std::string("Guest") : name)));
 		}
-		for (clientIt it = _clients.begin() ; it != _clients.end(); ++it) {
+		for (clientIt it = _clients.begin() ; it != _clients.end(); ++it)
+		{
 			if (stringUpper(it->second.getNickname()) == stringUpper(fields[0]))
 				return (replyTo(user.getSocket(), ERR_NICKNAMEINUSE(fields[0])));
 		}
         std::string oldNick = user.getNickname();
 		if (user.setNickname(fields[0]) == false)
 			return (replyTo(user.getSocket(), ERR_ERRONEUSNICKNAME(fields[0])));
-        else if (user.getRegistered()) {
-			// update in channels
+        else if (user.getRegistered()) // update in channels
             return (replyTo(user.getSocket(), CHANGENICK(oldNick, user.getUsername(), inet_ntoa(user.getAddr().sin_addr), fields[0])));
-		}
 	}
 	else
 		return (replyTo(user.getSocket(), ERR_FIRSTCOMMAND));
@@ -103,7 +102,8 @@ Server::privmsgCommand(const std::vector<std::string> &fields, Client &user)
             std::vector<std::string> clients = splitByDelim(fields[0],',');
 			for (std::vector<std::string>::iterator split = clients.begin(); split != clients.end(); ++split) {
 				const std::string &target = *split;
-				if (target[0] == '#') {
+				if (target[0] == '#')
+				{
 					chnMapIt it = _channels.find(target);
 					if (it != _channels.end())
 						it->second.broadCast(PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), target, fields[1]), user.getSocket());

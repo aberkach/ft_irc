@@ -44,16 +44,14 @@ Server::namesCommad (const std::vector<std::string> &fields, Client &client)
 {
     if (!client.getRegistered())
         replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));
-    else if (fields.size() >= 1) {
+    else if (fields.size() >= 1)
+    {
         std::vector<std::string> names = splitByDelim(fields[0], ',');
-        for (std::vector<std::string>::iterator it = names.begin(); it != names.end(); ++it) {
+        for (std::vector<std::string>::iterator it = names.begin(); it != names.end(); ++it)
+        {
             chnMapIt chan = _channels.find(*it);
-            if (chan != _channels.end()) {
-                if (chan->second.isClientExist(client.getNickname()))
-                    replyTo(client.getSocket(), RPL_NAMREPLY(chan->second.getChannelUsersInString(), *it, client.getNickname()));
-                else
-                    replyTo(client.getSocket(), RPL_NAMREPLY("", *it, client.getNickname()));
-            }
+            if (chan != _channels.end())
+                replyTo(client.getSocket(), RPL_NAMREPLY((chan->second.isClientExist(client.getNickname())) ? chan->second.getChannelUsersInString() : "" ,*it ,client.getNickname()));
             replyTo(client.getSocket(), RPL_ENDOFNAMES(client.getNickname(), *it));
         }
     }
@@ -64,22 +62,27 @@ Server::namesCommad (const std::vector<std::string> &fields, Client &client)
 void
 Server::listCommand (const std::vector<std::string> &fields, Client &client)
 {
-    if (client.getRegistered() == false) {
+    if (client.getRegistered() == false)
         replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));
-    } else {
+    else 
+    {
         replyTo(client.getSocket(), RPL_LISTSTART(client.getNickname()));
-        if (fields.size() >= 1) {
+        if (fields.size() >= 1)
+        {
             std::vector<std::string> chnName = splitByDelim(fields[0], ',');
-            for (size_t i = 0; i < chnName.size(); i++) {
+            for (size_t i = 0; i < chnName.size(); i++)
+            {
                 chnMapIt chnIt = _channels.find(chnName[i]);
-                if (chnIt != _channels.end()) {
+                if (chnIt != _channels.end())
+                {
                     const std::string &topic = chnIt->second.getTopic();
                     replyTo(client.getSocket(), LIST_MSG(client.getNickname(), chnName[i],
                         std::to_string(chnIt->second.getUsers().size()), (!topic.empty()) ? topic : "No topic set"));
                 }
             }
         } else {
-            for (chnMapIt it = _channels.begin(); it != _channels.end(); ++it) {
+            for (chnMapIt it = _channels.begin(); it != _channels.end(); ++it)
+            {
                 const std::string &topic = it->second.getTopic();
                 replyTo(client.getSocket(), LIST_MSG(client.getNickname(), it->first,
                         std::to_string(it->second.getUsers().size()), (!topic.empty()) ? topic : "No topic set"));
@@ -94,24 +97,25 @@ Server::partCommand (const std::vector<std::string> &fields, Client &client)
 {
     if (client.getRegistered())
     {
-        if (fields.empty())
-            replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "PART"));
-        else
+        if (!fields.empty())
         {
             std::vector<std::string> channels = splitByDelim(fields[0], ',');
 
-            for(size_t i = 0; i < channels.size(); i++)
+            for (size_t i = 0; i < channels.size(); i++)
             {
                 const std::string &chnName = channels[i];
                 chnMapIt chnIt = _channels.find(chnName);
-                if (chnIt != _channels.end())
+
+                if (chnName.empty())
+                    continue;
+                else if (chnIt != _channels.end())
                 {
                     if (chnIt->second.isClientExist(client.getNickname()))
                     {
                         std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
                         std::string reason = (fields.size() > 1) ? fields[1] : "left...";
-                        replyTo(client.getSocket(), PART_MSG(client.getNickname(), client.getUsername(), clientHost, chnName, reason));
-                        chnIt->second.broadCast(PART_MSG(client.getNickname(), client.getUsername(), clientHost, chnName, reason), client.getSocket());
+
+                        chnIt->second.broadCast(PART_MSG(client.getNickname(), client.getUsername(), clientHost, chnName, reason), -1);
                         if (chnIt->second.getUsers().size() == 1)
                             _channels.erase(chnIt);
                         else
@@ -119,14 +123,12 @@ Server::partCommand (const std::vector<std::string> &fields, Client &client)
                     }
                     else
                         replyTo(client.getSocket(), ERR_NOTONCHANNEL(client.getNickname(), chnName));
-                } else if (chnName.empty())
-                    continue;
-                else
+                } else
                     replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(client.getNickname(), chnName));
             }
-        }
-    }
-    else
+        } else
+            replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "PART"));
+    } else
         replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));
 };
 
@@ -154,7 +156,8 @@ Server::quitCommand(const std::vector<std::string> &fields, Client &client)
         }
         clientIt it = _clients.find(client.getSocket());
         // remove the client from the clients map
-        if (it != _clients.end()) {
+        if (it != _clients.end())
+        {
             close(it->first);
             _clients.erase(it);
             _countCli--;
