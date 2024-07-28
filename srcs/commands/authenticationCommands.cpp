@@ -18,7 +18,9 @@
 #include <string>
 #include <vector>
 
-// make all commands args lowercase
+// make all commands args capital for comparisons 
+// and channels chould rely on getnick name in case of nick name changes
+
 void
 Server::passCommand(const std::vector<std::string> &fields, Client &user)
 {
@@ -114,8 +116,7 @@ Server::privmsgCommand(const std::vector<std::string> &fields, Client &user)
 				{
 					for (clientIt it = _clients.begin() ; it != _clients.end(); ++it)
 					{
-						std::cout << it->second.getNickname() << " = ";
-						std::cout << target << std::endl;
+						// std::cout << it->second.getNickname() << " = " << target << std::endl;
 						if (stringUpper(it->second.getNickname()) == stringUpper(target))
 							return (replyTo(it->second.getSocket(), PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), it->second.getNickname(), fields[1])));
 					}
