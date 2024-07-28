@@ -42,7 +42,6 @@ Bot::Bot(void)
     commandList["/joke"] = &Bot::jokeCommand;
     commandList["/toss"] = &Bot::tossCommand;
     commandList["/weather"] = &Bot::weatherCommand;
-    // commandList["/poll"] = &Bot::;
     commandList["/admin"] = &Bot::adminCommand;
 };
 

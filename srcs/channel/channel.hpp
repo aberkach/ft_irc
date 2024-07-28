@@ -29,7 +29,7 @@ class Channel
       bool                            _isInviteOnly; // if the channel is invite only
       size_t                          _maxUsers;     // max number of users in the channel
       bool                            _topicFlag;    // if the topic is set
-  
+
   public:
     Channel();
     Channel(std::string name);

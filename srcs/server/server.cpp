@@ -74,8 +74,8 @@ Server::Server(uint16_t port, char *password) : _countCli(0), _port(port), _pass
 	_commands["USER"] = &Server::userCommand;
 	_commands["PING"] = &Server::pingCommad;
 	_commands["PONG"] = &Server::pongCommad;
-	_commands["WHOIS"] = &Server::whoisCommad;
 	_commands["PRIVMSG"] = &Server::privmsgCommand;
+	_commands["NAMES"] = &Server::namesCommad;
 	_commands["JOIN"] = &Server::joinCommand;
 	_commands["QUIT"] = &Server::quitCommand;
 	_commands["KICK"] = &Server::kickCommand;

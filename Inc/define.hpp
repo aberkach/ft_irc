@@ -50,7 +50,7 @@
 #define MAXCLIENT       "nolim"
 
 #define CHANELMODES     "itkol"
-#define COMMANDS        "CHARSET=ascii PASS,NICK,USER,JOIN,LIST,KICK,WHOIS,PING,PONG,INVITE,TOPIC,MODE,PRIVMSG,QUIT,PART CHANTYPES=# CHANMODES=i,t,k,o,l"
+#define COMMANDS        "CHARSET=ascii PASS,NICK,USER,JOIN,LIST,KICK,NAMES,PING,PONG,INVITE,TOPIC,MODE,PRIVMSG,QUIT,PART CHANTYPES=# CHANMODES=i,t,k,o,l"
 
 #define AUTH                            ":" SERVERNAME " NOTICE AUTH :*** Looking up your hostname...\r\n"\
                                         ":" SERVERNAME " NOTICE AUTH :*** Couldn't look up your hostname\r\n"\
@@ -137,7 +137,7 @@
 #define RPL_INVITED(nick, username, clienthostname, invited, channel) ":" + nick + "!" + username + "@" + clienthostname + " INVITE " + invited + " :" + channel + "\r\n"
 #define INVITE_MSG(client, ipaddr, channel, invited)                  ":" SERVERNAME " " + (client) + " !~ " + (ipaddr) + " INVITE " + (channel) + " " + (invited) + "\r\n"
 //quit responses
-#define QUIT_MSG(nickname, username, ipaddr, reason)                  ":" + (nickname) + "!" + (username) + "@" + (ipaddr) + " QUIT :Client Quit" + (reason) + "\r\n"
+#define QUIT_MSG(nickname, username, ipaddr, reason)                  ":" + (nickname) + "!" + (username) + "@" + (ipaddr) + " QUIT :Client Quit " + (reason) + "\r\n"
 //part responses
 #define PART_MSG(nickname, username, ipaddr, channel, reason)         ":" + (nickname) + "!" + (username) + "@" + (ipaddr) + " PART " + (channel) + " " + (reason) + "\r\n"
 //list responses

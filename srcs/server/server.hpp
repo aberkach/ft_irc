@@ -49,7 +49,7 @@ class Server {
         void  userCommand(const std::vector<std::string> &fields, Client &client);
         void  pingCommad(const std::vector<std::string> &fields, Client &client);
         void  pongCommad(const std::vector<std::string> &fields, Client &client);
-        void  whoisCommad(const std::vector<std::string> &fields, Client &client);
+        void  namesCommad(const std::vector<std::string> &fields, Client &client);
         void  joinCommand(const std::vector<std::string> &fields, Client &client);
         bool  createChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client);
         void  processTheJoinArgs(const std::vector<std::string> &channels , std::vector<std::string> &keys, Client &client);
