@@ -49,10 +49,10 @@ Server::namesCommad (const std::vector<std::string> &fields, Client &client)
         for (std::vector<std::string>::iterator it = names.begin(); it != names.end(); ++it) {
             chnMapIt chan = _channels.find(*it);
             if (chan != _channels.end()) {
-                // if (chan->second.isClientExist(client.getNickname()))
-                //     replyTo(client.getSocket(), RPL_NAMREPLY("", *it, client.getNickname()));
-                // else
+                if (chan->second.isClientExist(client.getNickname()))
                     replyTo(client.getSocket(), RPL_NAMREPLY(chan->second.getChannelUsersInString(), *it, client.getNickname()));
+                else
+                    replyTo(client.getSocket(), RPL_NAMREPLY("", *it, client.getNickname()));
             }
             replyTo(client.getSocket(), RPL_ENDOFNAMES(client.getNickname(), *it));
         }
@@ -64,29 +64,25 @@ Server::namesCommad (const std::vector<std::string> &fields, Client &client)
 void
 Server::listCommand (const std::vector<std::string> &fields, Client &client)
 {
-    if (!client.getRegistered()) {
+    if (client.getRegistered() == false) {
         replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));
     } else {
         replyTo(client.getSocket(), RPL_LISTSTART(client.getNickname()));
         if (fields.size() >= 1) {
             std::vector<std::string> chnName = splitByDelim(fields[0], ',');
-            for (size_t i = 0; i < chnName.size(); i++)
-            {
+            for (size_t i = 0; i < chnName.size(); i++) {
                 chnMapIt chnIt = _channels.find(chnName[i]);
-                if (chnIt != _channels.end())
-                {
-                    if (chnIt->second.getTopic() != "")
-                        replyTo(client.getSocket(), LIST_MSG(client.getNickname(), chnName[i], std::to_string(chnIt->second.getUsers().size()), chnIt->second.getTopic()));
-                    else
-                        replyTo(client.getSocket(), LIST_MSG(client.getNickname(), chnName[i], std::to_string(chnIt->second.getUsers().size()), "No topic set"));
+                if (chnIt != _channels.end()) {
+                    const std::string &topic = chnIt->second.getTopic();
+                    replyTo(client.getSocket(), LIST_MSG(client.getNickname(), chnName[i],
+                        std::to_string(chnIt->second.getUsers().size()), (!topic.empty()) ? topic : "No topic set"));
                 }
             }
         } else {
             for (chnMapIt it = _channels.begin(); it != _channels.end(); ++it) {
-                if (it->second.getTopic() != "")
-                    replyTo(client.getSocket(), LIST_MSG(client.getNickname(), it->first, std::to_string(it->second.getUsers().size()), it->second.getTopic()));
-                else
-                    replyTo(client.getSocket(), LIST_MSG(client.getNickname(), it->first, std::to_string(it->second.getUsers().size()), "No topic set"));
+                const std::string &topic = it->second.getTopic();
+                replyTo(client.getSocket(), LIST_MSG(client.getNickname(), it->first,
+                        std::to_string(it->second.getUsers().size()), (!topic.empty()) ? topic : "No topic set"));
             }
         }
         replyTo(client.getSocket(), RPL_LISTEND(client.getNickname()));
@@ -113,7 +109,7 @@ Server::partCommand (const std::vector<std::string> &fields, Client &client)
                     if (chnIt->second.isClientExist(client.getNickname()))
                     {
                         std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
-                        std::string reason = (fields.size() > 1) ? fields[1] : "Bye...";
+                        std::string reason = (fields.size() > 1) ? fields[1] : "left...";
                         replyTo(client.getSocket(), PART_MSG(client.getNickname(), client.getUsername(), clientHost, chnName, reason));
                         chnIt->second.broadCast(PART_MSG(client.getNickname(), client.getUsername(), clientHost, chnName, reason), client.getSocket());
                         if (chnIt->second.getUsers().size() == 1)

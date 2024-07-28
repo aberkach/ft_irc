@@ -11,6 +11,12 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+// + t adds rights -t removes rights
+// can  only call mode if u an operator with 3 argument 
+
+
+// if not operator u can only mode #channel for info on the modes in channel
+
 
 #include "server.hpp"
 #include "../../Inc/ft_irc.hpp"
@@ -21,6 +27,7 @@
 #include <sys/poll.h>
 #include <vector>
 #include <algorithm>
+#include <sys/signal.h>
 
 bool Server::_signal = false;
 
@@ -30,19 +37,19 @@ Server::Server(uint16_t port, char *password) : _countCli(0), _port(port), _pass
 	_pollFds.resize(1);
 	_listen_sd = socket(AF_INET, SOCK_STREAM, 0); // Create a TCP socket
 	if (_listen_sd < 0)
-		Err("socket() failed", 1);
+		throw std::runtime_error("socket() failed");
 
 	// Set socket option to allow address reuse
 	int on = 1;
 	if (setsockopt(_listen_sd, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on)) < 0) {
 	    close(_listen_sd);
-		Err("setsockopt() failed", 1);
+		throw std::runtime_error("setsockopt() failed");
 	}
 	
 	// Set socket to non-blocking mode
 	if (fcntl(_listen_sd, F_SETFL, O_NONBLOCK) < 0) {
 	    close(_listen_sd);
-		Err("fcntl() failed", 1);
+		throw std::runtime_error("fcntl() for the server is failed");
 	}
 	
 	// Bind the socket to the specified address and port
@@ -53,15 +60,12 @@ Server::Server(uint16_t port, char *password) : _countCli(0), _port(port), _pass
 
 	if (bind(_listen_sd, (struct sockaddr *)&_addr, sizeof(_addr)) < 0) {
 	    close(_listen_sd);
-		Err("bind() failed", 1);
+		throw std::runtime_error("bind() failed");
 	}
 
 	// Start listening for incoming connections
-	if (listen(_listen_sd, 10) < 0) {
-	    perror("listen() failed");
-	    close(_listen_sd);
-	    exit(-1);
-	}
+	if (listen(_listen_sd, 10) < 0) 
+		throw std::runtime_error("listen() failed");
 	
 	// Initialize the fds array with the server socket
 	_pollFds[0].fd = _listen_sd;
@@ -69,21 +73,23 @@ Server::Server(uint16_t port, char *password) : _countCli(0), _port(port), _pass
 	_pollFds[0].revents = 0;
 
 	// Initialize the commands map
-	_commands["PASS"] = &Server::passCommand;
-	_commands["NICK"] = &Server::nickCommand;
-	_commands["USER"] = &Server::userCommand;
-	_commands["PING"] = &Server::pingCommad;
-	_commands["PONG"] = &Server::pongCommad;
-	_commands["PRIVMSG"] = &Server::privmsgCommand;
-	_commands["NAMES"] = &Server::namesCommad;
-	_commands["JOIN"] = &Server::joinCommand;
-	_commands["QUIT"] = &Server::quitCommand;
+	_commands["PASS"] = &Server::passCommand; // working full
+	_commands["USER"] = &Server::userCommand;  // working full
+	_commands["PING"] = &Server::pingCommad; // working full
+	_commands["PONG"] = &Server::pongCommad; // working full
+	_commands["NAMES"] = &Server::namesCommad; // working full
+	_commands["PRIVMSG"] = &Server::privmsgCommand; // working full
+	_commands["TOPIC"] = &Server::topicCommand; // working full
+	_commands["QUIT"] = &Server::quitCommand; // working full
+	_commands["PART"] = &Server::partCommand; // working full
+	_commands["LIST"] = &Server::listCommand; // working full
+
 	_commands["KICK"] = &Server::kickCommand;
-	_commands["TOPIC"] = &Server::topicCommand;
 	_commands["INVITE"] = &Server::inviteCommand;
-	_commands["PART"] = &Server::partCommand;
-	_commands["LIST"] = &Server::listCommand;
+
+	_commands["JOIN"] = &Server::joinCommand;
 	_commands["MODE"] = &Server::modeCommand;
+	_commands["NICK"] = &Server::nickCommand; // nick changes might couse a prob
 }
 
 // create the server and handle the incoming connections and data
@@ -93,14 +99,17 @@ void Server::createServer()
 	_nfds = 1;
 	int rc = 0;
 
+	// signal handling
+    signal(SIGINT, Server::sigHandler);
+    signal(SIGQUIT, Server::sigHandler);
 	// Start listening for incoming connections
 	std::cout << "server is running : " << std::endl;
-	while (true) {
+	while (_signal == false) {
 		// Check if the server is shutting down by signal
 		if (Server::_signal)
 			throw std::runtime_error("Server is shutting down");
-		rc = poll(&_pollFds[0], _pollFds.size(), 0);
-	    if (rc < 0) {
+		rc = poll(&_pollFds[0], _pollFds.size(), -1);
+	    if (rc < 0 && _signal == false) {
 	        throw std::runtime_error("poll() failed");
 		}
 		for (size_t i = 0; i < _nfds; i++) {
@@ -136,15 +145,18 @@ void Server::handlIncomeConnections()
 
 		int newSck = accept(_listen_sd, (struct sockaddr *)&client_adrs, &sock_len);
 	    if (newSck < 0)
-	        perror("accept() failed");
+	        Err("accept() failed");
 		
 	    else {
 			// Resize the fds array if it's full
 			if (_nfds >= _pollFds.size())
-				_pollFds.resize(_pollFds.size() * 2);
+				_pollFds.resize(_pollFds.size() + 2);
 	        // Add the new client socket to the fds array and clientsFds map
-	        std::cout << "New incoming connection - " << newSck << std::endl;
-	        fcntl(newSck, F_SETFL, O_NONBLOCK);
+	        std::cout << GREEN << "New incoming connection : " << YELLOW <<  newSck << RESET << std::endl;
+	        if (fcntl(newSck, F_SETFL, O_NONBLOCK))
+				Err("fcntl() for the client is failed");
+	        _pollFds[_nfds].fd = newSck;
+	        _pollFds[_nfds].events = POLLIN;
 			_pollFds[_nfds].fd = newSck;
 	        _pollFds[_nfds].events = POLLIN;
 			_pollFds[_nfds].revents = 0;
@@ -198,9 +210,10 @@ Server::handleIncomeData(int i)
 
 	rc = recv(_pollFds[i].fd, buffer, sizeof(buffer) - 1, 0);
 	if (rc < 0)
-		Err("recv() failed", 0);
+		Err("recv() failed");
 	else if (rc == 0) {
-		std::cout << "Connection closed" << std::endl;
+		std::cout << RED << "Connection closed For : " << YELLOW << _pollFds[i].fd << RESET << std::endl;
+		// Remove closed client from fds array and clientsFds map)
 		for (std::map<std::string, Channel>::iterator it = _channels.begin(); it != _channels.end(); it++)
 		{
 			Client client = _clients.find(_pollFds[i].fd)->second;

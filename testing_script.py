@@ -1,15 +1,15 @@
 import asyncio
 import signal
 
-MAX_SOCKETS = 50
+MAX_SOCKETS = 10
 DELAY = 0.03
 
 async def connect_socket(i):
     try:
-        reader, writer = await asyncio.open_connection("irc.libera.chat", 6667)
+        reader, writer = await asyncio.open_connection("localhost", 8080)
         print("Connected!")
-        # writer.write("PASS password2018\r\n".encode())
-        # await asyncio.sleep(DELAY)
+        writer.write("PASS password2018\r\n".encode())
+        await asyncio.sleep(DELAY)
         writer.write(f"NICK users{i}\r\n".encode())
         await asyncio.sleep(DELAY)
         writer.write(f"USER a{i} 0 * a\r\n".encode())

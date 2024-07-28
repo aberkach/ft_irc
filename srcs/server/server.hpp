@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 14:50:26 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/26 05:28:40 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/27 07:17:12 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,7 @@ class Server {
         ~Server();
 };
 
-void Err(const std::string &msg, int exitFalg);
+void Err(const std::string &msg);
 std::string trimTheSpaces(const std::string& str);
 std::vector<std::string> splitBySpace(const std::string &str);
 std::vector<std::string> splitByDelim(const std::string &str, char delim);

@@ -18,7 +18,6 @@
 #include <string>
 #include <vector>
 
-
 // make all commands args lowercase
 
 void
