@@ -16,6 +16,9 @@
 #include "../client/client.hpp"
 #include "../channel/channel.hpp"
 
+// TARGMAX Parameter in rfc execute just targmax and ignore reset
+
+
 // invite command
 void Server::inviteCommand(const std::vector<std::string> &fields, Client &client) {
     if (fields.size() < 2) {
@@ -63,12 +66,15 @@ Server::topicCommand (const std::vector<std::string> &fields, Client &client) {
         std::string clientHost;
         int size = fields.size();
 
-        if (size == 1) {
+        if (size == 1)
+        {
             const std::string &chanName = fields[0];
             it = _channels.find(chanName);
 
-            if (it != _channels.end()) {
-                if (it->second.isClientExist(client.getNickname())) {
+            if (it != _channels.end())
+            {
+                if (it->second.isClientExist(client.getNickname()))
+                {
                     const std::string &topic = it->second.getTopic();
                     clientHost = inet_ntoa(client.getAddr().sin_addr);
 
@@ -83,8 +89,10 @@ Server::topicCommand (const std::vector<std::string> &fields, Client &client) {
             const std::string &defchanName = fields[0];
             it = _channels.find(defchanName);
 
-            if (it != _channels.end()) {
-                if ((it->second.isOperator(client.getNickname()) || it->second.getTopicFlag() == true)) {
+            if (it != _channels.end())
+            {
+                if ((it->second.isOperator(client.getNickname()) || it->second.getTopicFlag() == true))
+                {
                     const std::string &topic = fields[1];
                     clientHost = inet_ntoa(client.getAddr().sin_addr);
 
@@ -103,17 +111,19 @@ Server::topicCommand (const std::vector<std::string> &fields, Client &client) {
 
 }
 
-// kick command
+// kick command must be an operator to kick 
 void Server::kickCommand (const std::vector<std::string> &fields, Client &client) {
-    if (client.getRegistered()) {
-        
+    if (client.getRegistered())
+    {
         if (fields.size() < 2) {
             replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "KICK"));
             return;
         }
-        std::string chnName = fields[0];
+
+        const std::string &chnName = fields[0];
         std::vector<std::string> usersBeKicked = splitByDelim(fields[1], ',');
         chnMapIt joinedChnIt = _channels.find(chnName);
+        
         if (joinedChnIt == _channels.end())
         {
             std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
