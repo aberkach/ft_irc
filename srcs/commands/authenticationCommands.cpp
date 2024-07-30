@@ -18,7 +18,11 @@
 #include <string>
 #include <vector>
 
-void Server::passCommand(const std::vector<std::string> &fields, Client &user)
+// make all commands args capital for comparisons 
+// and channels chould rely on getnick name in case of nick name changes
+
+void
+Server::passCommand(const std::vector<std::string> &fields, Client &user)
 {
 	if (user.getValidPass() == false)
 	{
@@ -31,34 +35,36 @@ void Server::passCommand(const std::vector<std::string> &fields, Client &user)
 	}
 	else
 		replyTo(user.getSocket(), ERR_ALREADYREGISTERED(user.getNickname()));
-}
+};
 
-
-void Server::nickCommand(const std::vector<std::string> &fields, Client &user) // relook
+void 
+Server::nickCommand(const std::vector<std::string> &fields, Client &user)
 {
 	if (user.getValidPass() == true)
 	{
-		if (fields.empty()) {
+		if (fields.empty())
+		{
 			const std::string &name = user.getNickname();
 			return (replyTo(user.getSocket(), ERR_NONICKNAMEGIVEN((name.empty()) ? std::string("Guest") : name)));
 		}
-		for (clientIt it = _clients.begin() ; it != _clients.end(); ++it) {
+		for (clientIt it = _clients.begin() ; it != _clients.end(); ++it)
+		{
 			if (stringUpper(it->second.getNickname()) == stringUpper(fields[0]))
 				return (replyTo(user.getSocket(), ERR_NICKNAMEINUSE(fields[0])));
 		}
-		// add a condition for the msg in case he is registerd and changed his name to smthing else !!!
         std::string oldNick = user.getNickname();
 		if (user.setNickname(fields[0]) == false)
 			return (replyTo(user.getSocket(), ERR_ERRONEUSNICKNAME(fields[0])));
-        else if (user.getRegistered())
+        else if (user.getRegistered()) // update in channels
             return (replyTo(user.getSocket(), CHANGENICK(oldNick, user.getUsername(), inet_ntoa(user.getAddr().sin_addr), fields[0])));
 	}
 	else
 		return (replyTo(user.getSocket(), ERR_FIRSTCOMMAND));
 	_clients[user.getSocket()].refStatus(_countCli);
-}
+};
 
-void Server::userCommand(const std::vector<std::string> &fields, Client &user)
+void
+Server::userCommand(const std::vector<std::string> &fields, Client &user)
 {
 	if (!user.getRegistered())
 	{
@@ -81,9 +87,10 @@ void Server::userCommand(const std::vector<std::string> &fields, Client &user)
 	else
 		return (replyTo(user.getSocket(), ERR_ALREADYREGISTERED(user.getNickname())));
 	_clients[user.getSocket()].refStatus(_countCli);
-}
+};
 
-void Server::privmsgCommand(const std::vector<std::string> &fields, Client &user)
+void
+Server::privmsgCommand(const std::vector<std::string> &fields, Client &user)
 {
     if (user.getRegistered())
     {
@@ -99,8 +106,7 @@ void Server::privmsgCommand(const std::vector<std::string> &fields, Client &user
 				const std::string &target = *split;
 				if (target[0] == '#')
 				{
-					std::map<std::string, Channel>::iterator it = _channels.find(target); // check the validity of this for upper and unickness
-
+					chnMapIt it = _channels.find(target);
 					if (it != _channels.end())
 						it->second.broadCast(PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), target, fields[1]), user.getSocket());
 					else
@@ -108,10 +114,9 @@ void Server::privmsgCommand(const std::vector<std::string> &fields, Client &user
 				}
 				else
 				{
-					for (std::map<int, Client>::const_iterator it = _clients.begin() ; it != _clients.end(); ++it)
+					for (clientIt it = _clients.begin() ; it != _clients.end(); ++it)
 					{
-						std::cout << it->second.getNickname() << " = ";
-						std::cout << target << std::endl;
+						// std::cout << it->second.getNickname() << " = " << target << std::endl;
 						if (stringUpper(it->second.getNickname()) == stringUpper(target))
 							return (replyTo(it->second.getSocket(), PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), it->second.getNickname(), fields[1])));
 					}
@@ -124,4 +129,4 @@ void Server::privmsgCommand(const std::vector<std::string> &fields, Client &user
     }
     else
         replyTo(user.getSocket(), ERR_NOTREGISTERED(user.getNickname()));
-}
+};

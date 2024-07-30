@@ -11,6 +11,12 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+// + t adds rights -t removes rights
+// can  only call mode if u an operator with 3 argument 
+
+
+// if not operator u can only mode #channel for info on the modes in channel
+
 
 #include "server.hpp"
 #include "../../Inc/ft_irc.hpp"
@@ -21,6 +27,7 @@
 #include <sys/poll.h>
 #include <vector>
 #include <algorithm>
+#include <sys/signal.h>
 
 bool Server::_signal = false;
 
@@ -66,21 +73,24 @@ Server::Server(uint16_t port, char *password) : _countCli(0), _port(port), _pass
 	_pollFds[0].revents = 0;
 
 	// Initialize the commands map
-	_commands["PASS"] = &Server::passCommand;
-	_commands["NICK"] = &Server::nickCommand;
-	_commands["USER"] = &Server::userCommand;
-	_commands["PING"] = &Server::pingCommad;
-	_commands["PONG"] = &Server::pongCommad;
-	_commands["WHOIS"] = &Server::whoisCommad;
-	_commands["PRIVMSG"] = &Server::privmsgCommand;
-	_commands["JOIN"] = &Server::joinCommand;
-	_commands["QUIT"] = &Server::quitCommand;
+	_commands["PASS"] = &Server::passCommand; // working full
+	_commands["USER"] = &Server::userCommand;  // working full
+	_commands["PING"] = &Server::pingCommad; // working full
+	_commands["PONG"] = &Server::pongCommad; // working full
+	_commands["NAMES"] = &Server::namesCommad; // working full
+	_commands["PRIVMSG"] = &Server::privmsgCommand; // working full
+	_commands["TOPIC"] = &Server::topicCommand; // working full
+	_commands["QUIT"] = &Server::quitCommand; // working full
+	_commands["LIST"] = &Server::listCommand; // working full
+	_commands["PART"] = &Server::partCommand; // working full
+
 	_commands["KICK"] = &Server::kickCommand;
-	_commands["TOPIC"] = &Server::topicCommand;
+	_commands["NICK"] = &Server::nickCommand;
 	_commands["INVITE"] = &Server::inviteCommand;
-	_commands["PART"] = &Server::partCommand;
-	_commands["LIST"] = &Server::listCommand;
+	_commands["JOIN"] = &Server::joinCommand;
 	_commands["MODE"] = &Server::modeCommand;
+	// nick changes might couse a prob
+	// need to make all channel related args lowercase
 }
 
 // create the server and handle the incoming connections and data
@@ -100,8 +110,9 @@ void Server::createServer()
 		if (Server::_signal)
 			throw std::runtime_error("Server is shutting down");
 		rc = poll(&_pollFds[0], _pollFds.size(), -1);
-	    if (rc < 0 && _signal == false)
+	    if (rc < 0 && _signal == false) {
 	        throw std::runtime_error("poll() failed");
+		}
 		for (size_t i = 0; i < _nfds; i++) {
 			if (_pollFds[i].revents & POLLIN) 
 			{

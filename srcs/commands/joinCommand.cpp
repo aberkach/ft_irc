@@ -92,9 +92,14 @@ bool Server::joinExistChannel(const std::string &chnName, std::vector<std::strin
                 
                 replyTo(client.getSocket(), RPL_NAMREPLY(usersList, chnName, chnIt->second.getUserName(client.getNickname())));
                 replyTo(client.getSocket(), RPL_ENDOFNAMES(chnIt->second.getUserName(client.getNickname()), chnName));
+
                 std::cout << "topic flag: " << chnIt->second.getTopicFlag() << std::endl;
-                if (chnIt->second.getTopicFlag())
-                    replyTo(client.getSocket(), RPL_TOPIC(chnIt->second.getUserName(client.getNickname()), chnName, chnIt->second.getTopic()));
+                
+                if (chnIt->second.getTopicFlag()) {
+                    const std::string &top = chnIt->second.getTopic();
+                    if (!top.empty())
+                        replyTo(client.getSocket(), RPL_TOPIC(chnIt->second.getUserName(client.getNickname()), chnName, top));
+                }
             }
         }
         
@@ -124,10 +129,11 @@ bool Server::createChannel(const std::string &chnName, std::vector<std::string> 
         _channels.find(chnName)->second.setKey(keys[0]);
         keys.erase(keys.begin());
     }
-    else
-        _channels.find(chnName)->second.setKey("");
+    // else
+        // _channels.find(chnName)->second.setKey("");
     // make the client an operator of the channel and add him to the channel
     _channels.find(chnName)->second.addOperator(client);
+    // _channels.find(chnName)->second.setTopicFlag(true); // added fix 
     return true;
 }
 

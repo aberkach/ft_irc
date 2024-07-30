@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 23:33:20 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/25 06:33:59 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/30 19:36:37 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,9 @@
 #include <vector>
 #include "../client/client.hpp"
 #include "../channel/channel.hpp"
+
+// TARGMAX Parameter in rfc execute just targmax and ignore reset
+
 
 // invite command
 void Server::inviteCommand(const std::vector<std::string> &fields, Client &client) {
@@ -26,6 +29,11 @@ void Server::inviteCommand(const std::vector<std::string> &fields, Client &clien
         std::string invitedUser = fields[0];
         std::string chnName = fields[1];
         chnMapIt chnIt = _channels.find(chnName);
+        if (chnIt->second.isOperator(client.getNickname()) == false)
+        {
+            replyTo(client.getSocket(), ERR_CHANOPRIVSNEEDED(client.getNickname(), chnName));
+            return;
+        }
         if (chnIt == _channels.end())
         {
             std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
@@ -38,16 +46,20 @@ void Server::inviteCommand(const std::vector<std::string> &fields, Client &clien
             std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
             replyTo(client.getSocket(), RPL_INVITING(client.getNickname(), invitedUser, chnName));
 
-            
-            std::string inviteMessage = RPL_INVITED(client.getNickname(), client.getUsername(), clientHost, invitedUser, chnName);
-            for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
+            if (isClientInServer(invitedUser))
             {
-                if (it->second.getNickname() == invitedUser)
+                std::string inviteMessage = RPL_INVITED(client.getNickname(), client.getUsername(), clientHost, invitedUser, chnName);
+                for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
                 {
-                    chnIt->second.addInvite(it->second);
-                    replyTo(it->second.getSocket(), inviteMessage);
+                    if (it->second.getNickname() == invitedUser)
+                    {
+                        chnIt->second.addInvite(it->second);
+                        replyTo(it->second.getSocket(), inviteMessage);
+                    }
                 }
             }
+            else
+                replyTo(client.getSocket(), ERR_NOSUCHNICK(client.getNickname(), invitedUser));
         }
         else
             replyTo(client.getSocket(), ERR_NOTONCHANNEL(client.getNickname(), chnName));
@@ -56,74 +68,71 @@ void Server::inviteCommand(const std::vector<std::string> &fields, Client &clien
         replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));
 }
 
-// topic command 
-
-void Server::topicCommand (const std::vector<std::string> &fields, Client &client) {
-        
+void
+Server::topicCommand (const std::vector<std::string> &fields, Client &client) {
     if (client.getRegistered() == true) {
-        std::string chnName = fields[0];
-        std::string topic;
-        // if the client wants to change the topic of the channel
-        if(fields.size() > 1) {
-            // check if the client is operator of the channel
-            chnMapIt chnIt = _channels.find(chnName);
-            if (chnIt == _channels.end())
-            {
-                std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
-                replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(clientHost, chnName));
-                return;
-            }
-            // if the is operator and the topic is set or the topic is not set
-            if ((chnIt->second.isOperator(client.getNickname()) \
-                && chnIt->second.getTopicFlag() == true) || chnIt->second.getTopicFlag() == false) {
-                topic = fields[1];
-                chnIt->second.setTopic(topic);
-                chnIt->second.setTopicFlag(true);
-                std::string clintHost = inet_ntoa(client.getAddr().sin_addr);
-                chnIt->second.broadCast(RPL_TOPICSETBY(client.getNickname(), client.getUsername(), clintHost, chnName, chnIt->second.getTopic()), -1);
-            }
-            else
-                replyTo(client.getSocket(), ERR_CHANOPRIVSNEEDED(client.getNickname(), chnName));
-        }
-        // if the client wants to get the topic of the channel
-        else if (fields.size() == 1)
+        chnMapIt it;
+        std::string clientHost;
+        int size = fields.size();
+
+        if (size == 1)
         {
-            chnMapIt chnIt = _channels.find(chnName);
-            if (chnIt == _channels.end())
+            const std::string &chanName = fields[0];
+            it = _channels.find(chanName);
+
+            if (it != _channels.end())
             {
-                std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
-                replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(clientHost, chnName));
-                return;
+                if (it->second.isClientExist(client.getNickname()))
+                {
+                    const std::string &topic = it->second.getTopic();
+                    clientHost = inet_ntoa(client.getAddr().sin_addr);
+
+                    replyTo(client.getSocket(), RPL_TOPICSETBY(client.getNickname(), client.getUsername(), clientHost, chanName, (!topic.empty()) ? topic : "No topic set."));
+                } else 
+                    replyTo(client.getSocket(), ERR_NOTONCHANNEL(client.getNickname(), chanName));
+            } else {
+                clientHost = inet_ntoa(client.getAddr().sin_addr);
+                replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(clientHost, chanName));
             }
-            if (chnIt->second.isClientExist(client.getNickname()))
+        } else if (size > 1) {
+            const std::string &defchanName = fields[0];
+            it = _channels.find(defchanName);
+
+            if (it != _channels.end())
             {
-                std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
-                // need to send the topic to the client
-                topic = chnIt->second.getTopic();
-                replyTo(client.getSocket(), RPL_TOPICSETBY(client.getNickname(), client.getUsername(), clientHost, chnName, topic));
+                if ((it->second.isOperator(client.getNickname()) || it->second.getTopicFlag() == true))
+                {
+                    const std::string &topic = fields[1];
+                    clientHost = inet_ntoa(client.getAddr().sin_addr);
+
+                    it->second.setTopic(topic);
+                    it->second.broadCast(RPL_TOPICSETBY(client.getNickname(), client.getUsername(), clientHost, defchanName, it->second.getTopic()), -1);
+                } else
+                    replyTo(client.getSocket(), ERR_CHANOPRIVSNEEDED(client.getNickname(), defchanName));
+            } else {
+                clientHost = inet_ntoa(client.getAddr().sin_addr);
+                replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(clientHost, defchanName));
             }
-            else
-                replyTo(client.getSocket(), ERR_NOTONCHANNEL(client.getNickname(), chnName));
-        }
-        else
+        } else
             replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "TOPIC"));
-    }
-    else
+    } else
         replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));
+
 }
 
-
-// kick command
+// kick command must be an operator to kick 
 void Server::kickCommand (const std::vector<std::string> &fields, Client &client) {
-    if (client.getRegistered()) {
-        
+    if (client.getRegistered())
+    {
         if (fields.size() < 2) {
             replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "KICK"));
             return;
         }
-        std::string chnName = fields[0];
+
+        const std::string &chnName = fields[0];
         std::vector<std::string> usersBeKicked = splitByDelim(fields[1], ',');
         chnMapIt joinedChnIt = _channels.find(chnName);
+        
         if (joinedChnIt == _channels.end())
         {
             std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
