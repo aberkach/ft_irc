@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 23:27:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/27 07:17:23 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/30 19:37:25 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,16 @@ void Err(const std::string &msg)
 	std::cerr << msg << std::endl;
 }
 
+bool Server::isClientInServer(const std::string &nickName)
+{
+    for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
+    {
+        if (it->second.getNickname() == nickName)
+            return true;
+    }
+    return false;
+}
+
 std::string
 trimTheSpaces(const std::string &str)
 {
@@ -40,8 +50,9 @@ std::string stringUpper(const std::string &_str)
 {
 	std::string upper(_str);
 
-    for (std::string::size_type i = 0; i < _str.size(); ++i)
+    for (std::string::size_type i = 0; i < _str.size(); ++i) {
         upper[i] = ::toupper(_str[i]);
+	}
 
 	return(upper);
 }

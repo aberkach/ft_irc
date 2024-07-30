@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 14:50:26 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/27 07:17:12 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/07/30 19:36:31 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ class Server {
         void  userCommand(const std::vector<std::string> &fields, Client &client);
         void  pingCommad(const std::vector<std::string> &fields, Client &client);
         void  pongCommad(const std::vector<std::string> &fields, Client &client);
-        void  whoisCommad(const std::vector<std::string> &fields, Client &client);
+        void  namesCommad(const std::vector<std::string> &fields, Client &client);
         void  joinCommand(const std::vector<std::string> &fields, Client &client);
         bool  createChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client);
         void  processTheJoinArgs(const std::vector<std::string> &channels , std::vector<std::string> &keys, Client &client);
@@ -66,6 +66,7 @@ class Server {
         size_t countUsersInChannel(const std::string &chnName);
         std::vector<std::string> getBuffers(const std::string &buffer);
 
+        bool isClientInServer(const std::string &nickName);
   public:
         Server(uint16_t port, char *password);
 

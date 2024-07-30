@@ -14,11 +14,7 @@
 #include <string>
 #include "../client/client.hpp"
 
-Channel::Channel() : _name(""), _topic(""), _key(""), _isInviteOnly(false), _maxUsers(0), _topicFlag(false)
-{
-}
-
-Channel::Channel(std::string name) : _name(name)
+Channel::Channel(const std::string &name) : _name(name), _topic(""), _isInviteOnly(false), _topicFlag(true), _key(""),  _maxUsers(0)
 {
 }
 
@@ -131,6 +127,7 @@ std::string Channel::getChannelUsersInString()
 std::string Channel::getChannelModes()
 {
     std::string modes;
+
     if (_isInviteOnly)
         modes += "i";
     if (_topicFlag)
@@ -144,7 +141,6 @@ void Channel::setName(const std::string &name)
 {
     _name = name;
 }
-
 
 void Channel::setKey(const std::string &key)
 {

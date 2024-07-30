@@ -22,17 +22,19 @@ class Channel
   private:
       std::string	                  _name;         // name of the channel
       std::string	                  _topic;        // topic of the channel
-      std::string	                  _key;          // password of the channel
-      std::map<std::string, Client>   _users;        // list of users in the channel
-      std::vector<Client>             _chanOps;      // list of operators in the channel
+      std::map<std::string, Client>   _users;        // list of users in the channel  ===> this should be modifed the nick names should be gotten from the client struct for key value // TODO
       std::vector<Client>             _chanInvites;  // list of invited users in the channel
+
       bool                            _isInviteOnly; // if the channel is invite only
-      size_t                          _maxUsers;     // max number of users in the channel
       bool                            _topicFlag;    // if the topic is set
+      std::string	                  _key;          // password of the channel
+      std::vector<Client>             _chanOps;      // list of operators in the channel
+      size_t                          _maxUsers;     // max number of users in the channel
+      Channel();
+
   
   public:
-    Channel();
-    Channel(std::string name);
+    Channel(const std::string &name);
     // Channel(const Channel &src);
     ~Channel();
 
