@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/26 06:33:44 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/08/02 06:19:38 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,17 +100,6 @@ std::map<std::string, Client> &Channel::getUsers()
     return _users;
 }
 
-std::string Channel::getUserName(const std::string &clientName)    
-{
-    for (std::map<std::string, Client>::const_iterator it = _users.begin(); it != _users.end(); it++)
-    {
-        if (it->first == clientName)
-            return it->second.getNickname();
-        else if (it->first == '@' + clientName)
-            return '@' + it->second.getNickname();
-    }
-    return "User not found";
-}
 
 std::string Channel::getChannelUsersInString()
 {
@@ -118,6 +107,13 @@ std::string Channel::getChannelUsersInString()
     
     for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); it++)
     {
+        for (std::vector<Client>::const_iterator opIt = _chanOps.begin(); opIt != _chanOps.end(); opIt++) {
+            if (opIt->getNickname() == it->first)
+            {
+                users += "@";
+                break;
+            }
+        }
         users += it->first;
         users += " ";
     }

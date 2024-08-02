@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 22:29:46 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/25 06:31:19 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/08/02 06:10:12 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,20 +85,17 @@ bool Server::joinExistChannel(const std::string &chnName, std::vector<std::strin
         for (std::map<std::string, Client>::iterator it = chnIt->second.getUsers().begin(); it != chnIt->second.getUsers().end(); it++)
         {
             std::string usersList = chnIt->second.getChannelUsersInString();
-            replyTo(it->second.getSocket(), RPL_JOIN(chnIt->second.getUserName(client.getNickname()), client.getUsername(), chnName, clientHost));
+            replyTo(it->second.getSocket(), RPL_JOIN(client.getNickname(), client.getUsername(), chnName, clientHost));
             // this replies to the client with the list of users in the channel and topic of the channel
             if (it->first == client.getNickname())
             {
-                
-                replyTo(client.getSocket(), RPL_NAMREPLY(usersList, chnName, chnIt->second.getUserName(client.getNickname())));
-                replyTo(client.getSocket(), RPL_ENDOFNAMES(chnIt->second.getUserName(client.getNickname()), chnName));
-
-                std::cout << "topic flag: " << chnIt->second.getTopicFlag() << std::endl;
+                replyTo(client.getSocket(), RPL_NAMREPLY(usersList, chnName, client.getNickname()));
+                replyTo(client.getSocket(), RPL_ENDOFNAMES(client.getNickname(), chnName));
                 
                 if (chnIt->second.getTopicFlag()) {
                     const std::string &top = chnIt->second.getTopic();
                     if (!top.empty())
-                        replyTo(client.getSocket(), RPL_TOPIC(chnIt->second.getUserName(client.getNickname()), chnName, top));
+                        replyTo(client.getSocket(), RPL_TOPIC(client.getNickname(), chnName, top));
                 }
             }
         }
@@ -170,8 +167,8 @@ void Server::processTheJoinArgs(const std::vector<std::string> &channels , std::
                 {
                     std::string usersList = chnIt->second.getChannelUsersInString();
                     replyTo(it->second.getSocket(), RPL_JOIN(client.getNickname(), client.getUsername(), chnName, clientHost));
-                    replyTo(client.getSocket(), RPL_NAMREPLY(usersList, chnName, chnIt->second.getUserName(it->first)));
-                    replyTo(client.getSocket(), RPL_ENDOFNAMES(chnIt->second.getUserName(it->first), chnName));
+                    replyTo(client.getSocket(), RPL_NAMREPLY(usersList, chnName, it->first));
+                    replyTo(client.getSocket(), RPL_ENDOFNAMES(it->first, chnName));
                 }
             }
             // join the existing channel

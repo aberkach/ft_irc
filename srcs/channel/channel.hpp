@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:32:12 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/26 06:33:29 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/08/02 06:08:08 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,6 @@ class Channel
     std::string getChannelModes();
 
 	Client &getUser(std::string &nickName);
-    std::string getUserName(const std::string &clientName);
     std::map<std::string, Client> &getUsers() ;
     std::string getChannelUsersInString();
     bool getTopicFlag() const;
