@@ -196,5 +196,4 @@ Server::modeCommand(const std::vector<std::string> &fields, Client &client)
 	}
 	else
         replyTo(client.getSocket(), ERR_NOTREGISTERED(std::string("GUEST")));
-
 };
