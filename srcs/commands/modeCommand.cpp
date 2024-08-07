@@ -31,11 +31,9 @@ Server::modeSetReply(Client& client, Channel &channel, std::string& modes, const
 {
 	if (modes.empty())
 		return;
-	std::stringstream addr;
-    addr << inet_ntoa(client._addr.sin_addr);
 	for (size_t i = 0; i < fields.size() ; i++)
 		modes += " " + fields[i];
-	channel.broadCast(MODE_SET(client.getNickname(), client.getUsername(), addr.str(), channel.getName(), modes), -1);
+	channel.broadCast(MODE_SET(client.getNickname(), client.getUsername(), inet_ntoa(client.getAddr().sin_addr), channel.getName(), modes), -1);
 };
 
 void

@@ -41,7 +41,7 @@
 #define EVENT_RW (EVENT_WRITE | EVENT_READ)
 
 #define SERVERNAME      "Irc_42.chat"
-#define VERSION         "1.6"
+#define VERSION         "1.8"
 
 #define CNICKLEN        "10"
 #define CUSERLEN        "9"
@@ -50,7 +50,7 @@
 #define MAXCLIENT       "nolim"
 
 #define CHANELMODES     "itkol"
-#define COMMANDS        "CHARSET=ascii PASS,NICK,USER,JOIN,LIST,KICK,WHOIS,PING,PONG,INVITE,TOPIC,MODE,PRIVMSG,QUIT,PART CHANTYPES=# CHANMODES=i,t,k,o,l"
+#define COMMANDS        "CHARSET=ascii PASS,NICK,USER,JOIN,LIST,KICK,PING,PONG,INVITE,TOPIC,MODE,PRIVMSG,QUIT,PART CHANTYPES=# CHANMODES=i,t,k,o,l"
 
 #define AUTH                            ":" SERVERNAME " NOTICE AUTH :*** Looking up your hostname...\r\n"\
                                         ":" SERVERNAME " NOTICE AUTH :*** Couldn't look up your hostname\r\n"\
@@ -113,7 +113,7 @@
 #define RPL_ENDOFNAMES(nick, channel)                                 ":" SERVERNAME " 366 " + (nick) + " " + (channel) + " :End of /NAMES list\r\n"
 #define RPL_TOPIC(nick, channel, topic)                               ":" SERVERNAME " 332 " + (nick) + " " + (channel) + " :" + (topic) + "\r\n"
 #define RPL_INVITING(nick, invited, channel)                          ":" SERVERNAME " 341 " + (nick) + " inviting " + (invited) + " to " + (channel) + "\r\n"
-#define RPL_LISTSTART(client)                                         ":" SERVERNAME " 321 " + (nick) + " Channel :Users Name\r\n"
+#define RPL_LISTSTART(nick)                                           ":" SERVERNAME " 321 " + (nick) + " Channel :Users Name\r\n"
 #define LIST_MSG(nick, channel, nb_users, topic)                      ":" SERVERNAME " 322 " + (nick) + " " + (channel) + " " + (nb_users) + " :" + (topic) + "\r\n"
 #define RPL_LISTEND(nick)                                             ":" SERVERNAME " 323 " + (nick) + " :End of /LIST\r\n"
 #define PRIVMSG(nick, username, host, target, message)                ":" + (nick) + "!" + (username) + "@" + (host) + " PRIVMSG " + (target) + " :" + (message) + "\r\n"

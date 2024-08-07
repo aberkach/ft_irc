@@ -8,7 +8,6 @@ class Channel;
 class Client
 {
     public:
-        sockaddr_in _addr;
         std::string _clientBuffer;
 
     private:
@@ -18,11 +17,12 @@ class Client
         std::string _nickName;
         std::string _userName;
         std::string _realName;
+        sockaddr_in _addr;
 
     public:
         Client(void);
         Client(int socket, struct sockaddr_in &addr);
-        Client(const Client& user);
+        // Client(const Client& user);
 
         void setSocket(int socket);
         void setValidPass(bool status);
@@ -32,9 +32,6 @@ class Client
         bool setRealname(const std::string& realName);
         void setChannel(std::string &chnName, Channel &channel);
 
-        // void setAddress(sockaddr_in userAddr) { _addr = userAddr; }
-        // void getAddress(sockaddr_in userAddr) { _addr = userAddr; }
-
         std::string getNickname(void) const ;
         std::string getUsername(void) const ;
         std::string getRealname(void) const ;
@@ -43,11 +40,6 @@ class Client
         int  getSocket(void) const;
         sockaddr_in getAddr(void) const;
         
-        // std::map<std::string, Channel>::iterator getChannel(std::string &chnName);
-        // std::map<std::string, Channel> getChannels(void);
-
-        // void removeChannel(std::string &chnName);
-
         void refStatus(uint countCli);
 
         ~Client(void);

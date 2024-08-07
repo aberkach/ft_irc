@@ -108,7 +108,7 @@ Server::privmsgCommand(const std::vector<std::string> &fields, Client &client)
 				{
 					channelit it = _channels.find(target);
 					if (it != _channels.end())
-						it->second.broadCast(PRIVMSG(client.getNickname(), client.getUsername(), inet_ntoa(client._addr.sin_addr), target, fields[1]), client.getSocket());
+						it->second.broadCast(PRIVMSG(client.getNickname(), client.getUsername(), inet_ntoa(client.getAddr().sin_addr), target, fields[1]), client.getSocket());
 					else
 						replyTo(client.getSocket(), ERR_NOSUCHNICK(client.getNickname(), target));
 				}
@@ -118,7 +118,7 @@ Server::privmsgCommand(const std::vector<std::string> &fields, Client &client)
 					{
 						// std::cout << it->second.getNickname() << " = " << target << std::endl;
 						if (stringUpper(it->second.getNickname()) == stringUpper(target))
-							return (replyTo(it->second.getSocket(), PRIVMSG(client.getNickname(), client.getUsername(), inet_ntoa(client._addr.sin_addr), it->second.getNickname(), fields[1])));
+							return (replyTo(it->second.getSocket(), PRIVMSG(client.getNickname(), client.getUsername(), inet_ntoa(client.getAddr().sin_addr), it->second.getNickname(), fields[1])));
 					}
 					replyTo(client.getSocket(), ERR_NOSUCHNICK(client.getNickname(), target));
 				}
