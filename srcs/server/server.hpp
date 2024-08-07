@@ -43,7 +43,9 @@ class Server {
 
       private:
         Server(void);
-
+        std::string extractModeString(const std::string &modeField, Client &client);
+        // void  executeModes(const std::vector<std::string> &fields, Client &Client, chnMapIt it, char *mode);
+        void  displayChannelMode(const Channel &channel, const Client &client);
         void  passCommand(const std::vector<std::string> &fields, Client &client);
         void  nickCommand(const std::vector<std::string> &fields, Client &client);
         void  userCommand(const std::vector<std::string> &fields, Client &client);

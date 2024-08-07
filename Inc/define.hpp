@@ -110,12 +110,13 @@
 #define ERR_BADCHANNELKEY(client, channel)                            ":" SERVERNAME " 475 " + (client) + " " + (channel) + " :wrong channel key (+k)\r\n"
 #define ERR_BADCHANMASK(channel)                                      ":" SERVERNAME " 476 " + (channel) + " :Bad Channel Mask\r\n"
 //mode responses
+#define RPL_CHANNELMODEIS(client, channel, params)                    ":" SERVERNAME " 324 " + (client) + " " + (channel) + " " + (params) + "\r\n"
+#define RPL_CREATIONTIME(client, channel, creation_time)              ":" SERVERNAME " 329 " + (client) + " " + (channel) + " " + (creation_time) + "\r\n"
 #define ERR_CHANNELISFULL(client, channel)                            ":" SERVERNAME " 471 " + (client) + " " + (channel) + ": Cannot channel (+l)\r\n"
 #define ERR_USERNOTINCHANNEL(client, nick, channel)                   ":" SERVERNAME " 441 " + (client) + " " + (nick) + " " + (channel) + ": They aren't on that channel\r\n"
 #define ERR_INVITEONLYCHAN(client, channel)                           ":" SERVERNAME " 473 " + (client) + " " + (channel) + ":Cannot join channel (+i)\r\n"
-#define ERR_UNKNOWNMODE(client)                                       ":" SERVERNAME " 472 " + (client) + " :unknown mode char to me\r\n"
+#define ERR_UNKNOWNMODE(client, charac)                               ":" SERVERNAME " 472 " + (client) + " " + (charac) + " :is unknown mode char to me\r\n"
 #define RPL_YOUREOPER(client)                                         ":" SERVERNAME " 381 " + (client) + " :You are now an IRC operator\r\n"
-#define RPL_CHANNELMODEIS(client, channel, params)                    ":" SERVERNAME " 324 " + (client) + " " + (channel) + " " + (params) + "\r\n"
 #define MODE_SET(client_nick, client_username, host, channel, modes)  ":" + (client_nick) + "!" + (client_username) + "@" + (host)+ " " + (channel) + " MODE " + " " + (modes) + "\r\n"
 // key responses
 #define ERR_INVALIDKEY (client, channel)                              ":" SERVERNAME " 525 " + (client) + " " + (channel) + " :Key is not well-formed\r\n"
@@ -153,7 +154,6 @@
 // #define MODE_MSG(client, username,ipaddr, channel,added_mode, target) ":" + (client) + "!" + (username) +"@" + (ipaddr) + " MODE " + (channel) + " " +(added_mode) +  target + "\r\n"
 // #define MODE_MSG_2(client, username,ipaddr, channel,added_mode)       ":" + (client) + "!" + (username) +"@" + (ipaddr) + " MODE " + (channel) + " " +(added_mode) + "\r\n"
 // #define TOPIC_MSG(client, username, ipaddr, channel, topic)           ":" + (client) + "!" + (username) + "@" + (ipaddr) + " TOPIC " + (channel) + " :" + (topic) + "\r\n"
-// #define RPL_CREATIONTIME(client, channel, creation_time)             ":" SERVERNAME " 329 " + (client) + " " + (channel) + " " + (creation_time) + "\r\n"
 // #define RPL_TOPICWHOTIME(client, channel, nick, setat)               ":" SERVERNAME " 333 " + (client) + " " + (channel) + " " + (nick) + " " + (setat) + "\r\n"
 
 #endif 
