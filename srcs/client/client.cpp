@@ -40,12 +40,12 @@ Client::Client(int socket, struct sockaddr_in &addr) : _socket(socket) , _regist
     memmove(&_addr, &addr, sizeof(_addr));
 };
 
-Client::Client(const Client& user) : _socket(user._socket) , _registered(user._registered) , _validPass(user._validPass) , 
-    _nickName(user._nickName), _userName(user._userName), _realName(user._realName)
-{
-    memset(&_addr, 0, sizeof(_addr));
-    memmove(&_addr, &user._addr, sizeof(_addr));
-};
+// Client::Client(const Client& user) : _socket(user._socket) , _registered(user._registered) , _validPass(user._validPass) , 
+//     _nickName(user._nickName), _userName(user._userName), _realName(user._realName)
+// {
+//     memset(&_addr, 0, sizeof(_addr));
+//     memmove(&_addr, &user._addr, sizeof(_addr));
+// };
 
 /// @brief
 /// #### setters ####
@@ -100,13 +100,6 @@ Client::setRealname(const std::string& realName)
      _realName = realName.substr(0,REALLEN);
      return (true);
 };
-
-// set channel to the client 
-// void
-// Client::setChannel(std::string &chnName, Channel &channel)
-// {
-//     joined_channels.insert(std::pair<std::string, Channel>(chnName, channel));
-// };
 
 /// @brief
 /// #### getters ####

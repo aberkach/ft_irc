@@ -40,7 +40,7 @@ Server::pongCommad (const std::vector<std::string> &fields, Client &client)
 };
 
 void
-Server::namesCommad (const std::vector<std::string> &fields, Client &client)
+Server::namesCommad(const std::vector<std::string> &fields, Client &client)
 {
     if (!client.getRegistered())
         replyTo(client.getSocket(), ERR_NOTREGISTERED(std::string("GUEST")));

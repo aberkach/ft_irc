@@ -143,7 +143,7 @@ void Server::processTheJoinArgs(const std::vector<std::string> &channels , std::
         if ((chnName[0] != '#') || (chnName.find_first_of(" ,\a\b\f\t\v$:+~%") != std::string::npos) || chnName.size() < 2)
         {
             // here we send an error message to the client to inform him that the channel name is incorrect
-            replyTo(client.getSocket(), ERR_BADCHANMASK(chnName));
+            replyTo(client.getSocket(), ERR_BADCHANMASK(client.getNickname(), chnName));
             if (keys.size() > 0)
                 keys.erase(keys.begin());
             continue;
