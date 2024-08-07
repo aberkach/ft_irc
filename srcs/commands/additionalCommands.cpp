@@ -20,6 +20,47 @@
 #include <vector>
 
 void
+Server::privmsgCommand(const std::vector<std::string> &fields, Client &client)
+{
+    if (client.getRegistered())
+    {
+        if (fields.empty())
+			replyTo(client.getSocket(), ERR_NORECIPIENT(client.getNickname(), "PRIVMSG"));
+        else if (fields.size() >= 2)
+        {
+			if (fields[1].empty())
+				return (replyTo(client.getSocket(), ERR_NOTEXTTOSEND(client.getNickname())));
+
+            std::vector<std::string> clients = splitByDelim(fields[0],',');
+			for (std::vector<std::string>::iterator split = clients.begin(); split != clients.end(); ++split) {
+				const std::string &target = *split;
+				if (target[0] == '#')
+				{
+					channelit it = _channels.find(target);
+					if (it != _channels.end())
+						it->second.broadCast(PRIVMSG(client.getNickname(), client.getUsername(), inet_ntoa(client.getAddr().sin_addr), target, fields[1]), client.getSocket());
+					else
+						replyTo(client.getSocket(), ERR_NOSUCHNICK(client.getNickname(), target));
+				}
+				else
+				{
+					for (clientIt it = _clients.begin() ; it != _clients.end(); ++it)
+					{
+						if (stringUpper(it->second.getNickname()) == stringUpper(target))
+							return (replyTo(it->second.getSocket(), PRIVMSG(client.getNickname(), client.getUsername(), inet_ntoa(client.getAddr().sin_addr), it->second.getNickname(), fields[1])));
+					}
+					replyTo(client.getSocket(), ERR_NOSUCHNICK(client.getNickname(), target));
+				}
+            }
+        }
+        else
+			replyTo(client.getSocket(), ERR_NOTEXTTOSEND(client.getNickname()));
+    }
+    else
+        replyTo(client.getSocket(), ERR_NOTREGISTERED(std::string("GUEST")));
+};
+
+void
 Server::pingCommad(const std::vector<std::string> &fields, Client &client)
 {
     size_t size = fields.size();
