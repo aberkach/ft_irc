@@ -172,7 +172,7 @@ Bot::leaveMsg(const std::vector<std::string> &fields)
 void
 Bot::pongCommand(const std::vector<std::string> &fields)
 {
-    std::string command = "PONG " + (fields.size() > 2) ? fields[1] : fields[2];
+    std::string command = "PONG " + ((fields.size() > 2) ? fields[1] : fields[2]);
     sendit(this->irc_sock, command);
 };
 
