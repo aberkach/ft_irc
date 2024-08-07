@@ -45,8 +45,8 @@ class Channel
     size_t getMaxUsers() const;
     std::string getChannelModes();
 
-	Client &getUser(std::string &nickName);
-    std::map<std::string, Client> &getUsers() ;
+	Client &getUser(const std::string &nickName);
+    std::map<std::string, Client> &getUsers();
     std::string getChannelUsersInString();
     bool getTopicFlag() const;
 

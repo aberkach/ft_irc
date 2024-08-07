@@ -16,128 +16,31 @@
 #include <string>
 #include <sys/poll.h>
 #include <vector>
+#include <limits>
 
-void topicFlag(Channel &channel, bool sign, std::vector<std::string> args)
-{
-	(void) args;
-	if (sign)
-		channel.setTopicFlag(true);
-	else
-		channel.setTopicFlag(false);
-}
+void
+Server::displayChannelMode(const Channel &channel, const Client &client)
+{// show the channel modes 324 + 329 
+	std::string params = "+";
+	std::string applied = " ";
 
-void operatorFlag(Client &client, chnMapIt &channel, bool sign, std::vector<std::string>& args)
-{
-	std::map<std::string, Client> it = channel->second.getUsers();
-	if (sign)
-	{
-		if (it.find(args[0]) == it.end())
-			replyTo(client.getSocket(), ERR_USERNOTINCHANNEL(client.getNickname(), args[0], channel->first));
-		else if (channel->second.isOperator(args[0]))
-			replyTo(client.getSocket(), RPL_WHOISOPERATOR(args[0]));
-		else{	
-			channel->second.addOperator(it[args[0]]);
-			args.erase(args.begin());
-			replyTo(client.getSocket(), RPL_YOUREOPER(client.getNickname()));
-		}
-	}
-	else{
-		if ((it.find(args[0])) == it.end())
-			replyTo(client.getSocket(), ERR_USERNOTINCHANNEL(client.getNickname(), args[0], channel->first));
-		else {	
-			channel->second.removeOperator(it[args[0]]);
-			args.erase(args.begin()); //reply client is now just a user
-		}
-	}
-}
-
-void	keyWordFlag(Channel &channel, bool sign, std::vector<std::string>& args)
-{
-	if (sign)
-	{
-		channel.setKey(args[0]);
-		args.erase(args.begin()); //reply key is  set
-	}
-	else
-		channel.setKey(""); //reply key is  removed
-}
-
-void invetOnlyFlag(Channel &channel, bool sign)
-{
-	if (sign)
-		channel.setIsInviteOnly(true); //reply channel is now invite only
-	else
-		channel.setIsInviteOnly(false); //reply channel is now not invite only
-}
-
-void limitFlag(Channel &channel, bool sign, std::vector<std::string> &args)
-{
-	if (sign)
-	{
-		std::stringstream  ss(args[0]);
-		size_t limit;
-		if (!(ss >> limit) || !ss.eof()){
-			args.erase(args.begin());
-			return ; //reply limit must be a number
-		}
-		channel.setMaxUsers(limit);
-		args.erase(args.begin());
-		//reply limit is now set
-	}
-	else{
-		channel.setMaxUsers(0);
-		//reply limit is now removed
-	}
-}
-
-
-int check_flag_string(const std::string &flags){
-	if (flags[0] != '+' && flags[0] != '-')
-		return 1;
-	for (size_t i = 0; i < flags.size(); i++){
-		for (size_t j = i + 1; j < flags.size(); j++)
-			if ((flags[i] == flags[j] && i != j) || 
-				(flags[i] != 'k' && flags[i] != 'o' && flags[i] != 'i' && flags[i] != 'l' && flags[i] != 't' && flags[i] != '+' && flags[i] != '-'))
-					return 1;
-	}
-	return 0;
-}
-
-int check_params(const std::vector<std::string> &args, const std::string &flags){
-	bool sign = false;
-	size_t count = 0;
-	for(size_t i = 0; i < flags.size(); i++){
-		if (flags[i] == '+')
-			sign = true;
-		else if (flags[i] == '-')
-			sign = false;
-		if (flags[i] == 'o')
-			count++;
-		else if (flags[i] == 'k' && sign == true)
-			count++;
-		else if (flags[i] == 'l' && sign == true)
-			count++;
-	}
-	if (count != args.size())
-		return 1;
-	return 0;
-}
-
-void display_channel_mode(const Channel &channel, const Client &client){
-	std::string str;
-	str += "+";
-	if (channel.getIsInviteOnly() == true)
-		str += "i";
-	if (!channel.getKey().empty())
-		str += "k";
+	if (channel.getTopicFlag())
+		params += "t";
+	if (channel.getIsInviteOnly())
+		params += "i";
 	if (channel.getMaxUsers() != 0)
 	{
-		std::cout << "max users: " << channel.getMaxUsers() << std::endl;
-		str += "l";
+		params += "l";
+		applied += std::to_string(channel.getMaxUsers()) + " ";
 	}
-	if (!channel.getTopic().empty())
-		str += "t";
-	replyTo(client.getSocket(), RPL_CHANNELMODEIS(client.getNickname(), channel.getName(), str));
+	if (!channel.getKey().empty())
+	{
+		params += "k";
+		applied += channel.getKey();
+	}
+
+	replyTo(client.getSocket(), RPL_CHANNELMODEIS(client.getNickname(), channel.getName(), (params + applied)));
+	// replyTo(client.getSocket(), RPL_CHANNELMODEIS(client.getNickname(), channel.getName(), (params + applied)));
 }
 
 std::string get_host(const struct sockaddr_in &addr)
@@ -147,49 +50,139 @@ std::string get_host(const struct sockaddr_in &addr)
     return ss.str();
 }
 
-void Server::modeCommand(const std::vector<std::string> &fields, Client &client){
-	bool sign = false;
-	std::vector<std::string> args;
-	
-	if (fields[0].empty())
-		replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "MODE"));
-	chnMapIt it = _channels.find(fields[0]);
-	if (it == _channels.end()){
-		replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(client.getNickname(), fields[0]));
-		return ;
+#define __KNOWNMODECHAR(charMode) ( 				   \
+					    			charMode == 'i' || \
+					    			charMode == 't' || \
+					    			charMode == 'k' || \
+					    			charMode == 'o' || \
+					    			charMode == 'l'    \
+								  )
+
+
+std::string
+Server::extractModeString(const std::string &modeField, Client &client)
+{
+    std::set<char> modes;
+    std::string modesString;
+    char sign = (modeField[0] == '-') ? '-' : '+';
+
+    for (size_t i = 0; i < modeField.size(); i++)
+	{
+        while (modeField[i] && modeField[i] == sign)
+            i++;
+        if (modeField[i] != sign && (modeField[i] == '-' || modeField[i] == '+'))
+            sign = modeField[i];
+        else if __KNOWNMODECHAR(modeField[i])
+		{
+			if (modes.find(modeField[i]) == modes.end() || modeField[i] == 'o')
+			{
+                modesString += sign;
+                modesString += modeField[i];
+				modes.insert(modeField[i]);
+			}
+        }
+		else if (modeField[i] != '-' && modeField[i] != '+')
+            replyTo(client.getSocket(), ERR_UNKNOWNMODE(client.getNickname(), modeField[i]));
+    }
+
+    return modesString;
+};
+
+
+// broadcast the mode changes to all client in the channel
+void
+Server::modeCommand(const std::vector<std::string> &fields, Client &client)
+{
+	if (client.getRegistered())
+	{
+		if (fields.empty())
+			replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "MODE"));
+		chnMapIt it = _channels.find(fields[0]);
+		if (it != _channels.end())
+		{
+			int size = fields.size();
+			switch (size)
+			{
+				case 1: 
+					displayChannelMode(it->second, client);
+					break;
+
+				default:
+					if (it->second.isOperator(client.getNickname()))
+					{
+						std::string modestr = extractModeString(fields[1], client);
+						// std::cout << RED << modestr << RESET << std::endl;
+
+						size_t arg = 2;
+
+						std::vector<std::string> appliedFields;
+						std::string	appliedModes;  // applied modes msg
+
+						for (size_t i = 0; i < modestr.size(); i += 2)
+						{
+							bool set = (modestr[i] == '+');
+
+							switch (modestr[i + 1])
+							{
+								case 'i':
+									it->second.setIsInviteOnly(set);
+									break;
+								case 't':
+									it->second.setTopicFlag(set);
+									break;
+								case 'k':
+									if (set && arg < fields.size())
+									{
+										it->second.setKey(fields[arg]);
+										appliedFields.push_back(fields[arg]);
+										arg++;
+									}
+									else if (!set)
+										it->second.setKey("");
+									break;
+								case 'o':
+									if (arg < fields.size()) {
+										if (it->second.isClientExist(fields[arg]))
+										{
+											if (set)
+												it->second.addOperator(it->second.getUser(fields[arg]));
+											else
+												it->second.removeOperator(it->second.getUser(fields[arg]));
+											appliedFields.push_back(fields[arg]);
+										}
+										else
+											replyTo(client.getSocket(), ERR_USERNOTINCHANNEL(client.getNickname(), fields[arg], it->first));
+										arg++;
+									}
+									break;
+								case 'l':
+									if (set && arg < fields.size())
+									{
+										long maxUsers = std::atol(fields[arg].c_str());
+										if (maxUsers > 0 && fields.size() <= 10 && maxUsers <= std::numeric_limits<int>::max())
+										{
+											it->second.setMaxUsers(maxUsers);
+											appliedFields.push_back(fields[arg]);
+										}
+										arg++;
+									}
+									else if (!set)
+										it->second.setMaxUsers(0);
+									break;
+								default:
+									break;
+							}
+						}
+
+					}
+					else
+						replyTo(client.getSocket(), ERR_CHANOPRIVSNEEDED(client.getNickname(), fields[0]));
+					break;
+			}
+		}
+		else
+			replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(client.getNickname(), "MODE"));
 	}
-	if (!it->second.isClientExist(client.getNickname())){
-		replyTo(client.getSocket(), ERR_USERNOTINCHANNEL(client.getNickname(), client.getNickname(), it->first));
-		return ;
-	}
-	if (fields.size() == 1){
-		display_channel_mode(it->second, client);
-		return ; 
-	}
-	if (!it->second.isOperator(client.getNickname())){
-		replyTo(client.getSocket(), ERR_CHANOPRIVSNEEDED(client.getNickname(), it->first));
-		return ;
-	}
-	if (check_flag_string(fields[1]) == 1){
-		replyTo(client.getSocket(), ERR_UNKNOWNMODE(client.getNickname()));
-		return ;
-	}
-	for(size_t i = 2; i < fields.size(); i++)
-		if (!fields[i].empty())
-			args.push_back(fields[i]);
-	if (check_params(args, fields[1]) == 1){
-		replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "MODE"));
-		return ;
-	}
-	size_t i = 0;
-	for(; i < fields[1].size(); i++){
-		if (fields[1][i] == '+') sign = true;
-		else if (fields[1][i] == '-') sign = false;
-		else if (fields[1][i] == 'o') operatorFlag(client, it, sign, args);
-		else if (fields[1][i] == 'k') keyWordFlag(it->second, sign, args);
-		else if (fields[1][i] == 'i') invetOnlyFlag(it->second, sign);
-		else if (fields[1][i] == 'l') limitFlag(it->second, sign, args);
-		else if (fields[1][i] == 't') topicFlag(it->second, sign, args);
-	}
-	replyTo(client.getSocket(), MODE_SET(client.getNickname(), client.getUsername(), get_host(_addr) ,it->first, fields[1]));
-}
+	else
+        replyTo(client.getSocket(), ERR_NOTREGISTERED(std::string("GUEST")));
+};

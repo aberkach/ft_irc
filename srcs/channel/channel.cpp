@@ -90,7 +90,7 @@ std::vector<Client> Channel::getOperator(){
     return _chanOps;
 }
 
-Client &Channel::getUser(std::string &nickName)
+Client &Channel::getUser(const std::string &nickName)
 {
     return (_users.find(nickName)->second);
 }
@@ -188,7 +188,6 @@ void Channel::removeUser(Client &client)
 
 void Channel::addOperator(const Client &op)
 {
-    // op.setChannel(_name, *this);
     _users.insert(std::pair<std::string, Client>('@' + op.getNickname(), op));
     _chanOps.insert(_chanOps.begin(), Client(op));
 }
@@ -202,7 +201,6 @@ bool Channel::isOperator(const std::string &nickName)
     }
     return false;
 }
-
 
 void Channel::addInvite(const Client &invited)
 {

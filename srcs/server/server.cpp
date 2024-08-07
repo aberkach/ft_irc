@@ -84,11 +84,11 @@ Server::Server(uint16_t port, char *password) : _countCli(0), _port(port), _pass
 	_commands["LIST"] = &Server::listCommand; // working full
 	_commands["PART"] = &Server::partCommand; // working full
 
+	_commands["MODE"] = &Server::modeCommand;
 	_commands["KICK"] = &Server::kickCommand;
 	_commands["NICK"] = &Server::nickCommand;
 	_commands["INVITE"] = &Server::inviteCommand;
 	_commands["JOIN"] = &Server::joinCommand;
-	_commands["MODE"] = &Server::modeCommand;
 	// nick changes might couse a prob
 	// need to make all channel related args lowercase
 }

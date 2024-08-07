@@ -22,84 +22,84 @@
 // and channels chould rely on getnick name in case of nick name changes
 
 void
-Server::passCommand(const std::vector<std::string> &fields, Client &user)
+Server::passCommand(const std::vector<std::string> &fields, Client &client)
 {
-	if (user.getValidPass() == false)
+	if (client.getValidPass() == false)
 	{
 		if (fields.empty())
-			replyTo(user.getSocket(), ERR_NEEDMOREPARAMS(std::string("Guest"), "PASS"));
+			replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(std::string("Guest"), "PASS"));
 		else if (fields[0] == _password)
-			user.setValidPass(true);
+			client.setValidPass(true);
 		else
-			replyTo(user.getSocket(), ERR_PASSWDMISMATCH);
+			replyTo(client.getSocket(), ERR_PASSWDMISMATCH);
 	}
 	else
-		replyTo(user.getSocket(), ERR_ALREADYREGISTERED(user.getNickname()));
+		replyTo(client.getSocket(), ERR_ALREADYREGISTERED(client.getNickname()));
 };
 
 void 
-Server::nickCommand(const std::vector<std::string> &fields, Client &user)
+Server::nickCommand(const std::vector<std::string> &fields, Client &client) // if he changes nick it breadcasts too all joined channels
 {
-	if (user.getValidPass() == true)
+	if (client.getValidPass() == true)
 	{
 		if (fields.empty())
 		{
-			const std::string &name = user.getNickname();
-			return (replyTo(user.getSocket(), ERR_NONICKNAMEGIVEN((name.empty()) ? std::string("Guest") : name)));
+			const std::string &name = client.getNickname();
+			return (replyTo(client.getSocket(), ERR_NONICKNAMEGIVEN((name.empty()) ? std::string("Guest") : name)));
 		}
 		for (clientIt it = _clients.begin() ; it != _clients.end(); ++it)
 		{
 			if (stringUpper(it->second.getNickname()) == stringUpper(fields[0]))
-				return (replyTo(user.getSocket(), ERR_NICKNAMEINUSE(fields[0])));
+				return (replyTo(client.getSocket(), ERR_NICKNAMEINUSE(fields[0])));
 		}
-        std::string oldNick = user.getNickname();
-		if (user.setNickname(fields[0]) == false)
-			return (replyTo(user.getSocket(), ERR_ERRONEUSNICKNAME(fields[0])));
-        else if (user.getRegistered()) // update in channels
-            return (replyTo(user.getSocket(), CHANGENICK(oldNick, user.getUsername(), inet_ntoa(user.getAddr().sin_addr), fields[0])));
+        std::string oldNick = client.getNickname();
+		if (client.setNickname(fields[0]) == false)
+			return (replyTo(client.getSocket(), ERR_ERRONEUSNICKNAME(fields[0])));
+        else if (client.getRegistered()) // update in channels
+            return (replyTo(client.getSocket(), CHANGENICK(oldNick, client.getUsername(), inet_ntoa(client.getAddr().sin_addr), fields[0])));
 	}
 	else
-		return (replyTo(user.getSocket(), ERR_FIRSTCOMMAND));
-	_clients[user.getSocket()].refStatus(_countCli);
+		return (replyTo(client.getSocket(), ERR_FIRSTCOMMAND));
+	_clients[client.getSocket()].refStatus(_countCli);
 };
 
 void
-Server::userCommand(const std::vector<std::string> &fields, Client &user)
+Server::userCommand(const std::vector<std::string> &fields, Client &client)
 {
-	if (!user.getRegistered())
+	if (!client.getRegistered())
 	{
-		if (user.getValidPass())
+		if (client.getValidPass())
 		{
 			if (fields.size() >= 4)
 			{
                 std::string realName = fields[3];
                 if (realName.empty())
-                    return (replyTo(user.getSocket(), ERR_NEEDMOREPARAMS(std::string("Guest"), "USER")));
-                else if (!user.setUsername(fields[0])|| fields[1] != "0" || fields[2] != "*" || !user.setRealname(realName))
-                    return (replyTo(user.getSocket(), ERR_USERFORMAT));
+                    return (replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(std::string("Guest"), "USER")));
+                else if (!client.setUsername(fields[0])|| fields[1] != "0" || fields[2] != "*" || !client.setRealname(realName))
+                    return (replyTo(client.getSocket(), ERR_USERFORMAT));
             }
 			else
-				return (replyTo(user.getSocket(), ERR_NEEDMOREPARAMS(std::string("Guest"), "USER")));
+				return (replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(std::string("Guest"), "USER")));
 		}
 		else
-			return (replyTo(user.getSocket(), ERR_FIRSTCOMMAND));
+			return (replyTo(client.getSocket(), ERR_FIRSTCOMMAND));
 	}
 	else
-		return (replyTo(user.getSocket(), ERR_ALREADYREGISTERED(user.getNickname())));
-	_clients[user.getSocket()].refStatus(_countCli);
+		return (replyTo(client.getSocket(), ERR_ALREADYREGISTERED(client.getNickname())));
+	_clients[client.getSocket()].refStatus(_countCli);
 };
 
 void
-Server::privmsgCommand(const std::vector<std::string> &fields, Client &user)
+Server::privmsgCommand(const std::vector<std::string> &fields, Client &client)
 {
-    if (user.getRegistered())
+    if (client.getRegistered())
     {
         if (fields.empty())
-			replyTo(user.getSocket(), ERR_NORECIPIENT(user.getNickname(), "PRIVMSG"));
+			replyTo(client.getSocket(), ERR_NORECIPIENT(client.getNickname(), "PRIVMSG"));
         else if (fields.size() >= 2)
         {
 			if (fields[1].empty())
-				return (replyTo(user.getSocket(), ERR_NOTEXTTOSEND(user.getNickname())));
+				return (replyTo(client.getSocket(), ERR_NOTEXTTOSEND(client.getNickname())));
 
             std::vector<std::string> clients = splitByDelim(fields[0],',');
 			for (std::vector<std::string>::iterator split = clients.begin(); split != clients.end(); ++split) {
@@ -108,9 +108,9 @@ Server::privmsgCommand(const std::vector<std::string> &fields, Client &user)
 				{
 					chnMapIt it = _channels.find(target);
 					if (it != _channels.end())
-						it->second.broadCast(PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), target, fields[1]), user.getSocket());
+						it->second.broadCast(PRIVMSG(client.getNickname(), client.getUsername(), inet_ntoa(client._addr.sin_addr), target, fields[1]), client.getSocket());
 					else
-						replyTo(user.getSocket(), ERR_NOSUCHNICK(user.getNickname(), target));
+						replyTo(client.getSocket(), ERR_NOSUCHNICK(client.getNickname(), target));
 				}
 				else
 				{
@@ -118,15 +118,15 @@ Server::privmsgCommand(const std::vector<std::string> &fields, Client &user)
 					{
 						// std::cout << it->second.getNickname() << " = " << target << std::endl;
 						if (stringUpper(it->second.getNickname()) == stringUpper(target))
-							return (replyTo(it->second.getSocket(), PRIVMSG(user.getNickname(), user.getUsername(), inet_ntoa(user._addr.sin_addr), it->second.getNickname(), fields[1])));
+							return (replyTo(it->second.getSocket(), PRIVMSG(client.getNickname(), client.getUsername(), inet_ntoa(client._addr.sin_addr), it->second.getNickname(), fields[1])));
 					}
-					replyTo(user.getSocket(), ERR_NOSUCHNICK(user.getNickname(), target));
+					replyTo(client.getSocket(), ERR_NOSUCHNICK(client.getNickname(), target));
 				}
             }
         }
         else
-			replyTo(user.getSocket(), ERR_NOTEXTTOSEND(user.getNickname()));
+			replyTo(client.getSocket(), ERR_NOTEXTTOSEND(client.getNickname()));
     }
     else
-        replyTo(user.getSocket(), ERR_NOTREGISTERED(user.getNickname()));
+        replyTo(client.getSocket(), ERR_NOTREGISTERED(std::string("GUEST")));
 };

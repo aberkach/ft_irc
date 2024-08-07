@@ -43,7 +43,7 @@ void
 Server::namesCommad (const std::vector<std::string> &fields, Client &client)
 {
     if (!client.getRegistered())
-        replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));
+        replyTo(client.getSocket(), ERR_NOTREGISTERED(std::string("GUEST")));
     else if (fields.size() >= 1)
     {
         std::vector<std::string> names = splitByDelim(fields[0], ',');
@@ -63,7 +63,7 @@ void
 Server::listCommand (const std::vector<std::string> &fields, Client &client)
 {
     if (client.getRegistered() == false)
-        replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));
+        replyTo(client.getSocket(), ERR_NOTREGISTERED(std::string("GUEST")));
     else 
     {
         replyTo(client.getSocket(), RPL_LISTSTART(client.getNickname()));
@@ -129,7 +129,7 @@ Server::partCommand (const std::vector<std::string> &fields, Client &client)
         } else
             replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "PART"));
     } else
-        replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));
+        replyTo(client.getSocket(), ERR_NOTREGISTERED(std::string("GUEST")));
 };
 
 void
@@ -164,5 +164,5 @@ Server::quitCommand(const std::vector<std::string> &fields, Client &client)
         }
     }
     else
-        replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));
+        replyTo(client.getSocket(), ERR_NOTREGISTERED(std::string("GUEST")));
 };
