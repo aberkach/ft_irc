@@ -18,56 +18,6 @@
 
 // TARGMAX Parameter in rfc execute just targmax and ignore reset
 
-
-// invite command
-void Server::inviteCommand(const std::vector<std::string> &fields, Client &client) {
-    if (fields.size() < 2) {
-        replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "INVITE"));
-        return;
-    }
-    if (client.getRegistered()) {
-        std::string invitedUser = fields[0];
-        std::string chnName = fields[1];
-        chnMapIt chnIt = _channels.find(chnName);
-        if (chnIt->second.isOperator(client.getNickname()) == false)
-        {
-            replyTo(client.getSocket(), ERR_CHANOPRIVSNEEDED(client.getNickname(), chnName));
-            return;
-        }
-        if (chnIt == _channels.end())
-        {
-            std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
-            replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(clientHost, chnName));
-            return;
-        }
-        if (chnIt->second.isClientExist(client.getNickname()))
-        {
-            // here we send a message to the client that has been invited
-            std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
-            replyTo(client.getSocket(), RPL_INVITING(client.getNickname(), invitedUser, chnName));
-
-            if (isClientInServer(invitedUser))
-            {
-                std::string inviteMessage = RPL_INVITED(client.getNickname(), client.getUsername(), clientHost, invitedUser, chnName);
-                for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
-                {
-                    if (it->second.getNickname() == invitedUser)
-                    {
-                        chnIt->second.addInvite(it->second);
-                        replyTo(it->second.getSocket(), inviteMessage);
-                    }
-                }
-            }
-            else
-                replyTo(client.getSocket(), ERR_NOSUCHNICK(client.getNickname(), invitedUser));
-        }
-        else
-            replyTo(client.getSocket(), ERR_NOTONCHANNEL(client.getNickname(), chnName));
-    }
-    else
-        replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));
-}
-
 void
 Server::topicCommand (const std::vector<std::string> &fields, Client &client) {
     if (client.getRegistered() == true) {
@@ -177,6 +127,54 @@ void Server::kickCommand (const std::vector<std::string> &fields, Client &client
         }
         else
             replyTo(client.getSocket(), ERR_CHANOPRIVSNEEDED(client.getNickname(), chnName));
+    }
+    else
+        replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));
+}
+
+void Server::inviteCommand(const std::vector<std::string> &fields, Client &client) {
+    if (fields.size() < 2) {
+        replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "INVITE"));
+        return;
+    }
+    if (client.getRegistered()) {
+        std::string invitedUser = fields[0];
+        std::string chnName = fields[1];
+        chnMapIt chnIt = _channels.find(chnName);
+        if (chnIt->second.isOperator(client.getNickname()) == false)
+        {
+            replyTo(client.getSocket(), ERR_CHANOPRIVSNEEDED(client.getNickname(), chnName));
+            return;
+        }
+        if (chnIt == _channels.end())
+        {
+            std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
+            replyTo(client.getSocket(), ERR_NOSUCHCHANNEL(clientHost, chnName));
+            return;
+        }
+        if (chnIt->second.isClientExist(client.getNickname()))
+        {
+            // here we send a message to the client that has been invited
+            std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
+            replyTo(client.getSocket(), RPL_INVITING(client.getNickname(), invitedUser, chnName));
+
+            if (isClientInServer(invitedUser))
+            {
+                std::string inviteMessage = RPL_INVITED(client.getNickname(), client.getUsername(), clientHost, invitedUser, chnName);
+                for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
+                {
+                    if (it->second.getNickname() == invitedUser)
+                    {
+                        chnIt->second.addInvite(it->second);
+                        replyTo(it->second.getSocket(), inviteMessage);
+                    }
+                }
+            }
+            else
+                replyTo(client.getSocket(), ERR_NOSUCHNICK(client.getNickname(), invitedUser));
+        }
+        else
+            replyTo(client.getSocket(), ERR_NOTONCHANNEL(client.getNickname(), chnName));
     }
     else
         replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));

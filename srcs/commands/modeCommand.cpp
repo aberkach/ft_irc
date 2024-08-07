@@ -111,49 +111,62 @@ Server::modeCommand(const std::vector<std::string> &fields, Client &client)
 					if (it->second.isOperator(client.getNickname()))
 					{
 						std::string modestr = extractModeString(fields[1], client);
-						// std::cout << RED << modestr << RESET << std::endl;
 
 						size_t arg = 2;
-
+						char sign = '\0';
+						std::string	appliedModes;
 						std::vector<std::string> appliedFields;
-						std::string	appliedModes;  // applied modes msg
-
+						
 						for (size_t i = 0; i < modestr.size(); i += 2)
 						{
 							bool set = (modestr[i] == '+');
+							if (sign != modestr[i])
+							{
+								sign = modestr[i];
+								appliedModes += sign;
+							}
 
 							switch (modestr[i + 1])
 							{
 								case 'i':
+									appliedModes += "i";
 									it->second.setIsInviteOnly(set);
 									break;
 								case 't':
+									appliedModes += "t";
 									it->second.setTopicFlag(set);
 									break;
 								case 'k':
 									if (set && arg < fields.size())
 									{
 										it->second.setKey(fields[arg]);
+										appliedModes += "k";
 										appliedFields.push_back(fields[arg]);
 										arg++;
 									}
 									else if (!set)
 										it->second.setKey("");
+									// else
+									// 	replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "+k"));
 									break;
 								case 'o':
-									if (arg < fields.size()) {
+									if (arg < fields.size())
+									{
 										if (it->second.isClientExist(fields[arg]))
 										{
 											if (set)
 												it->second.addOperator(it->second.getUser(fields[arg]));
 											else
 												it->second.removeOperator(it->second.getUser(fields[arg]));
+											appliedModes += "o";
 											appliedFields.push_back(fields[arg]);
 										}
 										else
 											replyTo(client.getSocket(), ERR_USERNOTINCHANNEL(client.getNickname(), fields[arg], it->first));
 										arg++;
 									}
+									// else
+										// replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "+o"));
 									break;
 								case 'l':
 									if (set && arg < fields.size())
@@ -162,18 +175,23 @@ Server::modeCommand(const std::vector<std::string> &fields, Client &client)
 										if (maxUsers > 0 && fields.size() <= 10 && maxUsers <= std::numeric_limits<int>::max())
 										{
 											it->second.setMaxUsers(maxUsers);
+											appliedModes += "l";
 											appliedFields.push_back(fields[arg]);
 										}
 										arg++;
 									}
-									else if (!set)
+									else if (!set) {
+										appliedModes += "l";
 										it->second.setMaxUsers(0);
+									}
+									else
+										replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "+l"));
 									break;
 								default:
 									break;
 							}
 						}
-
+						// it->second.broadCast(MODE_SET() , -1)
 					}
 					else
 						replyTo(client.getSocket(), ERR_CHANOPRIVSNEEDED(client.getNickname(), fields[0]));
@@ -185,4 +203,5 @@ Server::modeCommand(const std::vector<std::string> &fields, Client &client)
 	}
 	else
         replyTo(client.getSocket(), ERR_NOTREGISTERED(std::string("GUEST")));
+
 };
