@@ -20,7 +20,7 @@
 #include <vector>
 
 void
-Server::pingCommad (const std::vector<std::string> &fields, Client &client)
+Server::pingCommad(const std::vector<std::string> &fields, Client &client)
 {
     size_t size = fields.size();
     if (size >= 1 && fields[0] == SERVERNAME)
@@ -32,7 +32,7 @@ Server::pingCommad (const std::vector<std::string> &fields, Client &client)
 };
 
 void
-Server::pongCommad (const std::vector<std::string> &fields, Client &client)
+Server::pongCommad(const std::vector<std::string> &fields, Client &client)
 {
     if (client.getRegistered() == false || fields.size() >= 1)
         return ;
@@ -60,7 +60,7 @@ Server::namesCommad(const std::vector<std::string> &fields, Client &client)
 };
 
 void
-Server::listCommand (const std::vector<std::string> &fields, Client &client)
+Server::listCommand(const std::vector<std::string> &fields, Client &client)
 {
     if (client.getRegistered() == false)
         replyTo(client.getSocket(), ERR_NOTREGISTERED(std::string("GUEST")));
