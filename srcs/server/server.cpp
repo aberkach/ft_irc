@@ -84,7 +84,7 @@ Server::Server(uint16_t port, char *password) : _countCli(0), _port(port), _pass
 	_commands["LIST"] = &Server::listCommand; // working full
 	_commands["PART"] = &Server::partCommand; // working full
 
-	_commands["MODE"] = &Server::modeCommand;
+	_commands["MODE"] = &Server::modeCommand; // working fully
 	_commands["KICK"] = &Server::kickCommand;
 	_commands["NICK"] = &Server::nickCommand;
 	_commands["INVITE"] = &Server::inviteCommand;
