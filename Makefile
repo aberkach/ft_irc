@@ -1,30 +1,33 @@
 ################################### IRC ###################################
 
 EXE := ircserv
+
 BEXE := ircbot
 
-CPP := c++
+CPP := c++ 
+# -std=c++98
 
-CPPFLAGS := -Wall -Wextra -Wshadow -fsanitize=address -g
+CPPFLAGS := -Wall -Wextra -Wshadow -g -fsanitize=address
 # -Werror
 
 ################################### SRCS ###################################
-# HEADER := ./srcs/server/server.hpp		 ./srcs/server/client.hpp					  ./srcs/tools/health.hpp			     \
-		#   ./Inc/ft_irc.hpp				 ./Inc/define.hpp							  ./srcs/channel/channel.hpp
-FILES := ./srcs/client/client.cpp		 ./srcs/server/server.cpp 					  ./srcs/server/utils.cpp				 \
-		./srcs/channel/channel.cpp		 ./srcs/commands/additionalCommands.cpp		  ./srcs/commands/channelOpsCommands.cpp \
-		./srcs/commands/joinCommand.cpp	 ./srcs/commands/authenticationCommands.cpp	  ./srcs/commands/modeCommand.cpp 		 \
-		./srcs/tools/health.cpp			 ./srcs/main.cpp 
+HEADER := ./Mandatory/src/server/server.hpp		 ./Mandatory/src/client/client.hpp			     \
+		  ./Mandatory/Inc/irc.hpp				 ./Mandatory/Inc/define.hpp							  ./Mandatory/src/channel/channel.hpp
 
-# BHEADER := ./bonus/include/defines.hpp 	./bonus/Inc/ircBot.hpp 	 ./bonus/bot/bot.hpp 
-BFILES :=  ./bonus/bot/bot.cpp 		./bonus/bot/commands.cpp ./bonus/bot/tools.cpp ./bonus/main.cpp
+FILES := ./Mandatory/src/client/client.cpp		 ./Mandatory/src/server/server.cpp 					  ./Mandatory/src/server/utils.cpp				 \
+		 ./Mandatory/src/channel/channel.cpp		 ./Mandatory/src/commands/additionalCommands.cpp		  ./Mandatory/src/commands/channelOpsCommands.cpp \
+		 ./Mandatory/src/commands/joinCommand.cpp	 ./Mandatory/src/commands/authenticationCommands.cpp	  ./Mandatory/src/commands/modeCommand.cpp 		 \
+		 ./Mandatory/src/tools/parse.cpp			 ./Mandatory/src/tools/utils.cpp						  ./Mandatory/main.cpp
+
+BHEADER := ./Bonus/Inc/defines.hpp 	./Bonus/Inc/ircBot.hpp 	 ./Bonus/src/bot.hpp
+
+BFILES :=  ./Bonus/src/bot.cpp 		./Bonus/src/commands.cpp ./Bonus/src/tools.cpp		./Bonus/main.cpp
 
 #############################################################################
 
 OBJ := $(FILES:.cpp=.o)
 
 BOBJ := $(BFILES:.cpp=.o)
-
 
 M = MAKE_PUSH
 
