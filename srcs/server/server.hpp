@@ -22,10 +22,10 @@
 #include <sstream>
 #include <arpa/inet.h>
 
-typedef std::map<std::string, Channel>::iterator chnMapIt;
 
 class Server {  
   private:
+        typedef std::map<std::string, Channel>::iterator channelit;
         typedef std::map<int, Client>::iterator clientIt;
         typedef void (Server::*CommandHandler)(const std::vector<std::string>&, Client&);
 
@@ -44,7 +44,8 @@ class Server {
       private:
         Server(void);
         std::string extractModeString(const std::string &modeField, Client &client);
-        // void  executeModes(const std::vector<std::string> &fields, Client &Client, chnMapIt it, char *mode);
+        void  modeSetReply(Client& clinet, Channel &channel, std::string& modes, const std::vector<std::string> &fields);
+        void  executeModes(const std::vector<std::string> &fields, Client &client, channelit it);
         void  displayChannelMode(const Channel &channel, const Client &client);
         void  passCommand(const std::vector<std::string> &fields, Client &client);
         void  nickCommand(const std::vector<std::string> &fields, Client &client);
@@ -55,7 +56,7 @@ class Server {
         void  joinCommand(const std::vector<std::string> &fields, Client &client);
         bool  createChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client);
         void  processTheJoinArgs(const std::vector<std::string> &channels , std::vector<std::string> &keys, Client &client);
-        bool  joinExistChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client, const chnMapIt &chnIt);
+        bool  joinExistChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client, const channelit &chnIt);
         void  privmsgCommand(const std::vector<std::string> &fields, Client &user);
         // operators methods :
         void kickCommand(const std::vector<std::string> &fields, Client &client);

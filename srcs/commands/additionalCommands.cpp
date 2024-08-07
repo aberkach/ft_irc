@@ -49,7 +49,7 @@ Server::namesCommad (const std::vector<std::string> &fields, Client &client)
         std::vector<std::string> names = splitByDelim(fields[0], ',');
         for (std::vector<std::string>::iterator it = names.begin(); it != names.end(); ++it)
         {
-            chnMapIt chan = _channels.find(*it);
+            channelit chan = _channels.find(*it);
             if (chan != _channels.end())
                 replyTo(client.getSocket(), RPL_NAMREPLY((chan->second.isClientExist(client.getNickname())) ? chan->second.getChannelUsersInString() : "" ,*it ,client.getNickname()));
             replyTo(client.getSocket(), RPL_ENDOFNAMES(client.getNickname(), *it));
@@ -72,7 +72,7 @@ Server::listCommand (const std::vector<std::string> &fields, Client &client)
             std::vector<std::string> chnName = splitByDelim(fields[0], ',');
             for (size_t i = 0; i < chnName.size(); i++)
             {
-                chnMapIt chnIt = _channels.find(chnName[i]);
+                channelit chnIt = _channels.find(chnName[i]);
                 if (chnIt != _channels.end())
                 {
                     const std::string &topic = chnIt->second.getTopic();
@@ -81,7 +81,7 @@ Server::listCommand (const std::vector<std::string> &fields, Client &client)
                 }
             }
         } else {
-            for (chnMapIt it = _channels.begin(); it != _channels.end(); ++it)
+            for (channelit it = _channels.begin(); it != _channels.end(); ++it)
             {
                 const std::string &topic = it->second.getTopic();
                 replyTo(client.getSocket(), LIST_MSG(client.getNickname(), it->first,
@@ -104,7 +104,7 @@ Server::partCommand (const std::vector<std::string> &fields, Client &client)
             for (size_t i = 0; i < channels.size(); i++)
             {
                 const std::string &chnName = channels[i];
-                chnMapIt chnIt = _channels.find(chnName);
+                channelit chnIt = _channels.find(chnName);
 
                 if (chnName.empty())
                     continue;
@@ -143,7 +143,7 @@ Server::quitCommand(const std::vector<std::string> &fields, Client &client)
                     QUIT_MSG(client.getNickname(), client.getUsername(), clientHost, fields[0]);
 
         replyTo(client.getSocket(), quitMessage);
-        for (chnMapIt it = _channels.begin(); it != _channels.end(); it++)
+        for (channelit it = _channels.begin(); it != _channels.end(); it++)
         {
             if (it->second.isClientExist(client.getNickname()))
             {
