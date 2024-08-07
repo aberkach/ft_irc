@@ -12,9 +12,6 @@
 
 #include "../../Inc/irc.hpp"
 
-void replyTo(int socket, const std::string &buffer); // FORWARD DEC WILL CHANGE LATTER
-
-
 Channel::Channel(const std::string &name) : _name(name), _topic(""), _isInviteOnly(false), _topicFlag(true), _key(""),  _maxUsers(0)
 {
 }
