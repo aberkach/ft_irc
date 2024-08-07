@@ -46,7 +46,8 @@ trimTheSpaces(const std::string &str)
     return str.substr(first, last - first + 1);
 };
 
-std::string stringUpper(const std::string &_str)
+std::string
+stringUpper(const std::string &_str)
 {
 	std::string upper(_str);
 
@@ -55,10 +56,11 @@ std::string stringUpper(const std::string &_str)
 	}
 
 	return(upper);
-}
+};
 
 
-std::vector<std::string> splitBySpace(const std::string &str)
+std::vector<std::string>
+splitBySpace(const std::string &str)
 {
     std::string part;
     std::vector<std::string> parts;

@@ -88,11 +88,10 @@ class Server
 };
 
 void Err(const std::string &msg);
+std::string stringUpper(const std::string &_str);
 std::string trimTheSpaces(const std::string& str);
 std::vector<std::string> splitBySpace(const std::string &str);
 std::vector<std::string> splitByDelim(const std::string &str, char delim);
-std::string stringUpper(const std::string &_str);
-void display_channel_mode(const Channel &channel, const Client &client);
 
 inline void replyTo(int socket, const std::string &buffer) {
   send(socket, buffer.c_str(), buffer.size(), 0); // protect
