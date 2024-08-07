@@ -155,7 +155,6 @@ Server::quitCommand(const std::vector<std::string> &fields, Client &client)
             }
         }
         clientIt it = _clients.find(client.getSocket());
-        // remove the client from the clients map
         if (it != _clients.end())
         {
             close(it->first);
