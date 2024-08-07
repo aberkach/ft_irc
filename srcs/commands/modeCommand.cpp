@@ -93,40 +93,45 @@ Server::extractModeString(const std::string &modeField, Client &client)
     return modesString;
 };
 
+static void
+checksign(char &appliedSign, char sign, std::string& appliedModes, char mode)
+{
+	if (appliedSign != sign)
+	{
+		appliedSign = sign;
+		appliedModes += appliedSign;
+	}
+	appliedModes += mode;
+};
+
 void
 Server::executeModes(const std::vector<std::string> &fields, Client &client, channelit it)
 {
-	std::string modestr = extractModeString(fields[1], client);
-
 	size_t arg = 2;
 	char sign = '\0';
 	std::string	appliedModes;
 	std::vector<std::string> appliedFields;
+	std::string modestr = extractModeString(fields[1], client);
 	
 	for (size_t i = 0; i < modestr.size(); i += 2)
 	{
 		bool set = (modestr[i] == '+');
-		if (sign != modestr[i])
-		{
-			sign = modestr[i];
-			appliedModes += sign;
-		}
 
 		switch (modestr[i + 1])
 		{
 			case 'i':
-				appliedModes += "i";
+				checksign(sign, modestr[i], appliedModes, 'i');
 				it->second.setIsInviteOnly(set);
 				break;
 			case 't':
-				appliedModes += "t";
+				checksign(sign, modestr[i], appliedModes, 't');
 				it->second.setTopicFlag(set);
 				break;
 			case 'k':
 				if (set && arg < fields.size())
 				{
 					it->second.setKey(fields[arg]);
-					appliedModes += "k";
+					checksign(sign, modestr[i], appliedModes, 'k');
 					appliedFields.push_back(fields[arg]);
 					arg++;
 				}
@@ -144,7 +149,7 @@ Server::executeModes(const std::vector<std::string> &fields, Client &client, cha
 							it->second.addOperator(it->second.getUser(fields[arg]));
 						else
 							it->second.removeOperator(it->second.getUser(fields[arg]));
-						appliedModes += "o";
+						checksign(sign, modestr[i], appliedModes, 'o');
 						appliedFields.push_back(fields[arg]);
 					}
 					else
@@ -161,13 +166,13 @@ Server::executeModes(const std::vector<std::string> &fields, Client &client, cha
 					if (maxUsers > 0 && fields.size() <= 10 && maxUsers <= std::numeric_limits<int>::max())
 					{
 						it->second.setMaxUsers(maxUsers);
-						appliedModes += "l";
+						checksign(sign, modestr[i], appliedModes, 'l');
 						appliedFields.push_back(fields[arg]);
 					}
 					arg++;
 				}
 				else if (!set) {
-					appliedModes += "l";
+					checksign(sign, modestr[i], appliedModes, 'l');
 					it->second.setMaxUsers(0);
 				}
 				else
@@ -176,6 +181,7 @@ Server::executeModes(const std::vector<std::string> &fields, Client &client, cha
 			default:
 				break;
 		}
+
 	}
 	modeSetReply(client, it->second, appliedModes, appliedFields);
 };

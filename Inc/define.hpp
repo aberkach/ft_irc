@@ -117,7 +117,7 @@
 #define ERR_INVITEONLYCHAN(client, channel)                           ":" SERVERNAME " 473 " + (client) + " " + (channel) + ":Cannot join channel (+i)\r\n"
 #define ERR_UNKNOWNMODE(client, charac)                               ":" SERVERNAME " 472 " + (client) + " " + (charac) + " :is unknown mode char to me\r\n"
 #define RPL_YOUREOPER(client)                                         ":" SERVERNAME " 381 " + (client) + " :You are now an IRC operator\r\n"
-#define MODE_SET(nick, username, host, channel, modes)                ":" + (nick) + "!" + (username) + "@" + (host) + " " + (channel) + " MODE " + " " + (modes) + "\r\n"
+#define MODE_SET(nick, username, host, channel, modes)                ":" + (nick) + "!" + (username) + "@" + (host) + " " + (channel) + " MODE " + (modes) + "\r\n"
 // key responses
 #define ERR_INVALIDKEY (client, channel)                              ":" SERVERNAME " 525 " + (client) + " " + (channel) + " :Key is not well-formed\r\n"
 //operator responses
