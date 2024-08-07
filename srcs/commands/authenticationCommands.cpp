@@ -106,7 +106,7 @@ Server::privmsgCommand(const std::vector<std::string> &fields, Client &client)
 				const std::string &target = *split;
 				if (target[0] == '#')
 				{
-					chnMapIt it = _channels.find(target);
+					channelit it = _channels.find(target);
 					if (it != _channels.end())
 						it->second.broadCast(PRIVMSG(client.getNickname(), client.getUsername(), inet_ntoa(client._addr.sin_addr), target, fields[1]), client.getSocket());
 					else

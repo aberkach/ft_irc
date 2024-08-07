@@ -18,7 +18,7 @@
 #include <string>
 #include <vector>
 
-bool Server::joinExistChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client, const chnMapIt &chnIt) {
+bool Server::joinExistChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client, const channelit &chnIt) {
     // if the channel already exist, check if the client is already in the channel
     if (chnIt != _channels.end())
     {
@@ -108,7 +108,7 @@ bool Server::joinExistChannel(const std::string &chnName, std::vector<std::strin
 bool Server::createChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client) {
     // create a new channel
     _channels.insert(std::pair<std::string, Channel>(chnName, Channel(chnName)));
-    chnMapIt chnIt = _channels.find(chnName);
+    channelit chnIt = _channels.find(chnName);
     chnIt->second.setMaxUsers(0);
     // check if the channel has a key
     if (keys.size() > 0)
@@ -151,7 +151,7 @@ void Server::processTheJoinArgs(const std::vector<std::string> &channels , std::
         else
         {
             // check if the channel already exist
-            chnMapIt chnIt = _channels.find(chnName);
+            channelit chnIt = _channels.find(chnName);
             
             // create the channel
             if (chnIt == _channels.end())

@@ -116,7 +116,7 @@ void Server::cleanUp()
 
 size_t Server::countUsersInChannel(const std::string &chnName)
 {
-	chnMapIt it = _channels.find(chnName);
+	channelit it = _channels.find(chnName);
 	if (it == _channels.end())
 		return 0;
 	return it->second.getUsers().size();

@@ -21,7 +21,7 @@
 void
 Server::topicCommand (const std::vector<std::string> &fields, Client &client) {
     if (client.getRegistered() == true) {
-        chnMapIt it;
+        channelit it;
         std::string clientHost;
         int size = fields.size();
 
@@ -81,7 +81,7 @@ void Server::kickCommand (const std::vector<std::string> &fields, Client &client
 
         const std::string &chnName = fields[0];
         std::vector<std::string> usersBeKicked = splitByDelim(fields[1], ',');
-        chnMapIt joinedChnIt = _channels.find(chnName);
+        channelit joinedChnIt = _channels.find(chnName);
         
         if (joinedChnIt == _channels.end())
         {
@@ -140,7 +140,7 @@ void Server::inviteCommand(const std::vector<std::string> &fields, Client &clien
     if (client.getRegistered()) {
         std::string invitedUser = fields[0];
         std::string chnName = fields[1];
-        chnMapIt chnIt = _channels.find(chnName);
+        channelit chnIt = _channels.find(chnName);
         if (chnIt->second.isOperator(client.getNickname()) == false)
         {
             replyTo(client.getSocket(), ERR_CHANOPRIVSNEEDED(client.getNickname(), chnName));
