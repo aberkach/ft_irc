@@ -61,7 +61,7 @@ Server::displayChannelMode(const Channel &channel, const Client &client)
 
 	// show the channel modes 324 + 329 
 	replyTo(client.getSocket(), RPL_CHANNELMODEIS(client.getNickname(), channel.getName(), (params + applied)));
-	// replyTo(client.getSocket(), RPL_CHANNELMODEIS(client.getNickname(), channel.getName(), (params + applied)));
+	// replyTo(client.getSocket(), RPL_CREATIONTIME(client.getNickname(), channel.getName(), (params + applied)));
 };
 
 std::string
@@ -157,7 +157,7 @@ Server::executeModes(const std::vector<std::string> &fields, Client &client, cha
 					arg++;
 				}
 				// else
-					// replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "+o"));
+				// 	replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "+o"));
 				break;
 			case 'l':
 				if (set && arg < fields.size())
