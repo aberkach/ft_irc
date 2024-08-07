@@ -22,10 +22,9 @@ int main(int ac, char **av)
         try {
             Server srv(port, av[2]);
             srv.createServer();
-        } 
+        }
         catch (std::exception &e) {
             std::cerr << e.what() << std::endl;
-            srv.cleanUp();
         }
     }
     return(port);

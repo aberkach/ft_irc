@@ -260,5 +260,6 @@ Server::handleIncomeData(int i)
 }
 
 Server::~Server(void) {
+	cleanUp();
 	close(_listen_sd);
 }
