@@ -116,7 +116,6 @@ Server::privmsgCommand(const std::vector<std::string> &fields, Client &client)
 				{
 					for (clientIt it = _clients.begin() ; it != _clients.end(); ++it)
 					{
-						// std::cout << it->second.getNickname() << " = " << target << std::endl;
 						if (stringUpper(it->second.getNickname()) == stringUpper(target))
 							return (replyTo(it->second.getSocket(), PRIVMSG(client.getNickname(), client.getUsername(), inet_ntoa(client.getAddr().sin_addr), it->second.getNickname(), fields[1])));
 					}

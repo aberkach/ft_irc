@@ -16,8 +16,6 @@
 #include "../client/client.hpp"
 #include "../channel/channel.hpp"
 
-// TARGMAX Parameter in rfc execute just targmax and ignore reset
-
 void
 Server::topicCommand (const std::vector<std::string> &fields, Client &client) {
     if (client.getRegistered() == true) {

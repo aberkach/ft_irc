@@ -38,38 +38,35 @@ class Channel
     public:
         Channel(const std::string &name);
 
-        std::string getName() const;
-        std::string getTopic() const;
-        std::string getKey() const;
-        bool getIsInviteOnly() const;
-        size_t getMaxUsers() const;
-        std::string getChannelModes();
+        bool                           getIsInviteOnly() const;
+        bool                           getTopicFlag() const;
+        size_t                         getMaxUsers() const;
+	    Client&                        getUser(const std::string &nickName);
+        std::string                    getTopic() const;
+        std::string                    getKey() const;
+        std::string                    getName() const;
+        std::string                    getChannelModes();
+        std::string                    getChannelUsersInString();
+        std::map<std::string, Client>& getUsers();
 
-	    Client &getUser(const std::string &nickName);
-        std::map<std::string, Client> &getUsers();
-        std::string getChannelUsersInString();
-        bool getTopicFlag() const;
+        void                           setName(const std::string &name);
+        void                           setTopic(const std::string &topic);
+        void                           setKey(const std::string &key);
+        void                           setIsInviteOnly(bool isInviteOnly);
+        void                           setMaxUsers(size_t maxUsers);
+        void                           setTopicFlag(bool topicFlag);
 
-        void setName(const std::string &name);
-        void setTopic(const std::string &topic);
-        void setKey(const std::string &key);
-        void setIsInviteOnly(bool isInviteOnly);
-        void setMaxUsers(size_t maxUsers);
-        void setTopicFlag(bool topicFlag);
-
-        void addUser(Client &user);
-	    void removeUser(Client &client);
-        bool isClientExist(const std::string &nickName);
-	    void addOperator(const Client &op);
-        void removeOperator(const Client &op);
-	    bool isOperator(const std::string &nickName);
-        std::vector<Client> getOperator();
-
-        void addInvite(const Client &invited);
-        bool isInvited(const Client &invited);
-        void removeInvite(const Client &invited);
-
-        void broadCast(const std::string &msg, int excludedFd);
+        void                           addUser(Client &user);
+	    void                           removeUser(Client &client);
+        bool                           isClientExist(const std::string &nickName);
+	    void                           addOperator(const Client &op);
+        void                           removeOperator(const Client &op);
+	    bool                           isOperator(const std::string &nickName);
+        std::vector<Client>            getOperator();
+        void                           addInvite(const Client &invited);
+        bool                           isInvited(const Client &invited);
+        void                           removeInvite(const Client &invited);
+        void                           broadCast(const std::string &msg, int excludedFd);
 
         ~Channel();
 };

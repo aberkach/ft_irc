@@ -57,7 +57,6 @@ Server::displayChannelMode(const Channel &channel, const Client &client)
 		applied += channel.getKey();
 	}
 
-	// show the channel modes 324 + 329 
 	replyTo(client.getSocket(), RPL_CHANNELMODEIS(client.getNickname(), channel.getName(), (params + applied)));
 	// replyTo(client.getSocket(), RPL_CREATIONTIME(client.getNickname(), channel.getName(), (params + applied)));
 };

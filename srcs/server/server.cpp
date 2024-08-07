@@ -78,19 +78,19 @@ Server::Server(uint16_t port, char *password) : _countCli(0), _port(port), _pass
 	_commands["PING"] = &Server::pingCommad; // working full
 	_commands["PONG"] = &Server::pongCommad; // working full
 	_commands["NAMES"] = &Server::namesCommad; // working full
-	_commands["PRIVMSG"] = &Server::privmsgCommand; // working full
 	_commands["TOPIC"] = &Server::topicCommand; // working full
 	_commands["QUIT"] = &Server::quitCommand; // working full
 	_commands["LIST"] = &Server::listCommand; // working full
 	_commands["PART"] = &Server::partCommand; // working full
-
 	_commands["MODE"] = &Server::modeCommand; // working fully
-	_commands["KICK"] = &Server::kickCommand;
+	_commands["PRIVMSG"] = &Server::privmsgCommand; // working fully
+
 	_commands["NICK"] = &Server::nickCommand;
-	_commands["INVITE"] = &Server::inviteCommand;
 	_commands["JOIN"] = &Server::joinCommand;
-	// nick changes might couse a prob
-	// need to make all channel related args lowercase
+	_commands["KICK"] = &Server::kickCommand;
+	_commands["INVITE"] = &Server::inviteCommand;
+	// nick changes might couse a prob need to stay updated at all time
+	// need to make all channel compare
 }
 
 // create the server and handle the incoming connections and data

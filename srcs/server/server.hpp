@@ -54,7 +54,7 @@ class Server
         size_t                    countUsersInChannel(const std::string &chnName);
         std::string               extractModeString(const std::string &modeField, Client &client);
         std::vector<std::string>  getBuffers(const std::string &buffer);
-        
+
         void                      passCommand(const std::vector<std::string> &fields, Client &client);
         void                      nickCommand(const std::vector<std::string> &fields, Client &client);
         void                      userCommand(const std::vector<std::string> &fields, Client &client);
@@ -74,15 +74,15 @@ class Server
   public:
         Server(uint16_t port, char *password);
 
-		    static void  sigHandler(int sigNumber);
-        unsigned int getPort() const { return _port; }
-        std::string  getPassword() const { return _password; }
+		    static void   sigHandler(int sigNumber);
+        unsigned int  getPort() const { return _port; }
+        std::string   getPassword() const { return _password; }
 
-        void  createServer();
-        void  handlIncomeConnections();
-        void  handleIncomeData(int i);
-        void  commandRunner(std::vector<std::string> &fields, Client &cling);
-		    void  cleanUp();
+        void          createServer();
+        void          handlIncomeConnections();
+        void          handleIncomeData(int i);
+        void          commandRunner(std::vector<std::string> &fields, Client &cling);
+		    void          cleanUp();
 
         ~Server();
 };
@@ -93,6 +93,7 @@ std::vector<std::string> splitBySpace(const std::string &str);
 std::vector<std::string> splitByDelim(const std::string &str, char delim);
 std::string stringUpper(const std::string &_str);
 void display_channel_mode(const Channel &channel, const Client &client);
+
 inline void replyTo(int socket, const std::string &buffer) {
   send(socket, buffer.c_str(), buffer.size(), 0); // protect
 }

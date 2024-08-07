@@ -14,6 +14,9 @@
 #include <string>
 #include "../client/client.hpp"
 
+void replyTo(int socket, const std::string &buffer); // FORWARD DEC WILL CHANGE LATTER
+
+
 Channel::Channel(const std::string &name) : _name(name), _topic(""), _isInviteOnly(false), _topicFlag(true), _key(""),  _maxUsers(0)
 {
 }
@@ -229,13 +232,12 @@ void Channel::removeInvite(const Client &invited)
     }
 }
 
-void replyTo(int socket, const std::string &buffer); // FORWARD DEC WILL CHANGE LATTER
-
-void Channel::broadCast(const std::string &msg, int excludedFd)
+void
+Channel::broadCast(const std::string &msg, int excludedFd)
 {
     for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); ++it)
     {
         if (it->second.getSocket() != excludedFd)
             replyTo(it->second.getSocket(), msg);
     }
-}
+};

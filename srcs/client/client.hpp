@@ -22,25 +22,25 @@ class Client
     public:
         Client(void);
         Client(int socket, struct sockaddr_in &addr);
-        // Client(const Client& user);
+        Client(const Client& user);
 
-        void setSocket(int socket);
-        void setValidPass(bool status);
-        void setRegistered(bool status);
-        bool setNickname(const std::string& nickName);
-        bool setUsername(const std::string& userName);
-        bool setRealname(const std::string& realName);
-        void setChannel(std::string &chnName, Channel &channel);
+        void          setSocket(int socket);
+        void          setValidPass(bool status);
+        void          setRegistered(bool status);
+        void          setChannel(std::string &chnName, Channel &channel);
+        bool          setNickname(const std::string& nickName);
+        bool          setUsername(const std::string& userName);
+        bool          setRealname(const std::string& realName);
 
-        std::string getNickname(void) const ;
-        std::string getUsername(void) const ;
-        std::string getRealname(void) const ;
-        bool getRegistered(void) const;
-        bool getValidPass(void) const ;
-        int  getSocket(void) const;
-        sockaddr_in getAddr(void) const;
+        int           getSocket(void) const;
+        bool          getRegistered(void) const;
+        bool          getValidPass(void) const ;
+        std::string   getNickname(void) const ;
+        std::string   getUsername(void) const ;
+        std::string   getRealname(void) const ;
+        sockaddr_in   getAddr(void) const;
         
-        void refStatus(uint countCli);
+        void          refStatus(uint countCli);
 
         ~Client(void);
 };

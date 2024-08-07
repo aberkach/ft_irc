@@ -4,10 +4,14 @@
 #include <stdlib.h>
 #include "../channel/channel.hpp"
 
+
+
+
+
+
 #define NICKLEN 10 // maybe warn about these ?
 #define USERLEN 9
 #define REALLEN 32
-
 
 /// TOOLS
 inline void replyTo(int socket, const std::string &buffer)
@@ -23,9 +27,13 @@ std::string getTime()
 }
 ///TOOLS
 
+
+
+
+
+
 /// @brief
 /// #### constructors ####
-
 Client::Client(void): _socket(-1) , _registered(false) , _validPass(false) , 
     _nickName(""), _userName(""), _realName("")
 {
@@ -40,16 +48,15 @@ Client::Client(int socket, struct sockaddr_in &addr) : _socket(socket) , _regist
     memmove(&_addr, &addr, sizeof(_addr));
 };
 
-// Client::Client(const Client& user) : _socket(user._socket) , _registered(user._registered) , _validPass(user._validPass) , 
-//     _nickName(user._nickName), _userName(user._userName), _realName(user._realName)
-// {
-//     memset(&_addr, 0, sizeof(_addr));
-//     memmove(&_addr, &user._addr, sizeof(_addr));
-// };
+Client::Client(const Client& user) : _socket(user._socket) , _registered(user._registered) , _validPass(user._validPass) , 
+    _nickName(user._nickName), _userName(user._userName), _realName(user._realName)
+{
+    memset(&_addr, 0, sizeof(_addr));
+    memmove(&_addr, &user._addr, sizeof(_addr));
+};
 
 /// @brief
 /// #### setters ####
-
 void
 Client::setSocket(int socket)
 {
@@ -103,7 +110,6 @@ Client::setRealname(const std::string& realName)
 
 /// @brief
 /// #### getters ####
-
 bool 
 Client::getRegistered(void) const
 {
@@ -146,7 +152,8 @@ sockaddr_in Client::getAddr(void) const
     return _addr;
 };
 
-
+/// @brief
+/// #### methods ####
 void 
 Client::refStatus(uint countCli)
 {
@@ -169,5 +176,7 @@ Client::refStatus(uint countCli)
     }
 };
 
+/// @brief
+/// #### destructors ####
 Client::~Client(void)
 {};
