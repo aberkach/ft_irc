@@ -39,7 +39,7 @@ valid_passord(char *password)
     }
     if (i < 12 || i > 21)
     {
-        std::cerr << RED "Error: " RESET "Password need to be between 12 and 21 characters long." << i << std::endl; 
+        std::cerr << RED "Error: " RESET "Password need to be between 12 and 21 characters long." << std::endl; 
         return false;
     }
     return true;

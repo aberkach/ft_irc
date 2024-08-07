@@ -84,7 +84,7 @@ Bot::logger(const std::string &message) const
         close(this->irc_sock);
         throw (std::invalid_argument(message));
     } else if __NONFATAL(output[0]) {
-        output[0] == "PONG " + output[1];
+        output[0] = "PONG " + output[1];
         sendit(this->irc_sock, output[0]);
     }
     else
