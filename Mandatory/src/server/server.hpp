@@ -43,17 +43,22 @@ class Server
     private:
         Server(void);
 
+        void                      handlIncomeConnections(void);
+        void                      handleIncomeData(int i);
         void                      displayChannelMode(const Channel &channel, const Client &client);
-        bool                      createChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client);
         void                      processTheJoinArgs(const std::vector<std::string> &channels , std::vector<std::string> &keys, Client &client);
         void                      modeSetReply(Client& clinet, Channel &channel, std::string& modes, const std::vector<std::string> &fields);
         void                      executeModes(const std::vector<std::string> &fields, Client &client, channelit it);
+		void                      cleanUp(void);
+		static void               sigHandler(int sigNumber);
+        bool                      createChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client);
         bool                      isClientInServer(const std::string &nickName);
         bool                      joinExistChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client, const channelit &chnIt);
         size_t                    countUsersInChannel(const std::string &chnName);
         std::string               extractModeString(const std::string &modeField, Client &client);
         std::vector<std::string>  getBuffers(const std::string &buffer);
 
+        void                      commandRunner(std::vector<std::string> &fields, Client &cling);
         void                      passCommand(const std::vector<std::string> &fields, Client &client);
         void                      nickCommand(const std::vector<std::string> &fields, Client &client);
         void                      userCommand(const std::vector<std::string> &fields, Client &client);
@@ -73,15 +78,7 @@ class Server
   public:
         Server(uint16_t port, char *password);
 
-		    static void   sigHandler(int sigNumber);
-        unsigned int  getPort() const { return _port; }
-        std::string   getPassword() const { return _password; }
-
-        void          createServer();
-        void          handlIncomeConnections();
-        void          handleIncomeData(int i);
-        void          commandRunner(std::vector<std::string> &fields, Client &cling);
-		    void          cleanUp();
+        void    createServer();
 
         ~Server();
 };
