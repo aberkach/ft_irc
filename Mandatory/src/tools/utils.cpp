@@ -37,7 +37,8 @@ splitBySpace(const std::string &str)
 
     while (iss >> part) {
   
-		if (!part.empty() && part[0] == ':') {
+		if (!part.empty() && part[0] == ':')
+        {
 			std::string reset;
 			part.erase(part.begin());
 			getline(iss, reset);
@@ -53,10 +54,10 @@ splitBySpace(const std::string &str)
 
 std::vector<std::string> splitByDelim(const std::string &str, char delim) {
     std::vector<std::string> tokens;
-    std::stringstream ss(str); // Use stringstream for efficient tokenization
+    std::stringstream ss(str);
     std::string token;
 
-    while (std::getline(ss, token, delim)) { // Read tokens until a delimiter is found
+    while (std::getline(ss, token, delim)) {
         tokens.push_back(token);
     }
     return tokens;

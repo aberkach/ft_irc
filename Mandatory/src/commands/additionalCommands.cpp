@@ -13,7 +13,7 @@ Server::privmsgCommand(const std::vector<std::string> &fields, Client &client)
 			if (fields[1].empty())
 				return (replyTo(client.getSocket(), ERR_NOTEXTTOSEND(client.getNickname())));
 
-            std::vector<std::string> clients = splitByDelim(fields[0],',');
+            std::vector<std::string> clients = splitByDelim(fields[0], ',');
 			for (std::vector<std::string>::iterator split = clients.begin(); split != clients.end(); ++split) {
 				const std::string &target = *split;
 				if (target[0] == '#')
