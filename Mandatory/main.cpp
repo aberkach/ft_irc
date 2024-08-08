@@ -12,6 +12,11 @@
 
 #include "Inc/irc.hpp"
 
+// upper case in all channels
+// make nickname changes update across all channels
+// broadcast nickname changes to all joined channels
+// 
+
 int main(int ac, char **av)
 {
     uint16_t port;

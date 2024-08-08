@@ -7,16 +7,16 @@ class Channel;
 class Client
 {
     public:
-        std::string _clientBuffer;
+        std::string     _clientBuffer;
 
     private:
-        int _socket;
-        bool _registered;
-        bool _validPass;
-        std::string _nickName;
-        std::string _userName;
-        std::string _realName;
-        sockaddr_in _addr;
+        int             _socket;
+        bool            _registered;
+        bool            _validPass;
+        std::string     _nickName;
+        std::string     _userName;
+        std::string     _realName;
+        sockaddr_in     _addr;
 
     public:
         Client(void);
