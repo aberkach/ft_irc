@@ -12,10 +12,16 @@
 
 #include "Inc/irc.hpp"
 
+// server quites when recv fails using the python script
 // upper case in all channels
 // make nickname changes update across all channels
 // broadcast nickname changes to all joined channels
-// 
+// verify comments
+// update some methods in channel.cpp and channel.hpp
+
+// verify the server.cpp .hpp
+// check cleanup
+// check if there is eny unclosed socks
 
 int main(int ac, char **av)
 {
