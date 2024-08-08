@@ -30,6 +30,7 @@ class Channel
         std::string	                    _key;          // password of the channel
         std::vector<Client>             _chanOps;      // list of operators in the channel
         size_t                          _maxUsers;     // max number of users in the channel
+        std::time_t                     _unixCreation; // creation time for the channel
 
     private:
         Channel();
@@ -40,13 +41,15 @@ class Channel
         bool                           getIsInviteOnly() const;
         bool                           getTopicFlag() const;
         size_t                         getMaxUsers() const;
-	    Client&                        getUser(const std::string &nickName);
         std::string                    getTopic() const;
         std::string                    getKey() const;
         std::string                    getName() const;
-        std::string                    getChannelModes();
-        std::string                    getChannelUsersInString();
+        std::string                    getChannelModes() const;
+        std::string                    getChannelUsersInString() const;
+        std::string                    getCreationTime() const;
+        std::vector<Client>            getOperator() const;
         std::map<std::string, Client>& getUsers();
+	    Client&                        getUser(const std::string &nickName);
 
         void                           setName(const std::string &name);
         void                           setTopic(const std::string &topic);
@@ -61,7 +64,6 @@ class Channel
 	    void                           addOperator(const Client &op);
         void                           removeOperator(const Client &op);
 	    bool                           isOperator(const std::string &nickName);
-        std::vector<Client>            getOperator();
         void                           addInvite(const Client &invited);
         bool                           isInvited(const Client &invited);
         void                           removeInvite(const Client &invited);

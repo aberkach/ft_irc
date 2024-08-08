@@ -89,7 +89,7 @@ void Server::kickCommand (const std::vector<std::string> &fields, Client &client
                         reason = client.getNickname();
                     std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
                     std::string KickErrMessage = RPL_KICK(client.getNickname(), client.getRealname(), clientHost, chnName, usersBeKicked[i], reason);
-                    
+
                     for (std::map<std::string, Client>::iterator it = joinedChnIt->second.getUsers().begin(); it != joinedChnIt->second.getUsers().end(); it++)
                     {
                         if (it->first == usersBeKicked[i])
@@ -100,7 +100,6 @@ void Server::kickCommand (const std::vector<std::string> &fields, Client &client
                         _channels.erase(joinedChnIt);
                     else
                         joinedChnIt->second.removeUser(joinedChnIt->second.getUser(usersBeKicked[i]));
-                    
                 }
                 // if the client is not in the channel, send an error message to the client
                 else if (joinedChnIt->second.isClientExist(usersBeKicked[i]) == false)

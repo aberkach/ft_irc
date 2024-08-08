@@ -12,26 +12,22 @@
 
 #include "../../Inc/irc.hpp"
 
-Channel::Channel(const std::string &name) : _name(name), _topic(""), _isInviteOnly(false), _topicFlag(true), _key(""),  _maxUsers(0)
+Channel::Channel(const std::string &name) : _name(name), _topic(""), _isInviteOnly(false),
+                                _topicFlag(true), _key(""),  _maxUsers(0)
 {
-}
+    _unixCreation = std::time(NULL);
+};
 
 Channel::~Channel()
 {
 }
 
 
-void Channel::removeOperator(const Client &op)
+std::string
+Channel::getCreationTime() const
 {
-    for (std::vector<Client>::iterator it = _chanOps.begin(); it != _chanOps.end(); it++)
-    {
-        if (it->getNickname() == op.getNickname())
-        {
-            _chanOps.erase(it);
-            break;
-        }
-    }
-}
+    return to_string(_unixCreation);
+};
 
 std::string Channel::getName() const
 {
@@ -49,16 +45,6 @@ bool Channel::getIsInviteOnly() const
     return _isInviteOnly;
 }
 
-void Channel::setIsInviteOnly(bool isInviteOnly)
-{
-    _isInviteOnly = isInviteOnly;
-}
-
-void Channel::setMaxUsers(size_t maxUsers)
-{
-    _maxUsers = maxUsers;
-}
-
 size_t Channel::getMaxUsers() const
 {
     return _maxUsers;
@@ -68,23 +54,13 @@ std::string Channel::getTopic() const
 {
     return _topic;
 }
-
-void Channel::setTopic(const std::string &topic)
-{
-    _topic = topic;
-}
-
 bool Channel::getTopicFlag() const
 {
     return _topicFlag;
 }
 
-void Channel::setTopicFlag(bool topicFlag)
+std::vector<Client> Channel::getOperator() const
 {
-    _topicFlag = topicFlag;
-}
-
-std::vector<Client> Channel::getOperator(){
     return _chanOps;
 }
 
@@ -99,11 +75,11 @@ std::map<std::string, Client> &Channel::getUsers()
 }
 
 
-std::string Channel::getChannelUsersInString()
+std::string Channel::getChannelUsersInString() const
 {
     std::string users;
     
-    for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); it++)
+    for (std::map<std::string, Client>::const_iterator it = _users.begin(); it != _users.end(); it++)
     {
         for (std::vector<Client>::const_iterator opIt = _chanOps.begin(); opIt != _chanOps.end(); opIt++) {
             if (opIt->getNickname() == it->first)
@@ -118,7 +94,7 @@ std::string Channel::getChannelUsersInString()
     return users;
 }
 
-std::string Channel::getChannelModes()
+std::string Channel::getChannelModes() const
 {
     std::string modes;
 
@@ -129,6 +105,26 @@ std::string Channel::getChannelModes()
     if (_maxUsers > 0)
         modes += "l";
     return modes;
+}
+void Channel::setTopicFlag(bool topicFlag)
+{
+    _topicFlag = topicFlag;
+}
+
+void Channel::setIsInviteOnly(bool isInviteOnly)
+{
+    _isInviteOnly = isInviteOnly;
+}
+
+void Channel::setMaxUsers(size_t maxUsers)
+{
+    _maxUsers = maxUsers;
+}
+
+
+void Channel::setTopic(const std::string &topic)
+{
+    _topic = topic;
 }
 
 void Channel::setName(const std::string &name)
@@ -149,6 +145,18 @@ bool Channel::isClientExist(const std::string &nickName)
             return true;
     }
     return false;
+}
+
+void Channel::removeOperator(const Client &op)
+{
+    for (std::vector<Client>::iterator it = _chanOps.begin(); it != _chanOps.end(); it++)
+    {
+        if (it->getNickname() == op.getNickname())
+        {
+            _chanOps.erase(it);
+            break;
+        }
+    }
 }
 
 void Channel::addUser(Client &client)

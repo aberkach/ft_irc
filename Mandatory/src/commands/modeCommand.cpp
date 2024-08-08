@@ -41,7 +41,7 @@ Server::displayChannelMode(const Channel &channel, const Client &client)
 	}
 
 	replyTo(client.getSocket(), RPL_CHANNELMODEIS(client.getNickname(), channel.getName(), (params + applied)));
-	// replyTo(client.getSocket(), RPL_CREATIONTIME(client.getNickname(), channel.getName(), (params + applied)));
+	replyTo(client.getSocket(), RPL_CREATIONTIME(client.getNickname(), channel.getName(), channel.getCreationTime()));
 };
 
 std::string

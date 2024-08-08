@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <iterator>
 #include <string>
+#include <ctime>
 
 // sys network headers:
 #include <sys/socket.h>
