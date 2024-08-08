@@ -52,25 +52,28 @@ splitBySpace(const std::string &str)
     return parts;
 };
 
-std::vector<std::string> splitByDelim(const std::string &str, char delim) {
+std::vector<std::string>
+splitByDelim(const std::string &str, char delim)
+{
     std::vector<std::string> tokens;
     std::stringstream ss(str);
     std::string token;
 
-    while (std::getline(ss, token, delim)) {
+    while (std::getline(ss, token, delim))
         tokens.push_back(token);
-    }
     return tokens;
 }
 
-void replyTo(int socket, const std::string &buffer)
+void
+replyTo(int socket, const std::string &buffer)
 {
     send(socket, buffer.c_str() , buffer.size() , 0); // prot
 };
 
-std::string getTime() 
+std::string
+getTime()
 {
     time_t clock = time(NULL);
     std::string timeFormat = ctime(&clock);
     return (timeFormat.substr(0, timeFormat.find('\n')));
-}
+};

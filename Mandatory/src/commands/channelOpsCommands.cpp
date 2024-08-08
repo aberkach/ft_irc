@@ -2,7 +2,8 @@
 #include "../../Inc/irc.hpp"
 
 void
-Server::topicCommand (const std::vector<std::string> &fields, Client &client) {
+Server::topicCommand (const std::vector<std::string> &fields, Client &client)
+{
     if (client.getRegistered() == true) {
         channelit it;
         std::string clientHost;
@@ -50,8 +51,7 @@ Server::topicCommand (const std::vector<std::string> &fields, Client &client) {
             replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "TOPIC"));
     } else
         replyTo(client.getSocket(), ERR_NOTREGISTERED(client.getNickname()));
-
-}
+};
 
 void Server::kickCommand (const std::vector<std::string> &fields, Client &client) {
     if (client.getRegistered())

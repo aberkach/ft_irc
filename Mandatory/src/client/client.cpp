@@ -1,7 +1,6 @@
 
 #include "../../Inc/irc.hpp"
 
-
 /// @brief
 /// #### constructors ####
 Client::Client(void): _socket(-1) , _registered(false) , _validPass(false) , 
