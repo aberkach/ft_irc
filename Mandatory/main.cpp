@@ -18,7 +18,7 @@
 // broadcast nickname changes to all joined channels
 // verify comments
 // update some methods in channel.cpp and channel.hpp
-
+// missing protections and some protections need to be removed 
 // verify the server.cpp .hpp
 // check cleanup
 // check if there is eny unclosed socks
