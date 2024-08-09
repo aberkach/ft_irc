@@ -172,7 +172,10 @@ Server::modeCommand(const std::vector<std::string> &fields, Client &client)
 	if (client.getRegistered())
 	{
 		if (fields.empty())
+		{
 			replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "MODE"));
+			return;
+		}
 		chanIt it = _channels.find(fields[0]);
 		if (it != _channels.end())
 		{
