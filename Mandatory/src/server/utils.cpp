@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 23:27:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/30 19:37:25 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/08/09 00:27:24 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ void Server::cleanUp()
 
 size_t Server::countUsersInChannel(const std::string &chnName)
 {
-	channelit it = _channels.find(chnName);
+	chanIt it = _channels.find(chnName);
 	if (it == _channels.end())
 		return 0;
 	return it->second.getUsers().size();

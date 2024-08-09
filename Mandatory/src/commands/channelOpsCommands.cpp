@@ -5,7 +5,7 @@ void
 Server::topicCommand (const std::vector<std::string> &fields, Client &client)
 {
     if (client.getRegistered() == true) {
-        channelit it;
+        chanIt it;
         std::string clientHost;
         int size = fields.size();
 
@@ -63,7 +63,7 @@ void Server::kickCommand (const std::vector<std::string> &fields, Client &client
 
         const std::string &chnName = fields[0];
         std::vector<std::string> usersBeKicked = splitByDelim(fields[1], ',');
-        channelit joinedChnIt = _channels.find(chnName);
+        chanIt joinedChnIt = _channels.find(chnName);
         
         if (joinedChnIt == _channels.end())
         {
@@ -92,14 +92,14 @@ void Server::kickCommand (const std::vector<std::string> &fields, Client &client
 
                     for (std::map<std::string, Client>::iterator it = joinedChnIt->second.getUsers().begin(); it != joinedChnIt->second.getUsers().end(); it++)
                     {
-                        if (it->first == usersBeKicked[i])
+                        if (it->second.getNickname() == usersBeKicked[i])
                             continue;
                         replyTo(it->second.getSocket(), KickErrMessage);
                     }
                     if (joinedChnIt->second.getUsers().size() == 1)
                         _channels.erase(joinedChnIt);
                     else
-                        joinedChnIt->second.removeUser(joinedChnIt->second.getUser(usersBeKicked[i]));
+                        joinedChnIt->second.removeUser(usersBeKicked[i]);
                 }
                 // if the client is not in the channel, send an error message to the client
                 else if (joinedChnIt->second.isClientExist(usersBeKicked[i]) == false)
@@ -121,7 +121,7 @@ void Server::inviteCommand(const std::vector<std::string> &fields, Client &clien
     if (client.getRegistered()) {
         std::string invitedUser = fields[0];
         std::string chnName = fields[1];
-        channelit chnIt = _channels.find(chnName);
+        chanIt chnIt = _channels.find(chnName);
         if (chnIt->second.isOperator(client.getNickname()) == false)
         {
             replyTo(client.getSocket(), ERR_CHANOPRIVSNEEDED(client.getNickname(), chnName));

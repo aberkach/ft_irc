@@ -39,7 +39,17 @@ Server::nickCommand(const std::vector<std::string> &fields, Client &client) // i
 		if (client.setNickname(fields[0]) == false)
 			return (replyTo(client.getSocket(), ERR_ERRONEUSNICKNAME(fields[0])));
         else if (client.getRegistered()) // update in channels
+		{
+			for (chanIt it = _channels.begin(); it != _channels.end(); ++it) {
+				if (it->second.isClientExist(oldNick))
+				{
+
+					it->second.removeUser(oldNick); 
+					it->second.addUser(client);
+				}
+			}
             return (replyTo(client.getSocket(), CHANGENICK(oldNick, client.getUsername(), inet_ntoa(client.getAddr().sin_addr), fields[0])));
+		}
 	}
 	else
 		return (replyTo(client.getSocket(), ERR_FIRSTCOMMAND));
