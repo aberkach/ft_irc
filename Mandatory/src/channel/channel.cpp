@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/08/02 06:19:38 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/08/09 05:55:15 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,13 +82,13 @@ std::string Channel::getChannelUsersInString() const
     for (std::map<std::string, Client>::const_iterator it = _users.begin(); it != _users.end(); it++)
     {
         for (std::vector<Client>::const_iterator opIt = _chanOps.begin(); opIt != _chanOps.end(); opIt++) {
-            if (opIt->getNickname() == it->first)
+            if (opIt->getNickname() == it->second.getNickname())
             {
                 users += "@";
                 break;
             }
         }
-        users += it->first;
+        users += it->second.getNickname();
         users += " ";
     }
     return users;
@@ -159,43 +159,41 @@ void Channel::removeOperator(const Client &op)
     }
 }
 
-void Channel::addUser(Client &client)
+void Channel::addUser(const Client &client)
 {
-    // client.setChannel(_name, *this);
-    _users.insert(std::pair<std::string, Client>(client.getNickname(), Client(client)));
+    _users.insert(std::pair<std::string, Client>(client.getNickname(), client));
 }
 
-void Channel::removeUser(Client &client)
+void Channel::removeUser(std::string nickName)
 {
-    // client.removeChannel(channelName);
 
     // maybe I gotta check if the user is the operator of the channel
     // so I need to set another operator
     for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); it++)
     {
-        if (it->second.getNickname() == client.getNickname() || it->first == '@' + client.getNickname())
-        {   
+        if (it->second.getNickname() == nickName)
+        {
+            if (isOperator(nickName))
+            {
+                for (std::vector<Client>::iterator opsIt = _chanOps.begin(); opsIt != _chanOps.end(); opsIt++)
+                {
+                    if (opsIt->getNickname() == nickName)
+                    {
+                        _chanOps.erase(opsIt);
+                        break;
+                    }
+                }
+            }
             _users.erase(it);
             break;
-        }
-    }
-    if (isOperator(client.getNickname()))
-    {
-        for (std::vector<Client>::iterator it = _chanOps.begin(); it != _chanOps.end(); it++)
-        {
-            if (it->getNickname() == client.getNickname())
-            {
-                _chanOps.erase(it);
-                break;
-            }
         }
     }
 }
 
 void Channel::addOperator(const Client &op)
 {
-    _users.insert(std::pair<std::string, Client>('@' + op.getNickname(), op));
-    _chanOps.insert(_chanOps.begin(), Client(op));
+    if (!isOperator(op.getNickname()))
+        _chanOps.insert(_chanOps.begin(), op);
 }
 
 bool Channel::isOperator(const std::string &nickName)

@@ -85,7 +85,7 @@ checksign(char &appliedSign, char sign, std::string& appliedModes, char mode)
 };
 
 void
-Server::executeModes(const std::vector<std::string> &fields, Client &client, channelit it)
+Server::executeModes(const std::vector<std::string> &fields, Client &client, chanIt it)
 {
 	size_t arg = 2;
 	char sign = '\0';
@@ -133,7 +133,7 @@ Server::executeModes(const std::vector<std::string> &fields, Client &client, cha
 						appliedFields.push_back(fields[arg]);
 					}
 					else
-						replyTo(client.getSocket(), ERR_USERNOTINCHANNEL(client.getNickname(), fields[arg], it->first));
+						replyTo(client.getSocket(), ERR_USERNOTINCHANNEL(client.getNickname(), fields[arg], it->second.getName()));
 					arg++;
 				}
 				// else
@@ -173,7 +173,7 @@ Server::modeCommand(const std::vector<std::string> &fields, Client &client)
 	{
 		if (fields.empty())
 			replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "MODE"));
-		channelit it = _channels.find(fields[0]);
+		chanIt it = _channels.find(fields[0]);
 		if (it != _channels.end())
 		{
 			int size = fields.size();

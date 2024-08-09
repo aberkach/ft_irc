@@ -6,13 +6,13 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 22:29:46 by abberkac          #+#    #+#             */
-/*   Updated: 2024/08/02 06:10:12 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/08/09 05:19:03 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Inc/irc.hpp"
 
-bool Server::joinExistChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client, const channelit &chnIt) {
+bool Server::joinExistChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client, const chanIt &chnIt) {
     // if the channel already exist, check if the client is already in the channel
     if (chnIt != _channels.end())
     {
@@ -81,7 +81,7 @@ bool Server::joinExistChannel(const std::string &chnName, std::vector<std::strin
             std::string usersList = chnIt->second.getChannelUsersInString();
             replyTo(it->second.getSocket(), RPL_JOIN(client.getNickname(), client.getUsername(), chnName, clientHost));
             // this replies to the client with the list of users in the channel and topic of the channel
-            if (it->first == client.getNickname())
+            if (it->second.getNickname() == client.getNickname())
             {
                 replyTo(client.getSocket(), RPL_NAMREPLY(usersList, chnName, client.getNickname()));
                 replyTo(client.getSocket(), RPL_ENDOFNAMES(client.getNickname(), chnName));
@@ -102,7 +102,7 @@ bool Server::joinExistChannel(const std::string &chnName, std::vector<std::strin
 bool Server::createChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client) {
     // create a new channel
     _channels.insert(std::pair<std::string, Channel>(chnName, Channel(chnName)));
-    channelit chnIt = _channels.find(chnName);
+    chanIt chnIt = _channels.find(chnName);
     chnIt->second.setMaxUsers(0);
     // check if the channel has a key
     if (keys.size() > 0)
@@ -120,11 +120,10 @@ bool Server::createChannel(const std::string &chnName, std::vector<std::string> 
         _channels.find(chnName)->second.setKey(keys[0]);
         keys.erase(keys.begin());
     }
-    // else
-        // _channels.find(chnName)->second.setKey("");
+    // add the client to the channel
+    _channels.find(chnName)->second.addUser(client);
     // make the client an operator of the channel and add him to the channel
     _channels.find(chnName)->second.addOperator(client);
-    // _channels.find(chnName)->second.setTopicFlag(true); // added fix 
     return true;
 }
 
@@ -145,7 +144,7 @@ void Server::processTheJoinArgs(const std::vector<std::string> &channels , std::
         else
         {
             // check if the channel already exist
-            channelit chnIt = _channels.find(chnName);
+            chanIt chnIt = _channels.find(chnName);
             
             // create the channel
             if (chnIt == _channels.end())
@@ -161,8 +160,8 @@ void Server::processTheJoinArgs(const std::vector<std::string> &channels , std::
                 {
                     std::string usersList = chnIt->second.getChannelUsersInString();
                     replyTo(it->second.getSocket(), RPL_JOIN(client.getNickname(), client.getUsername(), chnName, clientHost));
-                    replyTo(client.getSocket(), RPL_NAMREPLY(usersList, chnName, it->first));
-                    replyTo(client.getSocket(), RPL_ENDOFNAMES(it->first, chnName));
+                    replyTo(client.getSocket(), RPL_NAMREPLY(usersList, chnName, it->second.getNickname()));
+                    replyTo(client.getSocket(), RPL_ENDOFNAMES(it->second.getNickname(), chnName));
                 }
             }
             // join the existing channel
