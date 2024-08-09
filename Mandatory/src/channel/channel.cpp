@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fatah <fatah@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/08/09 05:55:15 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/08/09 14:02:15 by fatah            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,7 +164,7 @@ void Channel::addUser(const Client &client)
     _users.insert(std::pair<std::string, Client>(client.getNickname(), client));
 }
 
-void Channel::removeUser(std::string nickName)
+void Channel::removeUser(std::string nickName, bool falg)
 {
 
     // maybe I gotta check if the user is the operator of the channel
@@ -173,17 +173,8 @@ void Channel::removeUser(std::string nickName)
     {
         if (it->second.getNickname() == nickName)
         {
-            if (isOperator(nickName))
-            {
-                for (std::vector<Client>::iterator opsIt = _chanOps.begin(); opsIt != _chanOps.end(); opsIt++)
-                {
-                    if (opsIt->getNickname() == nickName)
-                    {
-                        _chanOps.erase(opsIt);
-                        break;
-                    }
-                }
-            }
+            if (isOperator(nickName) && falg)
+                removeOperator(it->second);
             _users.erase(it);
             break;
         }

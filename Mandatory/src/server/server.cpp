@@ -75,11 +75,11 @@ Server::Server(uint16_t port, char *password) : _countCli(0), _port(port), _pass
 	_commands["PART"] = &Server::partCommand; // working full
 	_commands["MODE"] = &Server::modeCommand; // working fully
 	_commands["PRIVMSG"] = &Server::privmsgCommand; // working fully
+	_commands["INVITE"] = &Server::inviteCommand; // working fully
+	_commands["NICK"] = &Server::nickCommand; // working fully
 
-	_commands["NICK"] = &Server::nickCommand;
 	_commands["JOIN"] = &Server::joinCommand;
 	_commands["KICK"] = &Server::kickCommand;
-	_commands["INVITE"] = &Server::inviteCommand;
 	// nick changes might couse a prob need to stay updated at all time
 	// need to make all channel compare
 }
@@ -216,16 +216,16 @@ Server::handleIncomeData(int i)
 	else if (rc == 0) {
 		std::cout << RED << "Connection closed For : " << YELLOW << _pollFds[i].fd << RESET << std::endl;
 		// Remove closed client from fds array and clientsFds map)
-		std::map<int, Client>::iterator clientIt = _clients.find(_pollFds[i].fd);
-		if (clientIt != _clients.end()) {
-			Client &client = clientIt->second;
+		clientIt cIt = _clients.find(_pollFds[i].fd);
+		if (cIt != _clients.end()) {
+			Client &client = cIt->second;
 			std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
 			std::string quitMessage = QUIT_MSG(client.getNickname(), client.getUsername(), clientHost, "Forced quit");			
 			for (std::map<std::string, Channel>::iterator it = _channels.begin(); it != _channels.end(); it++)
 			{
 				if (it->second.isClientExist(client.getNickname())) {
 					it->second.broadCast(quitMessage, _pollFds[i].fd);
-					it->second.removeUser(_clients.find(_pollFds[i].fd)->second.getNickname());
+					it->second.removeUser(client.getNickname(), 1);
 				}
 			}
 			_clients.erase(_pollFds[i].fd);
@@ -239,14 +239,14 @@ Server::handleIncomeData(int i)
         std::string rec(buffer);
 		std::replace(rec.begin(), rec.end(), '\r', '\n');
 
-        std::map<int, Client>::iterator clientIt = _clients.find(_pollFds[i].fd);
-        if (clientIt != _clients.end()) {
+        std::map<int, Client>::iterator cIt = _clients.find(_pollFds[i].fd);
+        if (cIt != _clients.end()) {
             if (rec.find_first_of('\n') == std::string::npos) {
-                clientIt->second._clientBuffer.append(rec);
+                cIt->second._clientBuffer.append(rec);
                 return;
             } else {
-                rec = clientIt->second._clientBuffer + rec;
-                clientIt->second._clientBuffer.clear();
+                rec = cIt->second._clientBuffer + rec;
+                cIt->second._clientBuffer.clear();
             }
 			// std::map<std::string, Channel>::iterator it1 = _channels.begin();
 			// for (; it1 != _channels.end(); it1++) {
@@ -261,7 +261,7 @@ Server::handleIncomeData(int i)
                     std::vector<std::string> fields = splitBySpace(*it);
                     if (!fields.empty()) {
                         fields[0] = stringUpper(fields[0]);
-                        commandRunner(fields, clientIt->second);
+                        commandRunner(fields, cIt->second);
                     }
                 }
             }

@@ -99,7 +99,7 @@ void Server::kickCommand (const std::vector<std::string> &fields, Client &client
                     if (joinedChnIt->second.getUsers().size() == 1)
                         _channels.erase(joinedChnIt);
                     else
-                        joinedChnIt->second.removeUser(usersBeKicked[i]);
+                        joinedChnIt->second.removeUser(usersBeKicked[i], 1);
                 }
                 // if the client is not in the channel, send an error message to the client
                 else if (joinedChnIt->second.isClientExist(usersBeKicked[i]) == false)
