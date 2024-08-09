@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fatah <fatah@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:32:12 by abberkac          #+#    #+#             */
-/*   Updated: 2024/08/09 05:54:24 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/08/09 13:59:38 by fatah            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ class Channel
         void                           setTopicFlag(bool topicFlag);
 
         void                           addUser(const Client &user);
-	    void                           removeUser(std::string nickName);
+	    void                           removeUser(std::string nickName, bool falg);
         bool                           isClientExist(const std::string &nickName);
 	    void                           addOperator(const Client &op);
         void                           removeOperator(const Client &op);

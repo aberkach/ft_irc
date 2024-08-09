@@ -142,7 +142,7 @@ Server::partCommand (const std::vector<std::string> &fields, Client &client)
                         if (chnIt->second.getUsers().size() == 1)
                             _channels.erase(chnIt);
                         else
-                            chnIt->second.removeUser(client.getNickname());
+                            chnIt->second.removeUser(client.getNickname(), 1);
                     }
                     else
                         replyTo(client.getSocket(), ERR_NOTONCHANNEL(client.getNickname(), chnName));
@@ -174,7 +174,7 @@ Server::quitCommand(const std::vector<std::string> &fields, Client &client)
                 if (it->second.getUsers().size() == 1)
                     _channels.erase(it);
                 else
-                    it->second.removeUser(client.getNickname());
+                    it->second.removeUser(client.getNickname(),1);
             }
         }
         clientIt it = _clients.find(client.getSocket());

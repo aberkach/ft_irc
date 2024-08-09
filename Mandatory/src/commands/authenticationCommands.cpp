@@ -40,15 +40,21 @@ Server::nickCommand(const std::vector<std::string> &fields, Client &client) // i
 			return (replyTo(client.getSocket(), ERR_ERRONEUSNICKNAME(fields[0])));
         else if (client.getRegistered()) // update in channels
 		{
+			std::string msg = CHANGENICK(oldNick, client.getUsername(), inet_ntoa(client.getAddr().sin_addr), fields[0]);
 			for (chanIt it = _channels.begin(); it != _channels.end(); ++it) {
 				if (it->second.isClientExist(oldNick))
 				{
-
-					it->second.removeUser(oldNick); 
+					if (it->second.isOperator(oldNick)) {
+						it->second.removeUser(oldNick, 1);
+						it->second.addOperator(client);
+					}
+					else
+						it->second.removeUser(oldNick, 0);
 					it->second.addUser(client);
 				}
+				it->second.broadCast(msg, client.getSocket());
 			}
-            return (replyTo(client.getSocket(), CHANGENICK(oldNick, client.getUsername(), inet_ntoa(client.getAddr().sin_addr), fields[0])));
+            return (replyTo(client.getSocket(), msg));
 		}
 	}
 	else
