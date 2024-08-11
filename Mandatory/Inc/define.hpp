@@ -103,8 +103,8 @@
 #define PING(target)                                                  "PING :" + (target) + "\r\n"
 #define PONG(target)                                                  "PONG :" + (target) + "\r\n"
 
+#define ERR_ALREADYINCHANNEL(client, nick, channel)                   ":" SERVERNAME " 443 " + (client) + " " + (nick) + " " + (channel) + " :is already on channel\r\n"
 // #define ERR_CANNOTSENDTOCHAN(nick)                                    ":" SERVERNAME " 404 " + (nick) + " :Cannot send to nick/channel\r\n"
-// #define ERR_ALREADYINCHANNEL(client, nick, channel)                   ":" SERVERNAME " 443 " + (client) + " " + (nick) + " " + (channel) + " :is already on channel\r\n"
 // #define RPL_WHOISOPERATOR(client)                                     ":" SERVERNAME " 313 " + (client) + " " + " :is channel operator" + "\r\n"
 // #define RPL_NOTOPIC(client, channel)                                  ":" SERVERNAME " 331 " + (client) + " " + (channel) + " :No topic is set\r\n"
 // #define INVITE_MSG(client, host, channel, invited)                  ":" SERVERNAME " " + (client) + " !~ " + (host) + " INVITE " + (channel) + " " + (invited) + "\r\n"
