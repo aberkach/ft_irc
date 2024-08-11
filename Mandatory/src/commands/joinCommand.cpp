@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 22:29:46 by abberkac          #+#    #+#             */
-/*   Updated: 2024/08/11 03:23:19 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/08/11 04:20:37 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@ bool Server::joinExistChannel(const std::string &chnName, std::vector<std::strin
             replyTo(client.getSocket(), ERR_ALREADYINCHANNEL(client.getUsername(), client.getNickname(), chnName));
             return false;
         }
-        
         else
         {
             // check if the channel has a key
@@ -168,7 +167,10 @@ void Server::processTheJoinArgs(const std::vector<std::string> &channels , std::
             }
             // join the existing channel
             else
-                joinExistChannel(chnName, keys, client, chnIt);
+            {
+                if (!joinExistChannel(chnName, keys, client, chnIt))
+                    continue;
+            }
         }
     }
 }
