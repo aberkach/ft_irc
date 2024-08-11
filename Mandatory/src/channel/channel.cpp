@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fatah <fatah@student.42.fr>                +#+  +:+       +#+        */
+/*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/08/09 14:02:15 by fatah            ###   ########.fr       */
+/*   Updated: 2024/08/11 07:48:30 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,18 +94,6 @@ std::string Channel::getChannelUsersInString() const
     return users;
 }
 
-std::string Channel::getChannelModes() const
-{
-    std::string modes;
-
-    if (_isInviteOnly)
-        modes += "i";
-    if (_topicFlag)
-        modes += "t";
-    if (_maxUsers > 0)
-        modes += "l";
-    return modes;
-}
 void Channel::setTopicFlag(bool topicFlag)
 {
     _topicFlag = topicFlag;
@@ -161,7 +149,8 @@ void Channel::removeOperator(const Client &op)
 
 void Channel::addUser(const Client &client)
 {
-    _users.insert(std::pair<std::string, Client>(client.getNickname(), client));
+    if (!isClientExist(client.getNickname()))
+        _users.insert(std::pair<std::string, Client>(client.getNickname(), client));
 }
 
 void Channel::removeUser(std::string nickName, bool falg)

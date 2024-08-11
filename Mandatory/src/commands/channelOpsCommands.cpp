@@ -92,20 +92,18 @@ void Server::kickCommand (const std::vector<std::string> &fields, Client &client
                         reason = "kicked by " + client.getNickname();
                     std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
 
-                    for (std::map<std::string, Client>::iterator it = joinedChnIt->second.getUsers().begin(); it != joinedChnIt->second.getUsers().end(); it++)
-                    {
+                    for (std::map<std::string, Client>::iterator it = joinedChnIt->second.getUsers().begin(); it != joinedChnIt->second.getUsers().end(); it++) {
+                        replyTo(it->second.getSocket(), RPL_KICK(client.getNickname(), client.getRealname(), clientHost, chnName, usersBeKicked[i], reason));
                         if (it->second.getNickname() == usersBeKicked[i])
-                            replyTo(it->second.getSocket(), RPL_KICK(client.getNickname(), client.getRealname(), clientHost, chnName, usersBeKicked[i], ("you " + reason)));
-                        else
-                            replyTo(it->second.getSocket(), RPL_KICK(client.getNickname(), client.getRealname(), clientHost, chnName, usersBeKicked[i], reason));
+                            joinedChnIt->second.removeUser(usersBeKicked[i], 1);
                     }
-                    joinedChnIt->second.removeUser(usersBeKicked[i], 1);
-                    if (joinedChnIt->second.getUsers().size() == 1)
+                    // joinedChnIt->second.removeUser(usersBeKicked[i], 1);
+                    if (joinedChnIt->second.getUsers().size() < 1)
                         _channels.erase(joinedChnIt);
                 }
                 // if the client is not in the channel, send an error message to the client
-                else if (joinedChnIt->second.isClientExist(usersBeKicked[i]) == false)
-                    replyTo(client.getSocket(), ERR_USERNOTINCHANNEL(client.getNickname(), usersBeKicked[i], chnName));
+                else
+                    replyTo(client.getSocket(), ERR_NOTONCHANNEL(usersBeKicked[i], chnName));
             }
         }
         else

@@ -133,7 +133,7 @@ Server::executeModes(const std::vector<std::string> &fields, Client &client, cha
 						appliedFields.push_back(fields[arg]);
 					}
 					else
-						replyTo(client.getSocket(), ERR_USERNOTINCHANNEL(client.getNickname(), fields[arg], it->second.getName()));
+						replyTo(client.getSocket(), ERR_NOTONCHANNEL(client.getNickname(), it->second.getName()));
 					arg++;
 				}
 				// else

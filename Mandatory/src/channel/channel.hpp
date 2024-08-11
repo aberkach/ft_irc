@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fatah <fatah@student.42.fr>                +#+  +:+       +#+        */
+/*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:32:12 by abberkac          #+#    #+#             */
-/*   Updated: 2024/08/09 13:59:38 by fatah            ###   ########.fr       */
+/*   Updated: 2024/08/11 07:48:40 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,6 @@ class Channel
         std::string                    getTopic() const;
         std::string                    getKey() const;
         std::string                    getName() const;
-        std::string                    getChannelModes() const;
         std::string                    getChannelUsersInString() const;
         std::string                    getCreationTime() const;
         std::vector<Client>            getOperator() const;

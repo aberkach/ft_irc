@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 22:29:46 by abberkac          #+#    #+#             */
-/*   Updated: 2024/08/11 04:20:37 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/08/11 06:55:11 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,9 +157,9 @@ void Server::processTheJoinArgs(const std::vector<std::string> &channels , std::
                 chnIt = _channels.find(chnName);
                 
                 // here we send a message to the client to inform him that he joined the channel and broadcast the message to the other users in the channel
+                std::string usersList = chnIt->second.getChannelUsersInString();
                 for (std::map<std::string, Client>::iterator it = chnIt->second.getUsers().begin(); it != chnIt->second.getUsers().end(); it++)
                 {
-                    std::string usersList = chnIt->second.getChannelUsersInString();
                     replyTo(it->second.getSocket(), RPL_JOIN(client.getNickname(), client.getUsername(), chnName, clientHost));
                     replyTo(client.getSocket(), RPL_NAMREPLY(usersList, chnName, it->second.getNickname()));
                     replyTo(client.getSocket(), RPL_ENDOFNAMES(it->second.getNickname(), chnName));

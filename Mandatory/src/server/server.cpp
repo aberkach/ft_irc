@@ -77,9 +77,9 @@ Server::Server(uint16_t port, char *password) : _countCli(0), _port(port), _pass
 	_commands["PRIVMSG"] = &Server::privmsgCommand; // working fully
 	_commands["INVITE"] = &Server::inviteCommand; // working fully
 	_commands["NICK"] = &Server::nickCommand; // working fully
+	_commands["KICK"] = &Server::kickCommand;
 
 	_commands["JOIN"] = &Server::joinCommand;
-	_commands["KICK"] = &Server::kickCommand;
 	// nick changes might couse a prob need to stay updated at all time
 	// need to make all channel compare
 }
@@ -238,6 +238,7 @@ Server::handleIncomeData(int i)
         buffer[rc] = '\0';
         std::string rec(buffer);
 		std::replace(rec.begin(), rec.end(), '\r', '\n');
+		std::cout << "rec : " << rec << std::endl;
 
         std::map<int, Client>::iterator cIt = _clients.find(_pollFds[i].fd);
         if (cIt != _clients.end()) {
