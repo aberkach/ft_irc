@@ -131,7 +131,7 @@ Server::partCommand (const std::vector<std::string> &fields, Client &client)
 
                 if (chnName.empty())
                     continue;
-                else if (chnIt != _channels.end())
+                if (chnIt != _channels.end())
                 {
                     if (chnIt->second.isClientExist(client.getNickname()))
                     {
