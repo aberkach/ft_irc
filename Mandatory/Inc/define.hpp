@@ -84,7 +84,7 @@
 #define ERR_INVITEONLYCHAN(nick, channel)                             ":" SERVERNAME " 473 " + (nick) + " " + (channel) + ":Cannot join channel (+i)\r\n"
 #define ERR_UNKNOWNMODE(nick, charac)                                 ":" SERVERNAME " 472 " + (nick) + " " + (charac) + " :is unknown mode char to me\r\n"
 #define ERR_CHANOPRIVSNEEDED(nick, channel)                           ":" SERVERNAME " 482 " + (nick) + " " + (channel) + " :You're not channel operator\r\n"
-#define RPL_NAMREPLY(clients, channel, nick)ƒ                          ":" SERVERNAME " 353 " + (nick) + " = " + (channel) + " :" + (clients) + "\r\n"
+#define RPL_NAMREPLY(clients, channel, nick)                          ":" SERVERNAME " 353 " + (nick) + " = " + (channel) + " :" + (clients) + "\r\n"
 #define RPL_ENDOFNAMES(nick, channel)                                 ":" SERVERNAME " 366 " + (nick) + " " + (channel) + " :End of /NAMES list\r\n"
 #define RPL_TOPIC(nick, channel, topic)                               ":" SERVERNAME " 332 " + (nick) + " " + (channel) + " :" + (topic) + "\r\n"
 #define RPL_INVITING(nick, invited, channel)                          ":" SERVERNAME " 341 " + (nick) + " inviting " + (invited) + " to " + (channel) + "\r\n"
