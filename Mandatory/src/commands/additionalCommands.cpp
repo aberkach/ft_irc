@@ -171,10 +171,12 @@ Server::quitCommand(const std::vector<std::string> &fields, Client &client)
             if (it->second.isClientExist(client.getNickname()))
             {
                 it->second.broadCast(quitMessage, client.getSocket());
+                std::cout << RED << "Connection closed For : " << YELLOW << inet_ntoa(client.getAddr().sin_addr) << RESET << std::endl;
                 if (it->second.getUsers().size() == 1)
                     _channels.erase(it);
                 else
                     it->second.removeUser(client.getNickname(),1);
+                break ;
             }
         }
         clientIt it = _clients.find(client.getSocket());
