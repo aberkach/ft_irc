@@ -14,8 +14,10 @@ Server::modeSetReply(Client& client, Channel &channel, std::string& modes, const
 {
 	if (modes.empty())
 		return;
+	
 	for (size_t i = 0; i < fields.size() ; i++)
 		modes += " " + fields[i];
+
 	channel.broadCast(MODE_SET(client.getNickname(), client.getUsername(), inet_ntoa(client.getAddr().sin_addr), channel.getName(), modes), -1);
 };
 
@@ -107,7 +109,7 @@ Server::executeModes(const std::vector<std::string> &fields, Client &client, cha
 				checksign(sign, modestr[i], appliedModes, 't');
 				it->second.setTopicFlag(set);
 				break;
-			case 'k':
+			case 'k': // ERR_INVALIDKEY (protection for the key)
 				if (set && arg < fields.size())
 				{
 					it->second.setKey(fields[arg]);

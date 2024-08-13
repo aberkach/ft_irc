@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:32:12 by abberkac          #+#    #+#             */
-/*   Updated: 2024/08/11 07:48:40 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/08/13 03:47:39 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ class Channel
 
         void                           setName(const std::string &name);
         void                           setTopic(const std::string &topic);
-        void                           setKey(const std::string &key);
+        bool                           setKey(const std::string &key);
         void                           setIsInviteOnly(bool isInviteOnly);
         void                           setMaxUsers(size_t maxUsers);
         void                           setTopicFlag(bool topicFlag);

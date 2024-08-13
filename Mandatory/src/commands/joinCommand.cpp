@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 22:29:46 by abberkac          #+#    #+#             */
-/*   Updated: 2024/08/11 06:55:11 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/08/13 04:13:32 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,23 +102,20 @@ bool Server::joinExistChannel(const std::string &chnName, std::vector<std::strin
 
 bool Server::createChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client) {
     // create a new channel
-    _channels.insert(std::pair<std::string, Channel>(chnName, Channel(chnName)));
-    chanIt chnIt = _channels.find(chnName);
-    chnIt->second.setMaxUsers(0);
+    // chanIt chnIt = _channels.find(chnName);
+    // chnIt->second.setMaxUsers(0);
+    
     // check if the channel has a key
+    _channels.insert(std::pair<std::string, Channel>(chnName, Channel(chnName)));
     if (keys.size() > 0)
     {
         // check if the key is valid
-        if (keys[0].find_first_of(" ,\a\b\f\t\v$:&+~%") != std::string::npos)
+        if (!_channels.find(chnName)->second.setKey(keys[0]))
         {
-            // here we send an error message to the client to inform him that the key is incorrect
             keys.erase(keys.begin());
-            _channels.erase(chnName);
-            // shouldn't send the error message to the client !!!!!!!!!!
-            replyTo(client.getSocket(), ERR_BADCHANNELKEY(client.getNickname(), chnName));
+            replyTo(client.getSocket(), ERR_INVALIDKEY(client.getNickname(), chnName));
             return false;
         }
-        _channels.find(chnName)->second.setKey(keys[0]);
         keys.erase(keys.begin());
     }
     // add the client to the channel
@@ -134,19 +131,25 @@ void Server::processTheJoinArgs(const std::vector<std::string> &channels , std::
     {
         std::string chnName = channels[i];
         // check if the channel name is valid
+        
         if ((chnName[0] != '#') || (chnName.find_first_of(" ,\a\b\f\t\v$:+~%") != std::string::npos) || chnName.size() < 2)
         {
             // here we send an error message to the client to inform him that the channel name is incorrect
-            replyTo(client.getSocket(), ERR_BADCHANMASK(client.getNickname(), chnName));
+            replyTo(client.getSocket(), ERR_BADCHANMASK(client.getNickname(), chnName)); 
             if (keys.size() > 0)
                 keys.erase(keys.begin());
             continue;
         }
         else
         {
-            // check if the channel already exist
-            chanIt chnIt = _channels.find(chnName);
-            
+            std::string tmpChn = stringUpper(chnName);
+            chanIt chnIt;
+            for (chnIt = _channels.begin(); chnIt != _channels.end(); chnIt++)
+            {
+                std::string tmp = stringUpper(chnIt->first);
+                if (tmp == tmpChn) 
+                    break;
+            }
             // create the channel
             if (chnIt == _channels.end())
             {

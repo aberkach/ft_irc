@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 23:27:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/08/09 00:27:24 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/08/13 04:18:55 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ void Server::cleanUp()
 	_channels.clear();
 	if (_listen_sd > 0)
 	{
-		std::cout << "Closing server socket" << std::endl;
 		close(_listen_sd);
 	}
 }
