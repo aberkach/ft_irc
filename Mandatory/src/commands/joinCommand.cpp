@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 22:29:46 by abberkac          #+#    #+#             */
-/*   Updated: 2024/08/13 04:13:32 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/08/13 04:38:01 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,26 +102,27 @@ bool Server::joinExistChannel(const std::string &chnName, std::vector<std::strin
 
 bool Server::createChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client) {
     // create a new channel
-    // chanIt chnIt = _channels.find(chnName);
-    // chnIt->second.setMaxUsers(0);
     
     // check if the channel has a key
     _channels.insert(std::pair<std::string, Channel>(chnName, Channel(chnName)));
+    chanIt chnIt = _channels.find(chnName);
+    chnIt->second.setMaxUsers(0);
     if (keys.size() > 0)
     {
         // check if the key is valid
-        if (!_channels.find(chnName)->second.setKey(keys[0]))
+        if (!chnIt->second.setKey(keys[0]))
         {
             keys.erase(keys.begin());
+            _channels.erase(chnIt);
             replyTo(client.getSocket(), ERR_INVALIDKEY(client.getNickname(), chnName));
             return false;
         }
         keys.erase(keys.begin());
     }
     // add the client to the channel
-    _channels.find(chnName)->second.addUser(client);
+    chnIt->second.addUser(client);
     // make the client an operator of the channel and add him to the channel
-    _channels.find(chnName)->second.addOperator(client);
+    chnIt->second.addOperator(client);
     return true;
 }
 
