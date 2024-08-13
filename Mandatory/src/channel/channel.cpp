@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/08/11 07:48:30 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/08/13 04:23:45 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,9 +120,13 @@ void Channel::setName(const std::string &name)
     _name = name;
 }
 
-void Channel::setKey(const std::string &key)
+bool Channel::setKey(const std::string &key)
 {
+    // check if the key is valid
+    if (key.find_first_of("\a\b\f\t\v") != std::string::npos)
+        return false;
     _key = key;
+    return true;
 }
 
 bool Channel::isClientExist(const std::string &nickName)
@@ -218,7 +222,10 @@ Channel::broadCast(const std::string &msg, int excludedFd)
 {
     for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); ++it)
     {
-        if (it->second.getSocket() != excludedFd)
-            replyTo(it->second.getSocket(), msg);
+        if (it->second.getSocket() != excludedFd) {          
+            std::cout << GREEN << "SENT => " << msg << RESET << std::endl;
+            send(it->second.getSocket(), msg.c_str() , msg.size() , 0); 
+            // replyTo(it->second.getSocket(), msg);
+        }
     }
 };

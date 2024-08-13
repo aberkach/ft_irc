@@ -23,9 +23,8 @@
 bool Server::_signal = false;
 
 // parameterized constructor : initialize the server socket and set the port number
-Server::Server(uint16_t port, char *password) : _countCli(0), _port(port), _password(password)
+Server::Server(uint16_t port, char *password) : _countCli(0), _port(port), _password(password), _nfds(1), _pollFds(10)
 {
-	_pollFds.resize(1);
 	_listen_sd = socket(AF_INET, SOCK_STREAM, 0); // Create a TCP socket
 	if (_listen_sd < 0)
 		throw std::runtime_error("socket() failed");
@@ -87,8 +86,6 @@ Server::Server(uint16_t port, char *password) : _countCli(0), _port(port), _pass
 // create the server and handle the incoming connections and data
 void Server::createServer() 
 {
-	int		current_size;
-	_nfds = 1;
 	int rc = 0;
 
 	// signal handling
@@ -100,10 +97,17 @@ void Server::createServer()
 		// Check if the server is shutting down by signal
 		if (Server::_signal)
 			throw std::runtime_error("Server is shutting down");
+
 		rc = poll(&_pollFds[0], _pollFds.size(), -1);
 	    if (rc < 0 && _signal == false) {
-	        throw std::runtime_error("poll() failed");
+			// repeat the poll if the signal is not received
+			if (errno == EINTR)
+				continue;
+			else
+				throw std::runtime_error("poll() failed");
 		}
+	    
+
 		for (size_t i = 0; i < _nfds; i++) {
 			if (_pollFds[i].revents & POLLIN) 
 			{
@@ -112,17 +116,15 @@ void Server::createServer()
 					handlIncomeConnections();
 				else
 					handleIncomeData(i);
+				// compaction of the fds array
+				if (_nfds > 1 && i < _nfds - 1 && _pollFds[i].fd == -1) {
+					_pollFds[i].fd = _pollFds[_nfds - 1].fd;
+					_pollFds[i].events = _pollFds[_nfds - 1].events;
+					_pollFds[i].revents = _pollFds[_nfds - 1].revents;
+					_nfds--;
+				}
 			}
 	    }
-	    // Compact the fds array to remove closed client sockets
-	    current_size = 0;
-	    for (size_t i = 0; i < _nfds; i++) {
-	        if (_pollFds[i].fd >= 0) {
-	            _pollFds[current_size] = _pollFds[i];
-	            current_size++;
-	        }
-	    }
-	    _nfds = current_size;
 	}
 }
 
@@ -151,14 +153,13 @@ void Server::handlIncomeConnections()
 		if (_pollFds.size() >= _nfds) {
 			_pollFds.resize(_pollFds.size() + 10);
 		}
-        // Add the new client socket to the fds array and clients map
         std::cout << GREEN << "New connection from : " << YELLOW << inet_ntoa(client_adrs.sin_addr) << RESET << std::endl;
         _pollFds[_nfds].fd = newSck;
         _pollFds[_nfds].events = POLLIN;
         _pollFds[_nfds].revents = 0;
 
         // Add the new client to the clients map
-        _clients.insert(std::make_pair(newSck, Client(newSck, client_adrs)));
+        _clients.insert(std::pair<int, Client>(newSck, Client(newSck, client_adrs)));
         _nfds++;
         _countCli++;
     }
@@ -207,20 +208,36 @@ Server::handleIncomeData(int i)
 
 	rc = recv(_pollFds[i].fd, buffer, sizeof(buffer) - 1, 0);
 	if (rc < 0) {
-		
-		close(_pollFds[i].fd);
-		_pollFds[i].fd = -1;
-		_countCli--;
+		if (errno != EAGAIN && errno != EWOULDBLOCK) {
+    	    clientIt cIt = _clients.find(_pollFds[i].fd);
+			if (cIt != _clients.end()) {
+				Client &client = cIt->second;
+				std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
+				std::string quitMessage = QUIT_MSG(client.getNickname(), client.getUsername(), clientHost, "Forced quit");			
+				for (std::map<std::string, Channel>::iterator it = _channels.begin(); it != _channels.end(); it++)
+				{
+					if (it->second.isClientExist(client.getNickname())) {
+						it->second.broadCast(quitMessage, _pollFds[i].fd);
+						it->second.removeUser(client.getNickname(), 1);
+					}
+				}
+				close(_pollFds[i].fd);
+				std::cout << RED << "Connection closed For : " << YELLOW << _clients[_pollFds[i].fd].getNickname() << RESET << std::endl;
+				_pollFds[i].fd = -1;
+				_clients.erase(_pollFds[i].fd);
+				_countCli--;
+				_nfds--;
+			}
+    	}
         return;
     }
 	else if (rc == 0) {
-		std::cout << RED << "Connection closed For : " << YELLOW << _pollFds[i].fd << RESET << std::endl;
 		// Remove closed client from fds array and clientsFds map)
 		clientIt cIt = _clients.find(_pollFds[i].fd);
 		if (cIt != _clients.end()) {
 			Client &client = cIt->second;
 			std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
-			std::string quitMessage = QUIT_MSG(client.getNickname(), client.getUsername(), clientHost, "Forced quit");			
+			std::string quitMessage = QUIT_MSG(client.getNickname(), client.getUsername(), clientHost, " Forced quit");			
 			for (std::map<std::string, Channel>::iterator it = _channels.begin(); it != _channels.end(); it++)
 			{
 				if (it->second.isClientExist(client.getNickname())) {
@@ -228,33 +245,31 @@ Server::handleIncomeData(int i)
 					it->second.removeUser(client.getNickname(), 1);
 				}
 			}
-			_clients.erase(_pollFds[i].fd);
 			close(_pollFds[i].fd);
+			std::cout << RED << "Connection closed For : " << YELLOW << _clients[_pollFds[i].fd].getNickname() << RESET << std::endl;
 			_pollFds[i].fd = -1;
+			_clients.erase(_pollFds[i].fd);
 			_countCli--;
+			_nfds--;
 		}
+		return;
 	}
 	else {
         buffer[rc] = '\0';
         std::string rec(buffer);
 		std::replace(rec.begin(), rec.end(), '\r', '\n');
-		std::cout << "rec : " << rec << std::endl;
 
         std::map<int, Client>::iterator cIt = _clients.find(_pollFds[i].fd);
         if (cIt != _clients.end()) {
             if (rec.find_first_of('\n') == std::string::npos) {
                 cIt->second._clientBuffer.append(rec);
                 return;
-            } else {
+            } 	
+			else {
                 rec = cIt->second._clientBuffer + rec;
                 cIt->second._clientBuffer.clear();
             }
-			// std::map<std::string, Channel>::iterator it1 = _channels.begin();
-			// for (; it1 != _channels.end(); it1++) {
-			// 	for (std::map<std::string, Client>::iterator it2 = it1->second.getUsers().begin(); it2 != it1->second.getUsers().end(); it2++) {
-			// 		std::cout << "user : " << it2->second.getNickname() << std::endl;
-			// 	}
-			// }
+
             std::vector<std::string> messages = getBuffers(rec);
             for (std::vector<std::string>::iterator it = messages.begin(); it != messages.end(); ++it) {
                 *it = trimTheSpaces(*it);
