@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 23:34:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/08/13 04:23:45 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/08/19 00:06:44 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -223,9 +223,7 @@ Channel::broadCast(const std::string &msg, int excludedFd)
     for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); ++it)
     {
         if (it->second.getSocket() != excludedFd) {          
-            std::cout << GREEN << "SENT => " << msg << RESET << std::endl;
-            send(it->second.getSocket(), msg.c_str() , msg.size() , 0); 
-            // replyTo(it->second.getSocket(), msg);
+            replyTo(it->second.getSocket(), msg);
         }
     }
 };

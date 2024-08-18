@@ -86,27 +86,20 @@ Server::Server(uint16_t port, char *password) : _countCli(0), _port(port), _pass
 // create the server and handle the incoming connections and data
 void Server::createServer() 
 {
-	int rc = 0;
+	int rc;
 
 	// signal handling
     signal(SIGINT, Server::sigHandler);
     signal(SIGQUIT, Server::sigHandler);
+	signal(SIGPIPE, SIG_IGN);
 	// Start listening for incoming connections
 	std::cout << "server is running : " << std::endl;
 	while (_signal == false) {
 		// Check if the server is shutting down by signal
-		if (Server::_signal)
-			throw std::runtime_error("Server is shutting down");
 
 		rc = poll(&_pollFds[0], _pollFds.size(), -1);
-	    if (rc < 0 && _signal == false) {
-			// repeat the poll if the signal is not received
-			if (errno == EINTR)
-				continue;
-			else
-				throw std::runtime_error("poll() failed");
-		}
-	    
+	    if (rc < 0 && _signal == false)
+			throw std::runtime_error("poll() failed");
 
 		for (size_t i = 0; i < _nfds; i++) {
 			if (_pollFds[i].revents & POLLIN) 
@@ -126,12 +119,13 @@ void Server::createServer()
 			}
 	    }
 	}
+	cleanUp();
 }
 
 // Handle incoming connections:
 void Server::handlIncomeConnections() 
 {
-    if (_pollFds[0].revents & POLLIN) // Use bitwise AND to check for POLLIN
+    if (_pollFds[0].revents & POLLIN)
     {
         struct sockaddr_in client_adrs;
         socklen_t sock_len = sizeof(client_adrs);
@@ -139,13 +133,13 @@ void Server::handlIncomeConnections()
 
         int newSck = accept(_listen_sd, (struct sockaddr *)&client_adrs, &sock_len);
 
-        if (newSck < 0) {
-            std::cerr << RED << "accept() failed" << RESET << std::endl;
-            return;
-        }
+        if (newSck == -1) {
+			std::cerr << RED << "accept() failed" << RESET << std::endl;
+			return;
+		}
 
         // Set the new socket to non-blocking mode
-        if (fcntl(newSck, F_SETFL, O_NONBLOCK) < 0) {
+        if (fcntl(newSck, F_SETFL, O_NONBLOCK) == -1) {
             close(newSck); // Avoid resource leak
             std::cerr << RED << "fcntl() failed" << RESET << std::endl;
 			return;
@@ -153,7 +147,6 @@ void Server::handlIncomeConnections()
 		if (_pollFds.size() >= _nfds) {
 			_pollFds.resize(_pollFds.size() + 10);
 		}
-        std::cout << GREEN << "New connection from : " << YELLOW << inet_ntoa(client_adrs.sin_addr) << RESET << std::endl;
         _pollFds[_nfds].fd = newSck;
         _pollFds[_nfds].events = POLLIN;
         _pollFds[_nfds].revents = 0;
@@ -162,6 +155,7 @@ void Server::handlIncomeConnections()
         _clients.insert(std::pair<int, Client>(newSck, Client(newSck, client_adrs)));
         _nfds++;
         _countCli++;
+        std::cout << GREEN << "New connection from : " << YELLOW << inet_ntoa(client_adrs.sin_addr) << RESET << std::endl;
     }
 }
 
@@ -199,6 +193,34 @@ Server::getBuffers(const std::string &buffer) {
     return messages;
 };
 
+
+void Server::dsconnectClient (int fd) {
+	size_t i;
+	for (i = 0; i < _nfds; i++) {
+		if (_pollFds[i].fd == fd) {
+			_pollFds.erase(_pollFds.begin() + i);
+			break;
+		}
+	}
+	for (i = 0; i < _clients.size(); i++) {
+		if (_clients[i].getSocket() == fd) {
+			// remove the client from the channels
+			for (std::map<std::string, Channel>::iterator it = _channels.begin(); it != _channels.end(); it++)
+			{
+				if (it->second.isClientExist(_clients[i].getNickname())) {
+					std::string clientHost = inet_ntoa(_clients[i].getAddr().sin_addr);
+					std::string quitMessage = QUIT_MSG(_clients[i].getNickname(), _clients[i].getUsername(), clientHost, " Forced quit");
+					it->second.broadCast(quitMessage, _clients[i].getSocket());
+					it->second.removeUser(_clients[i].getNickname(), 1);
+				}
+			}
+			_clients.erase(i);
+			close(fd);
+			break;
+		}
+	}
+}
+
 // Handle incoming data from clients :
 void 
 Server::handleIncomeData(int i) 
@@ -207,52 +229,12 @@ Server::handleIncomeData(int i)
 	int rc;
 
 	rc = recv(_pollFds[i].fd, buffer, sizeof(buffer) - 1, 0);
-	if (rc < 0) {
-		if (errno != EAGAIN && errno != EWOULDBLOCK) {
-    	    clientIt cIt = _clients.find(_pollFds[i].fd);
-			if (cIt != _clients.end()) {
-				Client &client = cIt->second;
-				std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
-				std::string quitMessage = QUIT_MSG(client.getNickname(), client.getUsername(), clientHost, "Forced quit");			
-				for (std::map<std::string, Channel>::iterator it = _channels.begin(); it != _channels.end(); it++)
-				{
-					if (it->second.isClientExist(client.getNickname())) {
-						it->second.broadCast(quitMessage, _pollFds[i].fd);
-						it->second.removeUser(client.getNickname(), 1);
-					}
-				}
-				close(_pollFds[i].fd);
-				std::cout << RED << "Connection closed For : " << YELLOW << _clients[_pollFds[i].fd].getNickname() << RESET << std::endl;
-				_pollFds[i].fd = -1;
-				_clients.erase(_pollFds[i].fd);
-				_countCli--;
-				_nfds--;
-			}
-    	}
-        return;
-    }
-	else if (rc == 0) {
-		// Remove closed client from fds array and clientsFds map)
-		clientIt cIt = _clients.find(_pollFds[i].fd);
-		if (cIt != _clients.end()) {
-			Client &client = cIt->second;
-			std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
-			std::string quitMessage = QUIT_MSG(client.getNickname(), client.getUsername(), clientHost, " Forced quit");			
-			for (std::map<std::string, Channel>::iterator it = _channels.begin(); it != _channels.end(); it++)
-			{
-				if (it->second.isClientExist(client.getNickname())) {
-					it->second.broadCast(quitMessage, _pollFds[i].fd);
-					it->second.removeUser(client.getNickname(), 1);
-				}
-			}
-			close(_pollFds[i].fd);
-			std::cout << RED << "Connection closed For : " << YELLOW << _clients[_pollFds[i].fd].getNickname() << RESET << std::endl;
-			_pollFds[i].fd = -1;
-			_clients.erase(_pollFds[i].fd);
-			_countCli--;
-			_nfds--;
-		}
-		return;
+	
+	if (rc <= 0) {
+		// Close the connection if the client is disconnected
+		std::cout << RED << "Connection closed For : " << YELLOW << _clients[_pollFds[i].fd].getNickname() << RESET << std::endl;
+		Server::dsconnectClient(_pollFds[i].fd);
+		_countCli--;
 	}
 	else {
         buffer[rc] = '\0';

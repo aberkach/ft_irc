@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 14:50:26 by abberkac          #+#    #+#             */
-/*   Updated: 2024/08/13 04:36:04 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/08/18 05:28:10 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,7 @@ class Server
         void                      partCommand(const std::vector<std::string> &fields, Client &client);
         void                      listCommand(const std::vector<std::string> &fields, Client &client);
         void                      modeCommand(const std::vector<std::string> &fields, Client &client);
+        void    dsconnectClient(int fd);
 
   public:
         Server(uint16_t port, char *password);
