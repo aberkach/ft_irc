@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 23:27:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/08/13 04:18:55 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/08/19 00:10:44 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,16 +32,11 @@ void	Server::sigHandler(int sigNumber)
 void Server::cleanUp()
 {
 	for (size_t i = 0; i < _nfds; i++)
-	{
 		close(_pollFds[i].fd);
-		_pollFds[i].fd = -1;
-	}
 	_clients.clear();
 	_channels.clear();
 	if (_listen_sd > 0)
-	{
 		close(_listen_sd);
-	}
 }
 
 size_t Server::countUsersInChannel(const std::string &chnName)
