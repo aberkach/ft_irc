@@ -7,7 +7,7 @@ BEXE := ircbot
 CPP := c++ 
 # -std=c++98
 
-CPPFLAGS := -Wall -Wextra -Wshadow -g -fsanitize=address -MMD
+CPPFLAGS := -Wall -Wextra -Wshadow #-g -fsanitize=address -MMD
 # -Werror
 
 ################################### SRCS ###################################

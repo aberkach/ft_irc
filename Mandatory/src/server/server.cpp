@@ -63,21 +63,23 @@ Server::Server(uint16_t port, char *password) : _countCli(0), _port(port), _pass
 	_pollFds[0].revents = 0;
 
 	// Initialize the commands map
-	_commands["PASS"] = &Server::passCommand;
-	_commands["USER"] = &Server::userCommand;
-	_commands["PING"] = &Server::pingCommad;
-	_commands["PONG"] = &Server::pongCommad;
-	_commands["NAMES"] = &Server::namesCommad;
-	_commands["TOPIC"] = &Server::topicCommand;
-	_commands["QUIT"] = &Server::quitCommand;
-	_commands["LIST"] = &Server::listCommand;
-	_commands["PART"] = &Server::partCommand;
-	_commands["MODE"] = &Server::modeCommand;
-	_commands["PRIVMSG"] = &Server::privmsgCommand;
-	_commands["INVITE"] = &Server::inviteCommand;
-	_commands["NICK"] = &Server::nickCommand;
+	_commands["PASS"] = &Server::passCommand; // working full
+	_commands["USER"] = &Server::userCommand;  // working full
+	_commands["PING"] = &Server::pingCommad; // working full
+	_commands["PONG"] = &Server::pongCommad; // working full
+	_commands["NAMES"] = &Server::namesCommad; // working full
+	_commands["TOPIC"] = &Server::topicCommand; // working full
+	_commands["QUIT"] = &Server::quitCommand; // working full
+	_commands["LIST"] = &Server::listCommand; // working full
+	_commands["PART"] = &Server::partCommand; // working full
+	_commands["MODE"] = &Server::modeCommand; // working fully
+	_commands["PRIVMSG"] = &Server::privmsgCommand; // working fully
+	_commands["INVITE"] = &Server::inviteCommand; // working fully
+	_commands["NICK"] = &Server::nickCommand; // working fully
 	_commands["KICK"] = &Server::kickCommand;
+
 	_commands["JOIN"] = &Server::joinCommand;
+	// nick changes might couse a prob need to stay updated at all time
 	// need to make all channel compare
 }
 
