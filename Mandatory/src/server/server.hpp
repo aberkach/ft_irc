@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 14:50:26 by abberkac          #+#    #+#             */
-/*   Updated: 2024/08/18 05:28:10 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/08/19 03:11:41 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,6 @@ class Server
         void                      processTheJoinArgs(const std::vector<std::string> &channels , std::vector<std::string> &keys, Client &client);
         void                      modeSetReply(Client& clinet, Channel &channel, std::string& modes, const std::vector<std::string> &fields);
         void                      executeModes(const std::vector<std::string> &fields, Client &client, chanIt it);
-		void                      cleanUp(void);
 		static void               sigHandler(int sigNumber);
         bool                      createChannel(const std::string &chnName, std::vector<std::string> &keys, Client &client);
         bool                      isClientInServer(const std::string &nickName);
@@ -74,12 +73,12 @@ class Server
         void                      partCommand(const std::vector<std::string> &fields, Client &client);
         void                      listCommand(const std::vector<std::string> &fields, Client &client);
         void                      modeCommand(const std::vector<std::string> &fields, Client &client);
-        void    dsconnectClient(int fd);
+        void                      dsconnectClient(int fd);
 
   public:
         Server(uint16_t port, char *password);
-
         void    createServer();
+        void    cleanUp(void);
 
         ~Server();
 };

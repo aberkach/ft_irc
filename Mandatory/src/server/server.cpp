@@ -106,13 +106,6 @@ void Server::createServer()
 					handlIncomeConnections();
 				else
 					handleIncomeData(i);
-				// compaction of the fds array
-				if (_nfds > 1 && i < _nfds - 1 && _pollFds[i].fd == -1) {
-					_pollFds[i].fd = _pollFds[_nfds - 1].fd;
-					_pollFds[i].events = _pollFds[_nfds - 1].events;
-					_pollFds[i].revents = _pollFds[_nfds - 1].revents;
-					_nfds--;
-				}
 			}
 	    }
 	}

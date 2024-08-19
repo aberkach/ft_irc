@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 06:22:34 by abberkac          #+#    #+#             */
-/*   Updated: 2024/07/27 07:27:07 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/08/19 03:14:54 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,19 +23,26 @@
 // check cleanup
 // check if there is eny unclosed socks
 
+void testLeaks(void)
+{
+    system("leaks ircserv");
+}
+
 int main(int ac, char **av)
 {
+    atexit(testLeaks);
     uint16_t port;
-
+    
     if ((port = arg_checker(ac ,av)) != 1)
     {
+        Server srv(port, av[2]);
         try {
-            Server srv(port, av[2]);
             srv.createServer();
         }
         catch (std::exception &e) {
+            srv.cleanUp();
             std::cerr << e.what() << std::endl;
         }
     }
-    return(port);
+    return 0;
 };
