@@ -76,11 +76,8 @@ Server::Server(uint16_t port, char *password) : _countCli(0), _port(port), _pass
 	_commands["PRIVMSG"] = &Server::privmsgCommand; // working fully
 	_commands["INVITE"] = &Server::inviteCommand; // working fully
 	_commands["NICK"] = &Server::nickCommand; // working fully
-	_commands["KICK"] = &Server::kickCommand;
-
-	_commands["JOIN"] = &Server::joinCommand;
-	// nick changes might couse a prob need to stay updated at all time
-	// need to make all channel compare
+	_commands["KICK"] = &Server::kickCommand; // working fully
+	_commands["JOIN"] = &Server::joinCommand; // working fully
 }
 
 // create the server and handle the incoming connections and data
@@ -93,7 +90,7 @@ void Server::createServer()
     signal(SIGQUIT, Server::sigHandler);
 	signal(SIGPIPE, SIG_IGN);
 	// Start listening for incoming connections
-	std::cout << "server is running : " << std::endl;
+	std::cout << YELLOW <<  "server is running ... " << RESET << std::endl;
 	while (_signal == false) {
 		// Check if the server is shutting down by signal
 
@@ -155,7 +152,7 @@ void Server::handlIncomeConnections()
         _clients.insert(std::pair<int, Client>(newSck, Client(newSck, client_adrs)));
         _nfds++;
         _countCli++;
-        std::cout << GREEN << "New connection from : " << YELLOW << inet_ntoa(client_adrs.sin_addr) << RESET << std::endl;
+        std::cout << GREEN << "New connection" << RESET << std::endl;
     }
 }
 
@@ -232,7 +229,7 @@ Server::handleIncomeData(int i)
 	
 	if (rc <= 0) {
 		// Close the connection if the client is disconnected
-		std::cout << RED << "Connection closed For : " << YELLOW << _clients[_pollFds[i].fd].getNickname() << RESET << std::endl;
+		std::cout << RED << "Connection closed " << RESET << std::endl;
 		Server::dsconnectClient(_pollFds[i].fd);
 		_countCli--;
 	}
@@ -266,7 +263,6 @@ Server::handleIncomeData(int i)
         }
     }
 }
-// for (std::vector<std::string>::iterator it = messages.begin(); it != messages.end(); ++it)
 
 Server::~Server(void) {
 	cleanUp();
