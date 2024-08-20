@@ -103,6 +103,7 @@ Server::executeModes(const std::vector<std::string> &fields, Client &client, cha
 		{
 			case 'i':
 				checksign(sign, modestr[i], appliedModes, 'i');
+				std::cout << "set: " << set << std::endl;
 				it->second.setIsInviteOnly(set);
 				break;
 			case 't':
