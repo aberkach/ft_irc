@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 22:29:46 by abberkac          #+#    #+#             */
-/*   Updated: 2024/08/19 01:23:45 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/08/20 04:24:42 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ bool Server::joinExistChannel(const std::string &chnName, std::vector<std::strin
                         return (replyTo(client.getSocket(), ERR_INVITEONLYCHAN(client.getNickname(), chnName)), false);
                 }
                 // check if the channel is full
-                else if (Server::countUsersInChannel(chnName) >= chnIt->second.getMaxUsers() && chnIt->second.getMaxUsers() != 0)
+                if (Server::countUsersInChannel(chnName) >= chnIt->second.getMaxUsers() && chnIt->second.getMaxUsers() != 0)
                     return (replyTo(client.getSocket(), ERR_CHANNELISFULL(client.getNickname(), chnName)), false);
                 chnIt->second.addUser(client);
             }

@@ -117,11 +117,6 @@ void Server::inviteCommand(const std::vector<std::string> &fields, Client &clien
         std::string invitedUser = fields[0];
         std::string chnName = fields[1];
         chanIt chnIt = _channels.find(chnName);
-        if (chnIt->second.isOperator(client.getNickname()) == false)
-        {
-            replyTo(client.getSocket(), ERR_CHANOPRIVSNEEDED(client.getNickname(), chnName));
-            return;
-        }
         if (chnIt == _channels.end())
         {
             std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
@@ -131,8 +126,12 @@ void Server::inviteCommand(const std::vector<std::string> &fields, Client &clien
         if (chnIt->second.isClientExist(client.getNickname()))
         {
             // here we send a message to the client that has been invited
+            if (chnIt->second.isOperator(client.getNickname()) == false)
+            {
+                replyTo(client.getSocket(), ERR_CHANOPRIVSNEEDED(client.getNickname(), chnName));
+                return;
+            }
             std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
-            replyTo(client.getSocket(), RPL_INVITING(client.getNickname(), invitedUser, chnName));
 
             if (isClientInServer(invitedUser))
             {
@@ -145,6 +144,7 @@ void Server::inviteCommand(const std::vector<std::string> &fields, Client &clien
                         replyTo(it->second.getSocket(), inviteMessage);
                     }
                 }
+                replyTo(client.getSocket(), RPL_INVITING(client.getNickname(), invitedUser, chnName));
             }
             else
                 replyTo(client.getSocket(), ERR_NOSUCHNICK(client.getNickname(), invitedUser));
