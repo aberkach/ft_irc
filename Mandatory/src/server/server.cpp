@@ -13,13 +13,6 @@
 
 #include "../../Inc/irc.hpp"
 
-// + t adds rights -t removes rights
-// can  only call mode if u an operator with 3 argument 
-
-
-// if not operator u can only mode #channel for info on the modes in channel
-
-
 bool Server::_signal = false;
 
 // parameterized constructor : initialize the server socket and set the port number
@@ -35,13 +28,13 @@ Server::Server(uint16_t port, char *password) : _countCli(0), _port(port), _pass
 	    close(_listen_sd);
 		throw std::runtime_error("setsockopt() failed");
 	}
-	
+
 	// Set socket to non-blocking mode
 	if (fcntl(_listen_sd, F_SETFL, O_NONBLOCK) < 0) {
 	    close(_listen_sd);
 		throw std::runtime_error("fcntl() for the server is failed");
 	}
-	
+
 	// Bind the socket to the specified address and port
 	memset(&_addr, 0, sizeof(_addr));
 	_addr.sin_family = AF_INET; // Address family for IPv4
@@ -54,34 +47,34 @@ Server::Server(uint16_t port, char *password) : _countCli(0), _port(port), _pass
 	}
 
 	// Start listening for incoming connections
-	if (listen(_listen_sd, 10) < 0) 
+	if (listen(_listen_sd, 10) < 0)
 		throw std::runtime_error("listen() failed");
-	
+
 	// Initialize the fds array with the server socket
 	_pollFds[0].fd = _listen_sd;
 	_pollFds[0].events = POLLIN;
 	_pollFds[0].revents = 0;
 
 	// Initialize the commands map
-	_commands["PASS"] = &Server::passCommand; // working full
-	_commands["USER"] = &Server::userCommand;  // working full
-	_commands["PING"] = &Server::pingCommad; // working full
-	_commands["PONG"] = &Server::pongCommad; // working full
-	_commands["NAMES"] = &Server::namesCommad; // working full
-	_commands["TOPIC"] = &Server::topicCommand; // working full
-	_commands["QUIT"] = &Server::quitCommand; // working full
-	_commands["LIST"] = &Server::listCommand; // working full
-	_commands["PART"] = &Server::partCommand; // working full
-	_commands["MODE"] = &Server::modeCommand; // working fully
-	_commands["PRIVMSG"] = &Server::privmsgCommand; // working fully
-	_commands["INVITE"] = &Server::inviteCommand; // working fully
-	_commands["NICK"] = &Server::nickCommand; // working fully
-	_commands["KICK"] = &Server::kickCommand; // working fully
-	_commands["JOIN"] = &Server::joinCommand; // working fully
+	_commands["PASS"] = &Server::passCommand;
+	_commands["USER"] = &Server::userCommand;
+	_commands["PING"] = &Server::pingCommad;
+	_commands["PONG"] = &Server::pongCommad;
+	_commands["NAMES"] = &Server::namesCommad;
+	_commands["TOPIC"] = &Server::topicCommand;
+	_commands["QUIT"] = &Server::quitCommand;
+	_commands["LIST"] = &Server::listCommand;
+	_commands["PART"] = &Server::partCommand;
+	_commands["MODE"] = &Server::modeCommand;
+	_commands["PRIVMSG"] = &Server::privmsgCommand;
+	_commands["INVITE"] = &Server::inviteCommand;
+	_commands["NICK"] = &Server::nickCommand;
+	_commands["KICK"] = &Server::kickCommand;
+	_commands["JOIN"] = &Server::joinCommand;
 }
 
 // create the server and handle the incoming connections and data
-void Server::createServer() 
+void Server::createServer()
 {
 	int rc;
 
@@ -99,7 +92,7 @@ void Server::createServer()
 			throw std::runtime_error("poll() failed");
 
 		for (size_t i = 0; i < _nfds; i++) {
-			if (_pollFds[i].revents & POLLIN) 
+			if (_pollFds[i].revents & POLLIN)
 			{
 	    		// Check for incoming connection on the server socket
 				if (_pollFds[i].fd == _listen_sd)
@@ -113,7 +106,7 @@ void Server::createServer()
 }
 
 // Handle incoming connections:
-void Server::handlIncomeConnections() 
+void Server::handlIncomeConnections()
 {
     if (_pollFds[0].revents & POLLIN)
     {
@@ -151,7 +144,7 @@ void Server::handlIncomeConnections()
 
 
 
-// run the correct command 
+// run the correct command
 void Server::commandRunner(std::vector<std::string> &fields, Client &user)
 {
 	std::string command(fields[0]);
@@ -212,14 +205,14 @@ void Server::dsconnectClient (int fd) {
 }
 
 // Handle incoming data from clients :
-void 
-Server::handleIncomeData(int i) 
+void
+Server::handleIncomeData(int i)
 {
 	char buffer[4096] = {0};
 	int rc;
 
 	rc = recv(_pollFds[i].fd, buffer, sizeof(buffer) - 1, 0);
-	
+
 	if (rc <= 0) {
 		// Close the connection if the client is disconnected
 		std::cout << RED << "Connection closed " << RESET << std::endl;
@@ -229,6 +222,7 @@ Server::handleIncomeData(int i)
 	else {
         buffer[rc] = '\0';
         std::string rec(buffer);
+        std::cout << YELLOW << _pollFds[i].fd << "|RECVED| :" RESET << rec << std::endl;
 		std::replace(rec.begin(), rec.end(), '\r', '\n');
 
         std::map<int, Client>::iterator cIt = _clients.find(_pollFds[i].fd);
@@ -236,7 +230,7 @@ Server::handleIncomeData(int i)
             if (rec.find_first_of('\n') == std::string::npos) {
                 cIt->second._clientBuffer.append(rec);
                 return;
-            } 	
+            }
 			else {
                 rec = cIt->second._clientBuffer + rec;
                 cIt->second._clientBuffer.clear();

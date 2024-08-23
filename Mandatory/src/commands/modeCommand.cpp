@@ -14,9 +14,9 @@ Server::modeSetReply(Client& client, Channel &channel, std::string& modes, const
 {
 	if (modes.empty())
 		return;
-	
+
 	for (size_t i = 0; i < fields.size() ; i++)
-		modes += " " + fields[i];
+		modes += ' ' + fields[i];
 
 	channel.broadCast(MODE_SET(client.getNickname(), client.getUsername(), inet_ntoa(client.getAddr().sin_addr), channel.getName(), modes), -1);
 };
@@ -94,7 +94,7 @@ Server::executeModes(const std::vector<std::string> &fields, Client &client, cha
 	std::string	appliedModes;
 	std::vector<std::string> appliedFields;
 	std::string modestr = extractModeString(fields[1], client);
-	
+
 	for (size_t i = 0; i < modestr.size(); i += 2)
 	{
 		bool set = (modestr[i] == '+');
@@ -185,7 +185,7 @@ Server::modeCommand(const std::vector<std::string> &fields, Client &client)
 			int size = fields.size();
 			switch (size)
 			{
-				case 1: 
+				case 1:
 					displayChannelMode(it->second, client);
 					break;
 

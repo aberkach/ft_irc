@@ -12,11 +12,9 @@
 
 #pragma once
 
-// #include <cstddef>
 #include <sys/poll.h>
 #include <vector>
 #include <map>
-// #include <sstream>
 
 class Client;
 class Channel;
