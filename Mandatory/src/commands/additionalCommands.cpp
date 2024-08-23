@@ -14,8 +14,11 @@ Server::privmsgCommand(const std::vector<std::string> &fields, Client &client)
 				return (replyTo(client.getSocket(), ERR_NOTEXTTOSEND(client.getNickname())));
 
             std::vector<std::string> clients = splitByDelim(fields[0], ',');
-			for (std::vector<std::string>::iterator split = clients.begin(); split != clients.end(); ++split) {
+
+			for (std::vector<std::string>::iterator split = clients.begin(); split != clients.end(); ++split)
+            {
 				const std::string &target = *split;
+
 				if (target[0] == '#')
 				{
 					chanIt it = _channels.find(target);
@@ -50,7 +53,7 @@ Server::pingCommad(const std::vector<std::string> &fields, Client &client)
         replyTo(client.getSocket(),(client.getRegistered()) ? PONG(client.getNickname()) : PONG(std::string("Guest")));
     else if (size >= 1)
         replyTo(client.getSocket(), PONG(fields[0]));
-    else 
+    else
         replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname() ,"PING"));
 };
 
@@ -87,7 +90,7 @@ Server::listCommand(const std::vector<std::string> &fields, Client &client)
 {
     if (client.getRegistered() == false)
         replyTo(client.getSocket(), ERR_NOTREGISTERED(std::string("GUEST")));
-    else 
+    else
     {
         replyTo(client.getSocket(), RPL_LISTSTART(client.getNickname()));
         if (fields.size() >= 1)
