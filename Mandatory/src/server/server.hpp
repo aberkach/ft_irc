@@ -6,7 +6,7 @@
 /*   By: abberkac <abberkac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 14:50:26 by abberkac          #+#    #+#             */
-/*   Updated: 2024/08/19 03:11:41 by abberkac         ###   ########.fr       */
+/*   Updated: 2024/08/23 23:29:18 by abberkac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,6 @@ class Server
         std::map<int, Client>                 _clients;
         std::map<std::string, Channel>        _channels;
 
-    private:
         Server(void);
 
         void                      handlIncomeConnections(void);
