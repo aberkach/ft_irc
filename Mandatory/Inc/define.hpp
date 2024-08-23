@@ -63,6 +63,8 @@
 #define ERR_FIRSTCOMMAND                                              ":" SERVERNAME " 451 Guest :Server is expecting 'PASS <password>' first\r\n"
 #define ERR_USERFORMAT                                                ":" SERVERNAME " 460 Guest :Use format USER <username> 0 * <realname>\r\n"
 #define ERR_PASSWDMISMATCH                                            ":" SERVERNAME " 464 Guest :Password incorrect\r\n"
+
+
 #define ERR_NOTEXTTOSEND(nick)                                        ":" SERVERNAME " 412 " + (nick) + " :No text to send\r\n"
 #define ERR_NONICKNAMEGIVEN(nick)                                     ":" SERVERNAME " 431 " + (nick) + " :No nickname given\r\n"
 #define ERR_ERRONEUSNICKNAME(nick)                                    ":" SERVERNAME " 432 " + (nick) + " :Erroneus nickname\r\n"
@@ -74,9 +76,11 @@
 #define RPL_LISTSTART(nick)                                           ":" SERVERNAME " 321 " + (nick) + " Channel :Users Name\r\n"
 #define RPL_INVITING(nick, invited, channel)                          ":" SERVERNAME " 341 " + (nick) + " inviting " + (invited) + " to " + (channel) + "\r\n"
 #define ERR_NOSUCHNICK(nick, target)                                  ":" SERVERNAME " 401 " + (nick) + " " + (target) + " :No such nick/channel\r\n"
-#define ERR_NOSUCHCHANNEL(nick, channel)                              ":" SERVERNAME " 403 " + (nick) + " " + (channel) + " :No such channel\r\n"
+#define ERR_UNKNOWNMODE(nick, charac)                                 ":" SERVERNAME " 472 " + (nick) + " " + (charac) + " :is unknown mode char to me\r\n"
 #define ERR_UNKNOWNCOMMAND(nick, command)                             ":" SERVERNAME " 421 " + (nick) + " " + (command) + " :Unknown command\r\n"
 #define ERR_NEEDMOREPARAMS(nick, command)                             ":" SERVERNAME " 461 " + (nick) + " " + (command) + " :Not enough parameters\r\n"
+#define ERR_ALREADYINCHANNEL(nick, client, channel)                   ":" SERVERNAME " 443 " + (nick) + " " + (client) + " " + (channel) + " :is already on channel\r\n"
+#define ERR_NOSUCHCHANNEL(nick, channel)                              ":" SERVERNAME " 403 " + (nick) + " " + (channel) + " :No such channel\r\n"
 #define ERR_NOTONCHANNEL(nick, channel)                               ":" SERVERNAME " 442 " + (nick) + " " + (channel) + " :You're not on that channel\r\n"
 #define ERR_BADCHANNELKEY(nick, channel)                              ":" SERVERNAME " 475 " + (nick) + " " + (channel) + " :Invalid key\r\n"
 #define ERR_INVALIDKEY(nick, channel)                                 ":" SERVERNAME " 525 " + (nick) + " " + (channel) + " :wrong channel key (+k)\r\n"
@@ -85,12 +89,12 @@
 #define RPL_CREATIONTIME(nick, channel, creation_time)                ":" SERVERNAME " 329 " + (nick) + " " + (channel) + " " + (creation_time) + "\r\n"
 #define ERR_CHANNELISFULL(nick, channel)                              ":" SERVERNAME " 471 " + (nick) + " " + (channel) + ": Cannot channel (+l)\r\n"
 #define ERR_INVITEONLYCHAN(nick, channel)                             ":" SERVERNAME " 473 " + (nick) + " " + (channel) + ":Cannot join channel (+i)\r\n"
-#define ERR_UNKNOWNMODE(nick, charac)                                 ":" SERVERNAME " 472 " + (nick) + " " + (charac) + " :is unknown mode char to me\r\n"
 #define ERR_CHANOPRIVSNEEDED(nick, channel)                           ":" SERVERNAME " 482 " + (nick) + " " + (channel) + " :You're not channel operator\r\n"
 #define RPL_ENDOFNAMES(nick, channel)                                 ":" SERVERNAME " 366 " + (nick) + " " + (channel) + " :End of /NAMES list.\r\n"
 #define RPL_TOPIC(nick, channel, topic)                               ":" SERVERNAME " 332 " + (nick) + " " + (channel) + " :" + (topic) + "\r\n"
 #define LIST_MSG(nick, channel, nb_users, topic)                      ":" SERVERNAME " 322 " + (nick) + " " + (channel) + " " + (nb_users) + " :" + (topic) + "\r\n"
 #define RPL_NAMREPLY(clients, channel, nick)                          ":" SERVERNAME " 353 " + (nick) + " = " + (channel) + " :" + (clients) + "\r\n"
+
 #define PRIVMSG(nick, username, host, target, message)                ":" + (nick) + "!" + (username) + "@" + (host) + " PRIVMSG " + (target) + " :" + (message) + "\r\n"
 #define CHANGENICK(nick, username, host, message)                     ":" + (nick) + "!" + (username) + "@" + (host) + " NICK :" + (message) + "\r\n"
 #define MODE_SET(nick, username, host, channel, modes)                ":" + (nick) + "!" + (username) + "@" + (host) + " MODE " + (channel) + " " + (modes) + "\r\n"
@@ -100,14 +104,8 @@
 #define RPL_INVITED(nick, username, host, invited, channel)           ":" + (nick) + "!" + (username) + "@" + (host) + " INVITE " + (invited) + " :" + (channel) + "\r\n"
 #define QUIT_MSG(nick, username, host, reason)                        ":" + (nick) + "!" + (username) + "@" + (host) + " QUIT :Client " + (reason) + "\r\n"
 #define PART_MSG(nick, username, host, channel, reason)               ":" + (nick) + "!" + (username) + "@" + (host) + " PART " + (channel) + " " + (reason) + "\r\n"
+
 #define PING(target)                                                  "PING :" + (target) + "\r\n"
 #define PONG(target)                                                  "PONG :" + (target) + "\r\n"
-
-#define ERR_ALREADYINCHANNEL(client, nick, channel)                   ":" SERVERNAME " 443 " + (client) + " " + (nick) + " " + (channel) + " :is already on channel\r\n"
-// #define ERR_CANNOTSENDTOCHAN(nick)                                    ":" SERVERNAME " 404 " + (nick) + " :Cannot send to nick/channel\r\n"
-// #define RPL_WHOISOPERATOR(client)                                     ":" SERVERNAME " 313 " + (client) + " " + " :is channel operator" + "\r\n"
-// #define RPL_NOTOPIC(client, channel)                                  ":" SERVERNAME " 331 " + (client) + " " + (channel) + " :No topic is set\r\n"
-// #define INVITE_MSG(client, host, channel, invited)                  ":" SERVERNAME " " + (client) + " !~ " + (host) + " INVITE " + (channel) + " " + (invited) + "\r\n"
-// #define ERR_INVALIDMODEPARAM(client, target, modechar, parameter)     ":" SERVERNAME " 696 " + (client) + " " + (target) + " " + (modechar) + " " + " You must specify a parameter for the key mode. Syntax: " + (parameter) + "\r\n"
 
 #endif

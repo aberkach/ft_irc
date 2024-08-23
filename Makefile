@@ -1,7 +1,6 @@
 ################################### IRC ###################################
 
 EXE := ircserv
-
 BEXE := ircbot
 
 CPP := c++
@@ -12,29 +11,41 @@ CPPFLAGS := -Wall -Wextra -Wshadow -MMD #-g -fsanitize=address
 
 ################################### SRCS ###################################
 
-FILES := ./Mandatory/src/client/client.cpp		 ./Mandatory/src/server/server.cpp 					  		  ./Mandatory/src/server/utils.cpp				 \
-		 ./Mandatory/src/channel/channel.cpp		 ./Mandatory/src/commands/additionalCommands.cpp		  ./Mandatory/src/commands/channelOpsCommands.cpp \
-		 ./Mandatory/src/commands/joinCommand.cpp	 ./Mandatory/src/commands/authenticationCommands.cpp	  ./Mandatory/src/commands/modeCommand.cpp 		 \
-		 ./Mandatory/src/tools/parse.cpp			 ./Mandatory/src/tools/utils.cpp						  ./Mandatory/main.cpp
+DIR := ./Compiled
 
-BFILES :=  ./Bonus/src/bot.cpp 		./Bonus/src/commands.cpp ./Bonus/src/tools.cpp		./Bonus/main.cpp
+FILES := ./Mandatory/src/client/client.cpp \
+         ./Mandatory/src/server/server.cpp \
+         ./Mandatory/src/server/utils.cpp \
+         ./Mandatory/src/channel/channel.cpp \
+         ./Mandatory/src/commands/additionalCommands.cpp \
+         ./Mandatory/src/commands/channelOpsCommands.cpp \
+         ./Mandatory/src/commands/joinCommand.cpp \
+         ./Mandatory/src/commands/authenticationCommands.cpp \
+         ./Mandatory/src/commands/modeCommand.cpp \
+         ./Mandatory/src/tools/parse.cpp \
+         ./Mandatory/src/tools/utils.cpp \
+         ./Mandatory/main.cpp
 
-DEPS := $(FILES:.cpp=.d) $(BFILES:.cpp=.d)
+BFILES := ./Bonus/src/bot.cpp \
+          ./Bonus/src/commands.cpp \
+          ./Bonus/src/tools.cpp \
+          ./Bonus/main.cpp
 
 #############################################################################
 
-OBJ := $(FILES:.cpp=.o)
+OBJ := $(FILES:%.cpp=$(DIR)/%.o)
+BOBJ := $(BFILES:%.cpp=$(DIR)/%.o)
 
-BOBJ := $(BFILES:.cpp=.o)
+DEPS := $(OBJ:$(DIR)/%.o=$(DIR)/Dependency/%.d) \
+        $(BOBJ:$(DIR)/%.o=$(DIR)/Dependency/%.d)
 
 M = MAKE_PUSH
 
 ################################### RULES ###################################
 
+all: $(EXE)
 
-all : $(EXE)
-
-bonus : $(BEXE)
+bonus: $(BEXE)
 
 $(EXE): $(OBJ)
 	$(CPP) $(CPPFLAGS) $(OBJ) -o $(EXE)
@@ -42,13 +53,14 @@ $(EXE): $(OBJ)
 $(BEXE): $(BOBJ)
 	$(CPP) $(CPPFLAGS) $(BOBJ) -o $(BEXE)
 
-%.o: %.cpp
+$(DIR)/%.o: %.cpp
+	@mkdir -p $(dir $@)
 	$(CPP) $(CPPFLAGS) -c $< -o $@
 
-clean :
-	rm -rf $(BOBJ) $(OBJ) $(DEPS)
+clean:
+	rm -rf $(DIR)
 
-fclean : clean
+fclean: clean
 	rm -rf $(EXE) $(BEXE)
 
 re: fclean all
@@ -63,4 +75,4 @@ push: fclean
 
 ##############################################################################
 
-.PHONY:  clean fclean re push bonus
+.PHONY: clean fclean re push bonus
