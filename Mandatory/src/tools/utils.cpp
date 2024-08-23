@@ -36,7 +36,7 @@ splitBySpace(const std::string &str)
     std::istringstream iss(str);
 
     while (iss >> part) {
-  
+
 		if (!part.empty() && part[0] == ':')
         {
 			std::string reset;
@@ -67,7 +67,8 @@ splitByDelim(const std::string &str, char delim)
 void
 replyTo(int socket, const std::string &buffer)
 {
-    send(socket, buffer.c_str() , buffer.size() , 0); // prot
+    std::cout << GREEN << socket << " |SENT| :" RESET << buffer << std::endl;
+    send(socket, buffer.c_str() , buffer.size() , 0);
 };
 
 std::string

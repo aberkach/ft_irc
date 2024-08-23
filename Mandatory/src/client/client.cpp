@@ -3,13 +3,13 @@
 
 /// @brief
 /// #### constructors ####
-Client::Client(void): _socket(-1) , _registered(false) , _validPass(false) , 
+Client::Client(void): _socket(-1) , _registered(false) , _validPass(false) ,
     _nickName(""), _userName(""), _realName("")
 {
     memset(&_addr, 0, sizeof(_addr));
 };
 
-Client::Client(int socket, struct sockaddr_in &addr) : _socket(socket) , _registered(false) , _validPass(false) , 
+Client::Client(int socket, struct sockaddr_in &addr) : _socket(socket) , _registered(false) , _validPass(false) ,
     _nickName(""), _userName(""), _realName("")
 {
     replyTo(_socket, AUTH);
@@ -17,7 +17,7 @@ Client::Client(int socket, struct sockaddr_in &addr) : _socket(socket) , _regist
     memmove(&_addr, &addr, sizeof(_addr));
 };
 
-Client::Client(const Client& user) : _socket(user._socket) , _registered(user._registered) , _validPass(user._validPass) , 
+Client::Client(const Client& user) : _socket(user._socket) , _registered(user._registered) , _validPass(user._validPass) ,
     _nickName(user._nickName), _userName(user._userName), _realName(user._realName)
 {
     memset(&_addr, 0, sizeof(_addr));
@@ -33,19 +33,19 @@ Client::setSocket(int socket)
     _socket = socket;
 };
 
-void 
+void
 Client::setValidPass(bool status)
 {
     _validPass = status;
 };
 
-void 
+void
 Client::setRegistered(bool status )
 {
     _registered = status;
 };
 
-bool 
+bool
 Client::setNickname(const std::string& nickName)
 {
     if (nickName.empty() || nickName[0] == '$' || nickName[0] == ':' || nickName[0] == '#' || nickName[0] == '&' ||  nickName[0] == '+'
@@ -60,8 +60,8 @@ Client::setNickname(const std::string& nickName)
     return (true);
 };
 
-bool 
-Client::setUsername(const std::string& userName) 
+bool
+Client::setUsername(const std::string& userName)
 {
     if (userName.empty())
         return (false);
@@ -69,8 +69,8 @@ Client::setUsername(const std::string& userName)
     return (true);
 };
 
-bool 
-Client::setRealname(const std::string& realName) 
+bool
+Client::setRealname(const std::string& realName)
 {
     if (realName.empty())
         return (false);
@@ -81,38 +81,38 @@ Client::setRealname(const std::string& realName)
 
 /// @brief
 /// #### getters ####
-bool 
+bool
 Client::getRegistered(void) const
 {
     return _registered;
 };
 
-int  
+int
 Client::getSocket(void) const
 {
     return _socket;
 };
 
-bool 
+bool
 Client::getValidPass(void) const
 {
     return _validPass;
 };
 
 
-std::string 
+std::string
 Client::getNickname(void) const
 {
     return _nickName;
 };
 
-std::string 
+std::string
 Client::getUsername(void) const
 {
     return _userName;
 };
 
-std::string 
+std::string
 Client::getRealname(void) const
 {
     return _realName;
@@ -126,7 +126,7 @@ sockaddr_in Client::getAddr(void) const
 
 /// @brief
 /// #### methods ####
-void 
+void
 Client::refStatus(uint countCli)
 {
 

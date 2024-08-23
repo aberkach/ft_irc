@@ -4,15 +4,15 @@ EXE := ircserv
 
 BEXE := ircbot
 
-CPP := c++ 
+CPP := c++
 # -std=c++98
 
-CPPFLAGS := -Wall -Wextra -Wshadow #-g -fsanitize=address -MMD
+CPPFLAGS := -Wall -Wextra -Wshadow -MMD #-g -fsanitize=address
 # -Werror
 
 ################################### SRCS ###################################
 
-FILES := ./Mandatory/src/client/client.cpp		 ./Mandatory/src/server/server.cpp 					  ./Mandatory/src/server/utils.cpp				 \
+FILES := ./Mandatory/src/client/client.cpp		 ./Mandatory/src/server/server.cpp 					  		  ./Mandatory/src/server/utils.cpp				 \
 		 ./Mandatory/src/channel/channel.cpp		 ./Mandatory/src/commands/additionalCommands.cpp		  ./Mandatory/src/commands/channelOpsCommands.cpp \
 		 ./Mandatory/src/commands/joinCommand.cpp	 ./Mandatory/src/commands/authenticationCommands.cpp	  ./Mandatory/src/commands/modeCommand.cpp 		 \
 		 ./Mandatory/src/tools/parse.cpp			 ./Mandatory/src/tools/utils.cpp						  ./Mandatory/main.cpp
@@ -31,20 +31,19 @@ M = MAKE_PUSH
 
 ################################### RULES ###################################
 
--include $(DEPS)
 
 all : $(EXE)
 
 bonus : $(BEXE)
 
 $(EXE): $(OBJ)
-	$(CPP) $(CPPFLAGS) $(OBJ)  -o $(EXE)
+	$(CPP) $(CPPFLAGS) $(OBJ) -o $(EXE)
 
 $(BEXE): $(BOBJ)
 	$(CPP) $(CPPFLAGS) $(BOBJ) -o $(BEXE)
 
 %.o: %.cpp
-	$(CPP) $(CPPFLAGS) -c -o $@ $<
+	$(CPP) $(CPPFLAGS) -c $< -o $@
 
 clean :
 	rm -rf $(BOBJ) $(OBJ) $(DEPS)
@@ -53,6 +52,8 @@ fclean : clean
 	rm -rf $(EXE) $(BEXE)
 
 re: fclean all
+
+-include $(DEPS)
 
 push: fclean
 	git add .

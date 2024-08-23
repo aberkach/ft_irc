@@ -78,7 +78,7 @@ std::map<std::string, Client> &Channel::getUsers()
 std::string Channel::getChannelUsersInString() const
 {
     std::string users;
-    
+
     for (std::map<std::string, Client>::const_iterator it = _users.begin(); it != _users.end(); it++)
     {
         for (std::vector<Client>::const_iterator opIt = _chanOps.begin(); opIt != _chanOps.end(); opIt++) {
@@ -222,7 +222,7 @@ Channel::broadCast(const std::string &msg, int excludedFd)
 {
     for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); ++it)
     {
-        if (it->second.getSocket() != excludedFd) {          
+        if (it->second.getSocket() != excludedFd) {
             replyTo(it->second.getSocket(), msg);
         }
     }

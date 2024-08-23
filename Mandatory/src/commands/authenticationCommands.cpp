@@ -1,7 +1,7 @@
 
 #include "../../Inc/irc.hpp"
 
-// make all commands args capital for comparisons 
+// make all commands args capital for comparisons
 // and channels chould rely on getnick name in case of nick name changes
 
 void
@@ -20,7 +20,7 @@ Server::passCommand(const std::vector<std::string> &fields, Client &client)
 		replyTo(client.getSocket(), ERR_ALREADYREGISTERED(client.getNickname()));
 };
 
-void 
+void
 Server::nickCommand(const std::vector<std::string> &fields, Client &client) // if he changes nick it breadcasts too all joined channels
 {
 	if (client.getValidPass() == true)
@@ -74,7 +74,8 @@ Server::userCommand(const std::vector<std::string> &fields, Client &client)
                 std::string realName = fields[3];
                 if (realName.empty())
                     return (replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(std::string("Guest"), "USER")));
-                else if (!client.setUsername(fields[0])|| fields[1] != "0" || fields[2] != "*" || !client.setRealname(realName))
+                // else if (!client.setUsername(fields[0])|| fields[1] != "0" || fields[2] != "*" || !client.setRealname(realName))
+                else if (!client.setUsername(fields[0]) || !client.setRealname(realName))
                     return (replyTo(client.getSocket(), ERR_USERFORMAT));
             }
 			else
