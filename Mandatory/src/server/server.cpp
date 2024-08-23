@@ -86,7 +86,6 @@ void Server::createServer()
 	std::cout << YELLOW <<  "server is running ... " << RESET << std::endl;
 	while (_signal == false) {
 		// Check if the server is shutting down by signal
-
 		rc = poll(&_pollFds[0], _pollFds.size(), -1);
 	    if (rc < 0 && _signal == false)
 			throw std::runtime_error("poll() failed");
@@ -108,38 +107,31 @@ void Server::createServer()
 // Handle incoming connections:
 void Server::handlIncomeConnections()
 {
-    if (_pollFds[0].revents & POLLIN)
-    {
-        struct sockaddr_in client_adrs;
-        socklen_t sock_len = sizeof(client_adrs);
-        memset(&client_adrs, 0, sock_len);
-
-        int newSck = accept(_listen_sd, (struct sockaddr *)&client_adrs, &sock_len);
-
-        if (newSck == -1) {
-			std::cerr << RED << "accept() failed" << RESET << std::endl;
-			return;
-		}
-
-        // Set the new socket to non-blocking mode
-        if (fcntl(newSck, F_SETFL, O_NONBLOCK) == -1) {
-            close(newSck); // Avoid resource leak
-            std::cerr << RED << "fcntl() failed" << RESET << std::endl;
-			return;
-        }
-		if (_pollFds.size() >= _nfds) {
-			_pollFds.resize(_pollFds.size() + 10);
-		}
-        _pollFds[_nfds].fd = newSck;
-        _pollFds[_nfds].events = POLLIN;
-        _pollFds[_nfds].revents = 0;
-
-        // Add the new client to the clients map
-        _clients.insert(std::pair<int, Client>(newSck, Client(newSck, client_adrs)));
-        _nfds++;
-        _countCli++;
-        std::cout << GREEN << "New connection" << RESET << std::endl;
+    struct sockaddr_in client_adrs;
+    socklen_t sock_len = sizeof(client_adrs);
+    memset(&client_adrs, 0, sock_len);
+    int newSck = accept(_listen_sd, (struct sockaddr *)&client_adrs, &sock_len);
+    if (newSck == -1) {
+		std::cerr << RED << "accept() failed" << RESET << std::endl;
+		return;
+	}
+    // Set the new socket to non-blocking mode
+    if (fcntl(newSck, F_SETFL, O_NONBLOCK) == -1) {
+        close(newSck); // Avoid resource leak
+        std::cerr << RED << "fcntl() failed" << RESET << std::endl;
+		return;
     }
+	if (_pollFds.size() >= _nfds)
+		_pollFds.resize(_pollFds.size() + 10);
+
+    _pollFds[_nfds].fd = newSck;
+    _pollFds[_nfds].events = POLLIN;
+    _pollFds[_nfds].revents = 0;
+    // Add the new client to the clients map
+    _clients.insert(std::pair<int, Client>(newSck, Client(newSck, client_adrs)));
+    _nfds++;
+    _countCli++;
+    std::cout << GREEN << "New connection" << RESET << std::endl;
 }
 
 
@@ -159,7 +151,7 @@ void Server::commandRunner(std::vector<std::string> &fields, Client &user)
 std::vector<std::string>
 Server::getBuffers(const std::string &buffer) {
     std::vector<std::string> messages;
-    std::string::size_type start = 0, end = 0;
+    size_t start = 0, end = 0;
 
 	while ((end = buffer.find_first_of('\n',start)) != std::string::npos) {
 		while (buffer[end] && buffer[end] == '\n')
@@ -169,9 +161,8 @@ Server::getBuffers(const std::string &buffer) {
 		start = end;
 	}
 
-    if (start < buffer.length()) {
+    if (start < buffer.length()) 
         messages.push_back(buffer.substr(start));
-    }
 
     return messages;
 };
