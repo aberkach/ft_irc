@@ -161,7 +161,7 @@ Server::getBuffers(const std::string &buffer) {
 		start = end;
 	}
 
-    if (start < buffer.length()) 
+    if (start < buffer.length())
         messages.push_back(buffer.substr(start));
 
     return messages;

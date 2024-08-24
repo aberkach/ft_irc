@@ -34,10 +34,11 @@ BFILES := ./Bonus/src/bot.cpp \
 #############################################################################
 
 OBJ := $(FILES:%.cpp=$(DIR)/%.o)
+
 BOBJ := $(BFILES:%.cpp=$(DIR)/%.o)
 
-DEPS := $(OBJ:$(DIR)/%.o=$(DIR)/Dependency/%.d) \
-        $(BOBJ:$(DIR)/%.o=$(DIR)/Dependency/%.d)
+DEPS := $(OBJ:$(DIR)/%.o=$(DIR)/%.d) \
+        $(BOBJ:$(DIR)/%.o=$(DIR)/%.d)
 
 M = MAKE_PUSH
 

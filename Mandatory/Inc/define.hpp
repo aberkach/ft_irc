@@ -105,7 +105,7 @@
 #define QUIT_MSG(nick, username, host, reason)                        ":" + (nick) + "!" + (username) + "@" + (host) + " QUIT :Client " + (reason) + "\r\n"
 #define PART_MSG(nick, username, host, channel, reason)               ":" + (nick) + "!" + (username) + "@" + (host) + " PART " + (channel) + " " + (reason) + "\r\n"
 
-#define PING(target)                                                  "PING :" + (target) + "\r\n"
-#define PONG(target)                                                  "PONG :" + (target) + "\r\n"
+#define PING(target)                                                  "PING " + (target) + "\r\n"
+#define PONG(target)                                                  "PONG " + (target) + "\r\n"
 
 #endif

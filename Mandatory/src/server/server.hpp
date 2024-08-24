@@ -38,6 +38,7 @@ class Server
         std::map<int, Client>                 _clients;
         std::map<std::string, Channel>        _channels;
 
+    private:
         Server(void);
 
         void                      handlIncomeConnections(void);
