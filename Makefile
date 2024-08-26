@@ -34,7 +34,6 @@ BFILES := ./Bonus/src/bot.cpp \
 #############################################################################
 
 OBJ := $(FILES:%.cpp=$(DIR)/%.o)
-
 BOBJ := $(BFILES:%.cpp=$(DIR)/%.o)
 
 DEPS := $(OBJ:$(DIR)/%.o=$(DIR)/%.d) \

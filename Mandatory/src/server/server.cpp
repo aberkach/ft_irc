@@ -47,8 +47,10 @@ Server::Server(uint16_t port, char *password) : _countCli(0), _port(port), _pass
 	}
 
 	// Start listening for incoming connections
-	if (listen(_listen_sd, 10) < 0)
+	if (listen(_listen_sd, 10) < 0) {
+        close(_listen_sd);
 		throw std::runtime_error("listen() failed");
+    }
 
 	// Initialize the fds array with the server socket
 	_pollFds[0].fd = _listen_sd;
@@ -90,7 +92,8 @@ void Server::createServer()
 	    if (rc < 0 && _signal == false)
 			throw std::runtime_error("poll() failed");
 
-		for (size_t i = 0; i < _nfds; i++) {
+		for (size_t i = 0; i < _nfds; i++)
+        {
 			if (_pollFds[i].revents & POLLIN)
 			{
 	    		// Check for incoming connection on the server socket

@@ -20,7 +20,6 @@ class Bot {
     private:
         void            logger(const std::string &message) const;
         bool            masterStatus(const std::string &name);
-
         void            pongCommand(const std::vector<std::string> &fields);
         void            welcomeMsg(const std::vector<std::string> &fields);
         void            leaveMsg(const std::vector<std::string> &fields);
@@ -31,8 +30,9 @@ class Bot {
         // void         pollCommand(const std::vector<std::string> &fields);
         void            adminCommand(const std::vector<std::string> &fields);
 
-        const std::map<std::string, std::string>    extractWeatherData(const std::string &response);
+        std::vector<std::string>                    getBuffers(const std::string &buffer);
         std::string                                 getWeatherData(const std::map<std::string, std::string>& weatherData , const std::string &client);
+        const std::map<std::string, std::string>    extractWeatherData(const std::string &response);
 
 
     public:

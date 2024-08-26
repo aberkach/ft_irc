@@ -31,4 +31,11 @@ std::string                 recvit(int sock);
 std::string                 jsonValue(const std::string& json, const std::string& key) throw();
 std::vector<std::string>    splitByDelim(const std::string &str, char delim);
 
+template <typename T>
+inline std::string to_string(T value) {
+    std::ostringstream oss;
+    oss << value;
+    return oss.str();
+};
+
 #endif
