@@ -18,7 +18,7 @@
 // broadcast nickname changes to all joined channels
 // verify comments
 // update some methods in channel.cpp and channel.hpp
-// missing protections and some protections need to be removed 
+// missing protections and some protections need to be removed
 // verify the server.cpp .hpp
 // check cleanup
 // check if there is eny unclosed socks
@@ -32,15 +32,14 @@ int main(int ac, char **av)
 {
     // atexit(testLeaks);
     uint16_t port;
-    
+
     if ((port = arg_checker(ac ,av)) != 1)
     {
-        Server srv(port, av[2]);
         try {
+            Server srv(port, av[2]);
             srv.createServer();
         }
         catch (std::exception &e) {
-            srv.cleanUp();
             std::cerr << e.what() << std::endl;
         }
     }

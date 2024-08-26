@@ -110,7 +110,7 @@ Bot::weatherCommand(const std::vector<std::string> &fields)
         }
 
         if (bytes < 0)
-            command = "PRIVMSG " + client + " :failed to get weather Data from " HOST " server";                
+            command = "PRIVMSG " + client + " :failed to get weather Data from " HOST " server";
         else if (jsonValue(response, "cod") == "200") {
             std::map<std::string, std::string> weatherData = extractWeatherData(response);
             command = getWeatherData(weatherData, client);
@@ -125,19 +125,14 @@ Bot::weatherCommand(const std::vector<std::string> &fields)
 };
 
 // void
-// bot::pollCommand(const std::vector<std::string> &fields) {
-//     std::string command;
-//     const std::string &client = __GETARGET;
-//     // Creates and manages polls within the channel.
-//     // Collects votes and displays results.
-// };
+// bot::pollCommand(const std::vector<std::string> &fields) {};
 
 void
 Bot::helpCommand(const std::vector<std::string> &fields)
 {
     std::string command;
     const char *manual[] = MANUAL;
-    const std::string &client = __GETARGET;  // make a loop of 200ms delay between msgs
+    const std::string &client = __GETARGET;  // make a loop of 200ms delay between msgs to avoide irc bans
 
     int total = sizeof(manual) / sizeof(manual[0]);
 
@@ -151,11 +146,16 @@ void
 Bot::welcomeMsg(const std::vector<std::string> &fields)
 {
     if (fields[0] == BOT) {
-        channels.push_back(fields[2]);
+        std::string channel = fields[2].substr(1);
+        for (std::vector<std::string>::const_iterator it = channels.begin(); it != channels.end(); ++it) {
+            if (channel == *it)
+                return;
+        }
+        channels.push_back(fields[2].substr(1));
         return;
     }
-    
-    std::string command = "PRIVMSG " + fields[0] + WELCOME(fields[2]); 
+
+    std::string command = "PRIVMSG " + fields[0] + WELCOME(fields[2]);
     sendit(this->irc_sock, command);
 };
 
@@ -199,7 +199,7 @@ Bot::adminCommand(const std::vector<std::string> &fields)
         } else if (action == "part") {
 
             std::vector<std::string> part = splitByDelim(fields[5], ',');
-            for (std::vector<std::string>::iterator chanIt = part.begin(); chanIt != part.end(); ++it) {                
+            for (std::vector<std::string>::iterator chanIt = part.begin(); chanIt != part.end(); ++it) {
                 if ((it = std::find(channels.begin(), channels.end(), *chanIt)) != channels.end()) {
                     command = "PART " + *chanIt;
                     channels.erase(it);
@@ -207,7 +207,7 @@ Bot::adminCommand(const std::vector<std::string> &fields)
                 }
             }
         } else if (action == "add") {
-            if ((it = std::find(channels.begin(), channels.end(), fields[5])) == channels.end()) {
+            if ((it = std::find(masters.begin(), masters.end(), fields[5])) == masters.end()) {
                 masters.push_back(fields[5]);
             }
         } else if (action == "del") {
@@ -225,7 +225,7 @@ Bot::adminCommand(const std::vector<std::string> &fields)
                 }
             } else if (fields[5] == "channels") {
                 command += " :Channels =";
-                for (it = masters.begin(); it != masters.end(); it++) {
+                for (it = channels.begin(); it != channels.end(); it++) {
                     command += " " + *it;
                 }
             } else

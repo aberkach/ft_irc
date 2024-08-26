@@ -93,7 +93,7 @@ recvit(int sock)
 {
     int bytes = 0;
     char BUFFER[4096];
-    
+
     if ((bytes = recv(sock, BUFFER, sizeof(BUFFER) - 1, MSG_DONTWAIT)) == -1) {
         return "";
     }
@@ -147,14 +147,14 @@ valid_port(char *port_arg) throw()
     {
         if (!isdigit(port_arg[i]) || i > 5)
         {
-            std::cerr << RED "Error: Port range between 1024 && 65535." RESET << std::endl; 
+            std::cerr << RED "Error: Port range between 1024 && 65535." RESET << std::endl;
             return 1;
         }
     }
     uint32_t port = atoi(port_arg);
     if (1024 > port || 65535 < port)
     {
-        std::cerr << RED "Error: Port range between 1024 && 65535." RESET << std::endl; 
+        std::cerr << RED "Error: Port range between 1024 && 65535." RESET << std::endl;
         return 1;
     }
     return port;
@@ -164,7 +164,7 @@ uint16_t
 arg_checker(int ac, char **av) throw()
 {
     uint16_t port;
-    
+
     switch (ac)
     {
         case 2 :
@@ -181,7 +181,8 @@ arg_checker(int ac, char **av) throw()
     return port;
 };
 
-std::vector<std::string> splitByDelim(const std::string &str, char delim) {
+std::vector<std::string>
+splitByDelim(const std::string &str, char delim) {
     std::vector<std::string> tokens;
     std::stringstream ss(str);
     std::string token;

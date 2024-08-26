@@ -1,6 +1,6 @@
 #include "../Inc/ircBot.hpp"
 
-Bot::Bot(void) 
+Bot::Bot(void)
 {
     std::string master;
 
@@ -25,7 +25,7 @@ Bot::Bot(void)
             std::cout << YELLOW "API_KEY cant be empty nor have eny spaces in it." << std::endl;
             std::cout << "API will be set to null u can configure it later." RESET << std::endl; // info
             this->API_KEY = "\0";
-        } else 
+        } else
             this->API_KEY = master;
     } else {
         std::cout << YELLOW "API will be set to null u can configure it later." RESET << std::endl; // info
@@ -50,7 +50,7 @@ Bot::authenticate(std::string password) const
 {
     int i = 0;
     std::string response;
-    std::string commands[3] = {
+        std::string commands[3] = {
                                 "PASS " + password,
                                 "NICK " BOT,
                                 "USER " BOT " 0 * : " BOT,
@@ -91,34 +91,66 @@ Bot::logger(const std::string &message) const
         __LOG(message, GREEN)
 };
 
-void 
+std::vector<std::string>
+Bot::getBuffers(const std::string &buffer) {
+    std::vector<std::string> messages;
+    size_t start = 0, end = 0;
+
+	while ((end = buffer.find_first_of('\n',start)) != std::string::npos) {
+		while (buffer[end] && buffer[end] == '\n')
+			end++;
+		std::string message = buffer.substr(start, end - start);
+		messages.push_back(message);
+		start = end;
+	}
+
+    if (start < buffer.length())
+        messages.push_back(buffer.substr(start));
+
+    return messages;
+};
+
+void
 Bot::listenForCommand(void)
 {
+    const char *MAN[] = MANUAL;
+    const int    size = sizeof(MAN) / sizeof(MAN[0]);
+
+    std::cout << "=> Bot nick name    : " << BOT << std::endl;
+    std::cout << "=> init master name : " << this->masters.at(0) << '\n' << std::endl;
+    std::cout << "==> Available commands:" << std::endl;
+    for (int i = 0; i < size; i++)
+        std::cout << "  " << MAN[i];
+    std::cout << GREEN << std::endl;
+
     while (true) {
         std::string message;
         if ((message = recvit(this->irc_sock)) == "")
             continue;
 
-        std::cout << message << std::endl;
-        message = trimTheSpaces(message);
-        std::vector<std::string> fields = splitMessage(message);
-
-        if (!fields.empty()) {
+        // std::cout << message << std::endl;
+		std::replace(message.begin(), message.end(), '\r', '\n');
+        std::vector<std::string> messages = getBuffers(message);
+        for (std::vector<std::string>::iterator it = messages.begin(); it != messages.end(); ++it)
+        {
+            *it = trimTheSpaces(message);
+            std::vector<std::string> fields = splitMessage(message);
+            if (fields.empty())
+                continue;
 
             std::cout << message << std::endl;
 
-            if (fields[0] == "PING") {
+            if (fields[0] == "PING")
                 (this->*commandList[fields[0]])(fields);
-            } else if (fields.size() > 1 && commandList.find(fields[1]) != commandList.end()) {
+            else if (fields.size() > 1 && commandList.find(fields[1]) != commandList.end())
                 (this->*commandList[fields[1]])(fields);
-            } else if (fields.size() > 2 && fields[1] == "PRIVMSG" && commandList.find(fields[3]) != commandList.end()) {
+            else if (fields.size() > 2 && fields[1] == "PRIVMSG" && commandList.find(fields[3]) != commandList.end())
                 (this->*commandList[fields[3]])(fields);
-            }
         }
     }
 };
 
-bool    
+bool
 Bot::masterStatus(const std::string &name)
 {
     std::string command;
@@ -133,12 +165,12 @@ Bot::masterStatus(const std::string &name)
     return false;
 };
 
-void 
+void
 Bot::startBot(uint16_t port)
 {
     std::string answer;
 
-    std::cout << YELLOW "connect using :\n     1 - using LOCALHOST.\n     2 - using ip address.\n     3 - using domain name.\n" RESET << std::endl; // hardcoded for now 
+    std::cout << YELLOW "connect using :\n     1 - using LOCALHOST.\n     2 - using ip address.\n     3 - using domain name.\n" RESET << std::endl; // hardcoded for now
     std::cout << "Answer [1/2/3] ";
 
     getline(std::cin, answer);
