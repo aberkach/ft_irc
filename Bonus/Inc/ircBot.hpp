@@ -7,6 +7,7 @@
 #include <cstring> // memory funcs
 #include <unistd.h>
 #include <vector>
+#include <fcntl.h>
 #include <arpa/inet.h> // For inet_pton and sockaddr_in
 #include <map>
 #include <sstream> // stingstream
