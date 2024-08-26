@@ -1,9 +1,6 @@
 
 #include "../../Inc/irc.hpp"
 
-// make all commands args capital for comparisons
-// and channels chould rely on getnick name in case of nick name changes
-
 void
 Server::passCommand(const std::vector<std::string> &fields, Client &client)
 {
@@ -21,7 +18,7 @@ Server::passCommand(const std::vector<std::string> &fields, Client &client)
 };
 
 void
-Server::nickCommand(const std::vector<std::string> &fields, Client &client) // if he changes nick it breadcasts too all joined channels
+Server::nickCommand(const std::vector<std::string> &fields, Client &client)
 {
 	if (client.getValidPass() == true)
 	{
