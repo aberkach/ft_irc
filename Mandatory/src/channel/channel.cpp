@@ -122,7 +122,6 @@ void Channel::setName(const std::string &name)
 
 bool Channel::setKey(const std::string &key)
 {
-    // check if the key is valid
     if (key.find_first_of("\a\b\f\t\v") != std::string::npos)
         return false;
     _key = key;
@@ -159,9 +158,6 @@ void Channel::addUser(const Client &client)
 
 void Channel::removeUser(std::string nickName, bool falg)
 {
-
-    // maybe I gotta check if the user is the operator of the channel
-    // so I need to set another operator
     for (std::map<std::string, Client>::iterator it = _users.begin(); it != _users.end(); it++)
     {
         if (it->second.getNickname() == nickName)

@@ -12,25 +12,9 @@
 
 #include "Inc/irc.hpp"
 
-// server quites when recv fails using the python script
-// upper case in all channels
-// make nickname changes update across all channels
-// broadcast nickname changes to all joined channels
-// verify comments
-// update some methods in channel.cpp and channel.hpp
-// missing protections and some protections need to be removed
-// verify the server.cpp .hpp
-// check cleanup
-// check if there is eny unclosed socks
-
-// void testLeaks(void)
-// {
-//     system("leaks ircserv");
-// }
 
 int main(int ac, char **av)
 {
-    // atexit(testLeaks);
     uint16_t port;
 
     if ((port = arg_checker(ac ,av)) != 1)

@@ -14,7 +14,6 @@
 #include <map>
 #include <set>
 #include <cctype>
-// #include <array>
 #include <cstddef>
 #include <cstdio>
 #include <sstream>
@@ -33,7 +32,7 @@
 #include <sys/poll.h>
 #include <sys/signal.h>
 
-#include <arpa/inet.h> // print ip adrss
+#include <arpa/inet.h>
 #include <netinet/in.h>
 
 
