@@ -26,7 +26,6 @@ class Client
         void          setSocket(int socket);
         void          setValidPass(bool status);
         void          setRegistered(bool status);
-        void          setChannel(std::string &chnName, Channel &channel);
         bool          setNickname(const std::string& nickName);
         bool          setUsername(const std::string& userName);
         bool          setRealname(const std::string& realName);

@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "/Users/abberkac/Desktop/ft_irc/Mandatory",
+      "program": "/Users/abberkac/Desktop/ft_irc/Mandatory/build/Debug/outDebug"
+    }
+  ]
+}
