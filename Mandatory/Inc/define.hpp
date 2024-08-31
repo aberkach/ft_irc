@@ -59,7 +59,6 @@
                                         ":" SERVERNAME " 372 " + (nick) + " :-                                                                            \r\n"\
                                         ":" SERVERNAME " 372 " + (nick) + " :-                                                                            \r\n"
 #define RPL_ENDOFMOTD(nick)             ":" SERVERNAME " 376 " + (nick) + " :End of /MOTD command.\r\n"
-
 #define ERR_FIRSTCOMMAND                                              ":" SERVERNAME " 451 Guest :Server is expecting 'PASS <password>' first\r\n"
 #define ERR_USERFORMAT                                                ":" SERVERNAME " 460 Guest :Use format USER <username> 0 * <realname>\r\n"
 #define ERR_PASSWDMISMATCH                                            ":" SERVERNAME " 464 Guest :Password incorrect\r\n"

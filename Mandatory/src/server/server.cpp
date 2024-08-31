@@ -94,11 +94,15 @@ void Server::createServer()
 
 		for (size_t i = 0; i < _nfds; i++)
         {
+			// Check if the server is shutting down by signal
+			if (_signal == true)
+				break;
 			if (_pollFds[i].revents & POLLIN)
 			{
 	    		// Check for incoming connection on the server socket
 				if (_pollFds[i].fd == _listen_sd)
 					handlIncomeConnections();
+				// Handle incoming data from clients
 				else
 					handleIncomeData(i);
 			}
@@ -137,8 +141,6 @@ void Server::handlIncomeConnections()
     std::cout << GREEN << "New connection" << RESET << std::endl;
 }
 
-
-
 // run the correct command
 void Server::commandRunner(std::vector<std::string> &fields, Client &user)
 {
@@ -149,53 +151,6 @@ void Server::commandRunner(std::vector<std::string> &fields, Client &user)
 		(this->*_commands[command])(fields, user);
 	else
 		replyTo(user.getSocket(), ERR_UNKNOWNCOMMAND(user.getNickname(), command));
-}
-
-std::vector<std::string>
-Server::getBuffers(const std::string &buffer) {
-    std::vector<std::string> messages;
-    size_t start = 0, end = 0;
-
-	while ((end = buffer.find_first_of('\n',start)) != std::string::npos) {
-		while (buffer[end] && buffer[end] == '\n')
-			end++;
-		std::string message = buffer.substr(start, end - start);
-		messages.push_back(message);
-		start = end;
-	}
-
-    if (start < buffer.length())
-        messages.push_back(buffer.substr(start));
-
-    return messages;
-};
-
-
-void Server::dsconnectClient (int fd) {
-	size_t i;
-	for (i = 0; i < _nfds; i++) {
-		if (_pollFds[i].fd == fd) {
-			_pollFds.erase(_pollFds.begin() + i);
-			break;
-		}
-	}
-	for (i = 0; i < _clients.size(); i++) {
-		if (_clients[i].getSocket() == fd) {
-			// remove the client from the channels
-			for (std::map<std::string, Channel>::iterator it = _channels.begin(); it != _channels.end(); it++)
-			{
-				if (it->second.isClientExist(_clients[i].getNickname())) {
-					std::string clientHost = inet_ntoa(_clients[i].getAddr().sin_addr);
-					std::string quitMessage = QUIT_MSG(_clients[i].getNickname(), _clients[i].getUsername(), clientHost, " Forced quit");
-					it->second.broadCast(quitMessage, _clients[i].getSocket());
-					it->second.removeUser(_clients[i].getNickname(), 1);
-				}
-			}
-			_clients.erase(i);
-			close(fd);
-			break;
-		}
-	}
 }
 
 // Handle incoming data from clients :

@@ -139,13 +139,11 @@ Server::partCommand (const std::vector<std::string> &fields, Client &client)
                     if (chnIt->second.isClientExist(client.getNickname()))
                     {
                         std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
-                        std::string reason = (fields.size() > 1) ? fields[1] : "left...";
-
+                        std::string reason = (fields.size() > 1) ? fields[1] : "left..."; 
                         chnIt->second.broadCast(PART_MSG(client.getNickname(), client.getUsername(), clientHost, chnName, reason), -1);
+                        chnIt->second.removeUser(client.getNickname(), 1);
                         if (chnIt->second.getUsers().size() == 1)
                             _channels.erase(chnIt);
-                        else
-                            chnIt->second.removeUser(client.getNickname(), 1);
                     }
                     else
                         replyTo(client.getSocket(), ERR_NOTONCHANNEL(client.getNickname(), chnName));
