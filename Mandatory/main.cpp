@@ -12,7 +12,6 @@
 
 #include "Inc/irc.hpp"
 
-
 int main(int ac, char **av)
 {
     uint16_t port;

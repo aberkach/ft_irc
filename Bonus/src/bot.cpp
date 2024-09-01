@@ -123,11 +123,11 @@ Bot::listenForCommand(void)
         std::cout << "  " << MAN[i];
     std::cout << GREEN << std::endl;
 
-    while (true) {
+    while (true)
+    {
         std::string message;
         if ((message = recvit(this->irc_sock)) == "")
             continue;
-
         // std::cout << message << std::endl;
 		std::replace(message.begin(), message.end(), '\r', '\n');
         std::vector<std::string> messages = getBuffers(message);

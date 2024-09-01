@@ -35,7 +35,7 @@ Server::getBuffers(const std::string &buffer) {
     std::vector<std::string> messages;
     size_t start = 0, end = 0;
 
-	while ((end = buffer.find_first_of('\n',start)) != std::string::npos) {
+	while ((end = buffer.find_first_of('\n', start)) != std::string::npos) {
 		while (buffer[end] && buffer[end] == '\n')
 			end++;
 		std::string message = buffer.substr(start, end - start);
