@@ -49,8 +49,8 @@ Server::displayChannelMode(const Channel &channel, const Client &client)
 std::string
 Server::extractModeString(const std::string &modeField, Client &client)
 {
-    std::set<char>      modes;
-    std::string         modesString;
+    std::set<char> modes;
+    std::string modesString;
     char sign = (modeField[0] == '-') ? '-' : '+';
 
     for (size_t i = 0; i < modeField.size(); i++)
@@ -91,7 +91,7 @@ Server::executeModes(const std::vector<std::string> &fields, Client &client, cha
 {
 	size_t arg = 2;
 	char sign = '\0';
-	std::string	             appliedModes;
+	std::string	appliedModes;
 	std::vector<std::string> appliedFields;
 	std::string modestr = extractModeString(fields[1], client);
 
@@ -103,7 +103,6 @@ Server::executeModes(const std::vector<std::string> &fields, Client &client, cha
 		{
 			case 'i':
 				checksign(sign, modestr[i], appliedModes, 'i');
-				// std::cout << "set: " << set << std::endl;
 				it->second.setIsInviteOnly(set);
 				break;
 			case 't':
@@ -174,7 +173,7 @@ Server::modeCommand(const std::vector<std::string> &fields, Client &client)
 {
 	if (client.getRegistered())
 	{
-		if (fieldmides.empty())
+		if (fields.empty())
 		{
 			replyTo(client.getSocket(), ERR_NEEDMOREPARAMS(client.getNickname(), "MODE"));
 			return;
