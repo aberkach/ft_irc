@@ -75,6 +75,7 @@ class Server
 
   public:
         Server(uint16_t port, char *password);
+
         void    createServer();
         void    cleanUp(void);
 

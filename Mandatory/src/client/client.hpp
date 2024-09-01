@@ -37,7 +37,7 @@ class Client
         std::string   getUsername(void) const ;
         std::string   getRealname(void) const ;
         sockaddr_in   getAddr(void) const;
-        
+
         void          refStatus(uint countCli);
 
         ~Client(void);

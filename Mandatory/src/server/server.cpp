@@ -20,19 +20,19 @@ Server::Server(uint16_t port, char *password) : _countCli(0), _port(port), _pass
 {
 	_listen_sd = socket(AF_INET, SOCK_STREAM, 0); // Create a TCP socket
 	if (_listen_sd < 0)
-		throw std::runtime_error("socket() failed");
+		throw std::runtime_error("ERROR: Socket() failed");
 
 	// Set socket option to allow address reuse
 	int on = 1;
 	if (setsockopt(_listen_sd, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on)) < 0) {
 	    close(_listen_sd);
-		throw std::runtime_error("setsockopt() failed");
+		throw std::runtime_error("ERROR: setsockopt() failed");
 	}
 
 	// Set socket to non-blocking mode
 	if (fcntl(_listen_sd, F_SETFL, O_NONBLOCK) < 0) {
 	    close(_listen_sd);
-		throw std::runtime_error("fcntl() for the server is failed");
+		throw std::runtime_error("ERROR: Server fcntl() failed");
 	}
 
 	// Bind the socket to the specified address and port
@@ -43,13 +43,13 @@ Server::Server(uint16_t port, char *password) : _countCli(0), _port(port), _pass
 
 	if (bind(_listen_sd, (struct sockaddr *)&_addr, sizeof(_addr)) < 0) {
 	    close(_listen_sd);
-		throw std::runtime_error("bind() failed");
+		throw std::runtime_error("ERROR: bind() failed");
 	}
 
 	// Start listening for incoming connections
 	if (listen(_listen_sd, 10) < 0) {
         close(_listen_sd);
-		throw std::runtime_error("listen() failed");
+		throw std::runtime_error("ERROR: listen() failed");
     }
 
 	// Initialize the fds array with the server socket
@@ -90,7 +90,7 @@ void Server::createServer()
 		// Check if the server is shutting down by signal
 		rc = poll(&_pollFds[0], _pollFds.size(), -1);
 	    if (rc < 0 && _signal == false)
-			throw std::runtime_error("poll() failed");
+			throw std::runtime_error("ERROR: poll() failed");
 
 		for (size_t i = 0; i < _nfds; i++)
         {
@@ -117,6 +117,7 @@ void Server::handlIncomeConnections()
     struct sockaddr_in client_adrs;
     socklen_t sock_len = sizeof(client_adrs);
     memset(&client_adrs, 0, sock_len);
+
     int newSck = accept(_listen_sd, (struct sockaddr *)&client_adrs, &sock_len);
     if (newSck == -1) {
 		std::cerr << RED << "accept() failed" << RESET << std::endl;
@@ -138,7 +139,7 @@ void Server::handlIncomeConnections()
     _clients.insert(std::pair<int, Client>(newSck, Client(newSck, client_adrs)));
     _nfds++;
     _countCli++;
-    std::cout << GREEN << "New connection" << RESET << std::endl;
+    std::cout << GREEN << "New connection." << RESET << std::endl;
 }
 
 // run the correct command
@@ -164,7 +165,7 @@ Server::handleIncomeData(int i)
 
 	if (rc <= 0) {
 		// Close the connection if the client is disconnected
-		std::cout << RED << "Connection closed " << RESET << std::endl;
+		std::cout << RED << "Connection closed." << RESET << std::endl;
 		Server::dsconnectClient(_pollFds[i].fd);
 		_countCli--;
 	}

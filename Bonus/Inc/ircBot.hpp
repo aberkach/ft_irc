@@ -3,17 +3,18 @@
 
 #include <iostream>
 #include <sys/socket.h>
-#include <netdb.h> // gethostbyname
-#include <cstring> // memory funcs
+#include <netdb.h>
+#include <cstring>
 #include <unistd.h>
 #include <vector>
 #include <fcntl.h>
-#include <arpa/inet.h> // For inet_pton and sockaddr_in
+#include <arpa/inet.h>
 #include <map>
-#include <sstream> // stingstream
+#include <algorithm>
+#include <sstream>
 #include <string>
-#include <functional> // bind find
-#include <random> //  srand
+#include <functional>
+#include <random>
 #include <stdexcept>
 
 #include "defines.hpp"
