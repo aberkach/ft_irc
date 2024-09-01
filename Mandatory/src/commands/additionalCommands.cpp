@@ -139,7 +139,7 @@ Server::partCommand (const std::vector<std::string> &fields, Client &client)
                     if (chnIt->second.isClientExist(client.getNickname()))
                     {
                         std::string clientHost = inet_ntoa(client.getAddr().sin_addr);
-                        std::string reason = (fields.size() > 1) ? fields[1] : "left..."; 
+                        std::string reason = (fields.size() > 1) ? fields[1] : "left...";
                         chnIt->second.broadCast(PART_MSG(client.getNickname(), client.getUsername(), clientHost, chnName, reason), -1);
                         chnIt->second.removeUser(client.getNickname(), 1);
                         if (chnIt->second.getUsers().size() == 1)
@@ -157,7 +157,7 @@ Server::partCommand (const std::vector<std::string> &fields, Client &client)
 };
 
 void
-Server::quitCommand(const std::vector<std::string> &fields, Client &client)
+Server::quitCommand(const std::vector<std::string> &fields, Client &client) //
 {
     if (client.getRegistered())
     {
@@ -167,22 +167,28 @@ Server::quitCommand(const std::vector<std::string> &fields, Client &client)
                     QUIT_MSG(client.getNickname(), client.getUsername(), clientHost, fields[0]);
 
         replyTo(client.getSocket(), quitMessage);
+
         for (chanIt it = _channels.begin(); it != _channels.end(); it++)
         {
             if (it->second.isClientExist(client.getNickname()))
             {
                 it->second.broadCast(quitMessage, client.getSocket());
-                std::cout << RED << "Connection closed " << RESET << std::endl;
-                if (it->second.getUsers().size() == 1)
+                std::cout << RED << "Connection closed." << RESET << std::endl;
+                it->second.removeUser(client.getNickname(),1);
+                if (it->second.getUsers().size() == 0)
                     _channels.erase(it);
-                else
-                    it->second.removeUser(client.getNickname(),1);
-                break ;
+                // break;
             }
         }
         clientIt it = _clients.find(client.getSocket());
         if (it != _clients.end())
         {
+            for (int i = 0; i < _nfds; i++) {
+                if (_pollFds[i].fd == it->second.getSocket()) {
+                    _pollFds.erase(_pollFds.begin() + i);
+                    break;
+                }
+            }
             close(it->second.getSocket());
             _clients.erase(it);
             _countCli--;

@@ -7,8 +7,6 @@ createTCPSock(void) throw()
 
     if ((newSock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
         return -1;
-    if (fcntl(newSock, F_SETFL, fcntl(newSock, F_GETFL, 0) | O_NONBLOCK) < 0)
-        return (close(newSock), -1);
     return newSock;
 };
 

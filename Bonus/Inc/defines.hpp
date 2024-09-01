@@ -27,12 +27,12 @@
                     " :/toss                 : Tosses a coin: head or tails.\r\n",                                      \
                     " :/weather {city}       : Gets weather info from the API for the specified city.\r\n",             \
                     " :/admin {option} {arg} : Admin command with options:\r\n",                                        \
-                    " :      - add  {user}         : Add a user to the master list.\r\n",                               \
-                    " :      - del  {user}         : Remove a user from the master list.\r\n",                          \
-                    " :      - join {channel}      : Join the specified channel.\r\n",                                  \
-                    " :      - part {channel}      : Leave the specified channel.\r\n",                                 \
-                    " :      - set  {api_key}      : Set a The api key for" HOST ".\r\n",                               \
-                    " :      - list {masters/channels}    : List masters or channels the bot is currently in.\r\n",  \
+                    " :      - add  {user}                : Add a user to the master list.\r\n",                        \
+                    " :      - del  {user}                : Remove a user from the master list.\r\n",                   \
+                    " :      - join {channel}             : Join the specified channel.\r\n",                           \
+                    " :      - part {channel}             : Leave the specified channel.\r\n",                          \
+                    " :      - set  {api_key}             : Set a The api key for" HOST ".\r\n",                        \
+                    " :      - list {masters/channels}    : List masters or channels the bot is currently in.\r\n",     \
                 }
 
 // " :/poll {option} {arg}  : Poll command with options:",
