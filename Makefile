@@ -1,46 +1,68 @@
+################################### IRC ###################################
 
 EXE := ircserv
+BEXE := ircbot
 
 CPP := c++ -std=c++98
 
-CPPFLAGS := -Wall -Wextra -Wshadow -fsanitize=address
-# -g -Werror stop rendring global useless in local
+CPPFLAGS := -Wall -Wextra -Werror -MMD -g -fsanitize=address
 
-HEADER := ./srcs/server/server.hpp	./srcs/server/client.hpp	./srcs/tools/health.hpp	\
-		  ./srcs/Poller/Poller.hpp	./Inc/ft_irc.hpp	./Inc/define.hpp	\
-		  ./srcs/channel/channel.hpp
+################################### SRCS ###################################
 
-FILE := ./srcs/client/client.cpp	./srcs/server/server.cpp 		./srcs/tools/health.cpp		./srcs/Poller/Poller.cpp \
-		./srcs/channel/channel.cpp	./srcs/server/commands.cpp	\
-		./srcs/main.cpp
-OBJ := $(FILE:.cpp=.o)
+DIR := ./Compiled
 
-M = MAKE_PUSH
+FILES := ./Mandatory/src/client/client.cpp \
+         ./Mandatory/src/server/server.cpp \
+         ./Mandatory/src/server/utils.cpp \
+         ./Mandatory/src/channel/channel.cpp \
+         ./Mandatory/src/commands/additionalCommands.cpp \
+         ./Mandatory/src/commands/channelOpsCommands.cpp \
+         ./Mandatory/src/commands/joinCommand.cpp \
+         ./Mandatory/src/commands/authenticationCommands.cpp \
+         ./Mandatory/src/commands/modeCommand.cpp \
+         ./Mandatory/src/tools/parse.cpp \
+         ./Mandatory/src/tools/utils.cpp \
+         ./Mandatory/main.cpp
+
+BFILES := ./Bonus/src/bot.cpp \
+          ./Bonus/src/commands.cpp \
+          ./Bonus/src/tools.cpp \
+          ./Bonus/main.cpp
+
+#############################################################################
+
+OBJ := $(FILES:%.cpp=$(DIR)/%.o)
+BOBJ := $(BFILES:%.cpp=$(DIR)/%.o)
+
+DEPS := $(OBJ:$(DIR)/%.o=$(DIR)/%.d) \
+        $(BOBJ:$(DIR)/%.o=$(DIR)/%.d)
 
 ################################### RULES ###################################
 
-all : $(EXE)
+all: $(EXE)
+
+bonus: $(BEXE)
 
 $(EXE): $(OBJ)
-	$(CPP) $(CPPFLAGS) $(OBJ)  -o $(EXE)
+	$(CPP) $(CPPFLAGS) $(OBJ) -o $(EXE)
 
-%.o: %.cpp $(HEADER)
-	$(CPP) $(CPPFLAGS) -c -o $@ $<
+$(BEXE): $(BOBJ)
+	$(CPP) $(CPPFLAGS) $(BOBJ) -o $(BEXE)
 
-clean :
-	rm -rf $(OBJ)
+$(DIR)/%.o: %.cpp
+	@mkdir -p $(dir $@)
+	$(CPP) $(CPPFLAGS) -c $< -o $@
 
-fclean : clean
-	rm -rf $(EXE)
+clean:
+	rm -rf $(DIR)
+
+fclean: clean
+	rm -rf $(EXE) $(BEXE)
 
 re: fclean all
 
-push:
-	git add .
-	git status
-	git commit -m "$(M)"
-	git push
+-include $(DEPS)
 
 ##############################################################################
 
-.PHONY: all clean fclean re push
+.PHONY: clean fclean re bonus
